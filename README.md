@@ -18,4 +18,4 @@ Interested in contributing? Check out the contributing guidelines. Please note t
 
 ## License
 
-`spinneret` was created by Colin Smith. It is licensed under the terms of the MIT license.
+`spinneret` is licensed under the terms of the MIT license.
