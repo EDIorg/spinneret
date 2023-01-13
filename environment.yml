@@ -11,7 +11,7 @@ dependencies:
   - ncurses=6.3
   - openssl=3.0.7
   - pip=22.3.1
-  - python=3.10.8
+  - python=3.9.15
   - readline=8.1.2
   - tk=8.6.12
   - tzdata=2022g
@@ -123,7 +123,6 @@ dependencies:
       - sphinxcontrib-jsmath==1.0.1
       - sphinxcontrib-qthelp==1.0.3
       - sphinxcontrib-serializinghtml==1.1.5
-      - spinneret==0.0.0
       - sqlalchemy==1.4.46
       - stack-data==0.6.2
       - tabulate==0.9.0
