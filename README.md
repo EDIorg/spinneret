@@ -1,6 +1,6 @@
 # spinneret
 
-For spinning EDI into the Semantic Web
+For integrating EDI into the Semantic Web
 
 ## Installation
 
