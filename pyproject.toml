@@ -12,6 +12,7 @@ python = "^3.10"
 pandas = "^1.5.2"
 rdflib = "^6.2.0"
 lxml = "^4.9.2"
+myst-nb = "^0.17.1"
 
 [tool.poetry.dev-dependencies]
 
