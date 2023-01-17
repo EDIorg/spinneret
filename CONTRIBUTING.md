@@ -1,7 +1,12 @@
-# Contributing
+# Contributing to spinneret
 
-Contributions are welcome, and they are greatly appreciated! Every little bit
-helps, and credit will always be given.
+The goal of spinneret is to integrate EDI into the Semantic Web and includes tasks such as: 
+
+- data package annotation
+- vocabulary/ontology alignment/merging
+- knowledge graph construction
+
+We welcome community contributions to the work.
 
 ## Types of Contributions
 
