@@ -6,15 +6,17 @@
 
 For integrating EDI into the Semantic Web
 
-## Installation
+## Quick Start
+
+Install the current release from GitHub.
 
 ```bash
-pip install git+https://github.com/clnsmth/spinneret.git#egg=spinneret
+pip install git+https://github.com/EDIorg/spinneret.git#egg=spinneret
 ```
 
-## Usage
+## Documentation
 
-- TODO
+The package documentation is hosted on ReadTheDocs: https://spinneret.readthedocs.io/en/latest/
 
 ## Contributing
 
