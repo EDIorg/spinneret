@@ -12,11 +12,11 @@ We welcome community contributions to the work.
 
 ### Report Bugs
 
-If you are reporting a bug, please include:
+Bug reports are always appreciated. If you are reporting a bug, please use the "Bug report" issue template.
 
-* Your operating system name and version.
-* Any details about your local setup that might be helpful in troubleshooting.
-* Detailed steps to reproduce the bug.
+### Propose Features
+
+If you are proposing a feature, please use the "Feature request" issue template.
 
 ### Fix Bugs
 
@@ -34,15 +34,6 @@ You can never have enough documentation! Please feel free to contribute to any
 part of the documentation, such as the official docs, docstrings, or even
 on the web in blog posts, articles, and such.
 
-### Submit Feedback
-
-If you are proposing a feature:
-
-* Explain in detail how it would work.
-* Keep the scope as narrow as possible, to make it easier to implement.
-* Remember that this is a volunteer-driven project, and that contributions
-  are welcome :)
-
 ## Repository Structure
 
 This repository is structured as a standard Python package following the conventions outlined in the [Python Packges](https://py-pkgs.org/) guide.
@@ -53,7 +44,7 @@ The active branch is `development`. `development` is merged into `main` for rele
 
 ## Git Commit Guidelines
 
-This project uses Python Semantic Release, which requires the Angular commit style. For guidance, see: https://py-pkgs.org/07-releasing-versioning.html#automatic-version-bumping.
+This project uses Python Semantic Release, which requires the Angular commit style. For guidance, [see here](https://py-pkgs.org/07-releasing-versioning.html#automatic-version-bumping).
 
 ## Testing
 
@@ -97,4 +88,4 @@ Before you submit a pull request, check that it meets these guidelines:
 ## Code of Conduct
 
 Please note that the `spinneret` project is released with a
-Code of Conduct. By contributing to this project you agree to abide by its terms.
+[Code of Conduct](https://github.com/EDIorg/spinneret/blob/main/CONDUCT.md). By contributing to this project you agree to abide by its terms.

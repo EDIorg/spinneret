@@ -14,7 +14,7 @@ pip install git+https://github.com/clnsmth/spinneret.git#egg=spinneret
 
 ## Contributing
 
-Interested in contributing? Check out the contributing guidelines. Please note that this project is released with a Code of Conduct. By contributing to this project, you agree to abide by its terms.
+Interested in contributing? Check out the [contributing guidelines](https://github.com/EDIorg/spinneret/blob/main/CONTRIBUTING.md). Please note that this project is released with a [Code of Conduct](https://github.com/EDIorg/spinneret/blob/main/CONDUCT.md). By contributing to this project, you agree to abide by its terms.
 
 ## License
 
