@@ -1,5 +1,9 @@
 # spinneret
 
+[![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
+[![Actions Status: CI/CD]([https://github.com/EDIorg/spinneret/workflows/ci-cd/badge.svg)](https://github.com/EDIorg/spinneret/actions/workflows/ci-cd.yml](https://github.com/EDIorg/spinneret/actions/workflows/ci-cd.yml))
+[![codecov.io](https://codecov.io/gh/EDIorg/spinneret/branch/main/graph/badge.svg)](https://codecov.io/github/EDIorg/spinneret?branch=main)
+
 For integrating EDI into the Semantic Web
 
 ## Installation
