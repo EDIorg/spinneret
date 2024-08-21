@@ -25,7 +25,7 @@ The final decision regarding the suitability of a contribution for the project r
 
 Need some feedback on whether your idea is suitable for the project? Open a `GitHub issue`_. We're happy to discuss your ideas and provide feedback!
 
-.. _GitHub issue: https://github.com/clnsmth/spinneret/issues
+.. _GitHub issue: https://github.com/EDIorg/spinneret/issues
 
 Code Contributions
 ------------------
@@ -96,8 +96,8 @@ We value your help in improving this project! To avoid duplicate reports, it's h
 
 If you are reporting a bug, please use the `Bug report`_ issue template. We appreciate it!
 
-.. _Bug report: https://github.com/clnsmth/spinneret/issues/new/choose
-.. _GitHub issues: https://github.com/clnsmth/spinneret/issues
+.. _Bug report: https://github.com/EDIorg/spinneret/issues/new/choose
+.. _GitHub issues: https://github.com/EDIorg/spinneret/issues
 
 Feature Requests
 ----------------
@@ -106,7 +106,7 @@ Feature requests help this project grow with the user community. If you have an 
 
 If you are proposing a feature, please use the `Feature request`_ issue template. Thanks!
 
-.. _Feature request: https://github.com/clnsmth/spinneret/issues/new/choose
+.. _Feature request: https://github.com/EDIorg/spinneret/issues/new/choose
 
 .. _commit-message:
 

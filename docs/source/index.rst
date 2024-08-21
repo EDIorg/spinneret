@@ -7,12 +7,12 @@ Release v\ |version|. (:ref:`Installation <quickstart>`)
     :target: https://www.repostatus.org/#wip
     :alt: Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.
 
-.. image:: https://github.com/clnsmth/spinneret/actions/workflows/ci-cd.yml/badge.svg
-    :target: https://github.com/clnsmth/spinneret/actions/workflows/ci-cd.yml
+.. image:: https://github.com/EDIorg/spinneret/actions/workflows/ci-cd.yml/badge.svg
+    :target: https://github.com/EDIorg/spinneret/actions/workflows/ci-cd.yml
     :alt: CI/CD pipeline status
 
-.. image:: https://codecov.io/github/clnsmth/spinneret/graph/badge.svg?token=2J4MNIXCTD
-    :target: https://codecov.io/github/clnsmth/spinneret
+.. image:: https://codecov.io/github/EDIorg/spinneret/graph/badge.svg?token=2J4MNIXCTD
+    :target: https://codecov.io/github/EDIorg/spinneret
     :alt: Code coverage status
 
 For integrating EDI into the Semantic Web
