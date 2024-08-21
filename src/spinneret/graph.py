@@ -15,7 +15,6 @@ def combine_jsonld_files(files: list) -> Graph:
 
 
 if __name__ == "__main__":
-
     # Example usage
     WORKING_DIR = "/Users/csmith/Data/soso/all_edi_test_results"
     list_of_files = ["edi.1.1.json", "edi.3.10.json", "edi.5.5.json"]
