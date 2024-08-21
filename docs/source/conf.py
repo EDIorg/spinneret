@@ -49,7 +49,7 @@ html_static_path = ['_static']
 # documentation.
 html_theme_options = {
     "show_powered_by": False,
-    "github_user": "clnsmth",
+    "github_user": "EDIorg",
     "github_repo": "spinneret",
     "github_banner": False,
     "show_related": False,

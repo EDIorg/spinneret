@@ -12,10 +12,10 @@ Currently, `spinneret` is only available on GitHub.  To install it, you need to 
 
 Once pip is installed, you can install `spinneret` by running the following command in your terminal::
 
-    $ pip install git+https://github.com/clnsmth/spinneret.git@main
+    $ pip install git+https://github.com/EDIorg/spinneret.git@main
 
 For the latest development version::
 
-    $ pip install git+https://github.com/clnsmth/spinneret.git@development
+    $ pip install git+https://github.com/EDIorg/spinneret.git@development
 
 
