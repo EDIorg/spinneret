@@ -105,8 +105,8 @@ def create(
 def get_subject_and_context(element: etree._Element) -> dict:
     """Get subject and context values for a given element
 
-    This function is called by 'elements_to_df()' to get the subject and
-    context values. See 'workbook.create()' for explanation of
+    This function is called by 'workbook.create' to get the subject and
+    context values. See 'workbook.create' for explanation of parameters.
 
     :param element: The EML element to be annotated.
     :returns:   Dictionary with keys 'subject' and 'context' and values as the
