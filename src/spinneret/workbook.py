@@ -1,18 +1,16 @@
 """The workbook module"""
 
-import os
 from uuid import uuid4
 from lxml import etree
 import pandas as pd
 
 
 def create(
-    eml: str, elements: list, base_url: str, path_out: str = False
+    eml_file: str, elements: list, base_url: str, path_out: str = False
 ) -> pd.core.frame.DataFrame:
-    """Create an annotation workbook from EML files
+    """Create an annotation workbook from an EML file
 
-    :param eml: Path to a directory containing only EML files or a path to a
-                single EML file
+    :param eml_file: Path to a single EML file
     :param elements:    List of EML elements to include in the workbook. Can be
                         one or more of: 'dataset', 'dataTable', 'otherEntity',
                         'spatialVector', 'spatialRaster', 'storedProcedure',
@@ -24,7 +22,8 @@ def create(
                         linking the data curator to the full human readable
                         data package landing page.
     :param path_out:    Path to a directory where the workbook will be written.
-                        Will result in a file 'annotation_workbook.tsv'.
+                        Will result in a file
+                        '[packageId]_annotation_workbook.tsv'.
     :returns:   DataFrame of the annotation workbook with columns:
 
                 * `package_id`: Data package identifier listed in the EML at
@@ -54,34 +53,7 @@ def create(
                 * `comment`: Comments related to the annotation. Can be useful
                   when revisiting an annotation at a later date.
     """
-    if os.path.isdir(eml):
-        eml = [eml + "/" + p for p in os.listdir(eml)]
-    else:
-        eml = [eml]
-    res = []
-    for f in eml:
-        df = elements_to_df(f, elements, base_url)
-        res.append(df)
-    res = pd.concat(res)
-    if path_out:
-        path_out = path_out + "/" + "annotation_workbook.tsv"
-        res.to_csv(path_out, sep="\t", index=False, mode="x")
-    return res
-
-
-def elements_to_df(eml: str, elements: list, base_url: str) -> pd.core.frame.DataFrame:
-    """Convert a single EML file to a dataframe
-
-    This function is called by 'workbook.create()' to form a list of dataframes,
-    one for each EML file, then concatenate into the full workbook dataframe.
-
-    :param eml: See parameter definition in 'workbook.create()'
-    :param elements:    See parameter definition in 'workbook.create()'
-    :param base_url:    See parameter definition in 'workbook.create()'
-    :returns:   DataFrame of the annotation workbook. See column definitions in
-                `workbook.create`.
-    """
-    eml = etree.parse(eml)
+    eml = etree.parse(eml_file)
     package_id = eml.xpath("./@packageId")[0]
     url = base_url + package_id
     res = []
@@ -122,6 +94,9 @@ def elements_to_df(eml: str, elements: list, base_url: str) -> pd.core.frame.Dat
         "comment",
     ]
     res = pd.DataFrame(res, columns=colnames)
+    if path_out:
+        path_out = path_out + "/" + package_id + "_annotation_workbook.tsv"
+        res.to_csv(path_out, sep="\t", index=False, mode="x")
     return res
 
 
