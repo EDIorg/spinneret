@@ -12,7 +12,7 @@ def test_create():
 
     # A workbook is created for each EML file
     eml_dir = datasets.get_example_eml_dir()
-    eml_file = eml_dir + "/" + os.listdir(eml_dir)[0]
+    eml_file = eml_dir + "/" + "edi.3.9.xml"
     with tempfile.TemporaryDirectory() as tmpdir:
         wb = workbook.create(
             eml_file=eml_file,
