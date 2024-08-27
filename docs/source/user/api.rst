@@ -3,6 +3,12 @@
 Developer Interface
 ===================
 
+Annotator Module
+----------------
+
+.. automodule:: spinneret.annotator
+   :members:
+
 Datasets Module
 ---------------
 
