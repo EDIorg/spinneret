@@ -3,8 +3,10 @@
 import os
 import tempfile
 import pandas as pd
+from lxml import etree
 from spinneret import workbook
 from spinneret import datasets
+from spinneret.workbook import get_description
 
 
 def test_create():
@@ -33,3 +35,22 @@ def test_create():
         for c in cols:
             if c != "element_id":  # new UUIDs won't match the fixture
                 assert sorted(wb[c].unique()) == sorted(wbf[c].unique())
+
+
+def test_get_description():
+    """Test that the get_description function returns a description for each
+    element"""
+    # Read test file
+    eml_dir = datasets.get_example_eml_dir()
+    eml_file = eml_dir + "/" + "edi.3.9.xml"
+    eml = etree.parse(eml_file)
+
+    # Elements to test (note dataTable is a general test for data entities)
+    elements = ["dataset", "dataTable", "attribute"]
+
+    # Test each element
+    for element in elements:
+        element = eml.xpath(".//" + element)[0]
+        description = get_description(element)
+        assert isinstance(description, str)
+        assert len(description) > 0
