@@ -21,6 +21,12 @@ SSSOM Module
 .. automodule:: spinneret.sssom
    :members:
 
+Utilities Module
+----------------
+
+.. automodule:: spinneret.utilities
+   :members:
+
 Workbook Module
 ---------------
 
