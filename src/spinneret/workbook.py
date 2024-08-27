@@ -67,6 +67,7 @@ def create(
                 str(uuid4()),
                 eml.getpath(e),
                 subcon["context"],
+                get_description(e),
                 subcon["subject"],
                 "",  # predicate
                 "",  # predicate id
@@ -84,6 +85,7 @@ def create(
         "element_id",
         "element_xpath",
         "context",
+        "description",
         "subject",
         "predicate",
         "predicate_id",
@@ -140,3 +142,34 @@ def get_subject_and_context(element: etree._Element) -> dict:
         context = None
     res = {"subject": subject, "context": context}
     return res
+
+
+def get_description(element: etree._Element) -> str:
+    """Get the description of an element
+
+    :param element: The EML element to be annotated.
+    :returns:   The description of the element.
+    """
+    entities = [
+        "dataTable",
+        "otherEntity",
+        "spatialVector",
+        "spatialRaster",
+        "storedProcedure",
+        "view",
+    ]
+    if element.tag in "dataset":
+        # Add abstract and keywords, they are descriptive of the entire dataset
+        abstract = element.xpath("./abstract")
+        abstract = etree.tostring(abstract[0], encoding="utf-8", method="text")
+        abstract = abstract.decode("utf-8").strip()
+        keywords = element.xpath(".//keyword")
+        keywords = [k.text for k in keywords]
+        description = abstract + " " + " ".join(keywords)
+    elif element.tag in entities:
+        description = element.findtext(".//entityName")
+    elif element.tag in "attribute":
+        description = element.findtext(".//attributeDefinition")
+    else:
+        description = None
+    return description
