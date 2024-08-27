@@ -37,7 +37,7 @@ patch_without_tag = false                   # patch release by default
 template_dir = "docs/source/_templates/"    # changelog template directory
 
 [tool.pylint.'MESSAGES.CONTROL']
-disable = "too-many-public-methods,c-extension-no-member"
+disable = "too-many-arguments,c-extension-no-member"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
