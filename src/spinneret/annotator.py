@@ -1,7 +1,9 @@
 """The annotator module"""
 
+import os
 from typing import Union
 from requests import get, exceptions
+import pandas as pd
 
 
 # pylint: disable=too-many-locals
@@ -103,3 +105,77 @@ def get_bioportal_annotation(
         label = r.json().get("prefLabel", None)
         annotations.append({"label": label, "uri": uri})
     return annotations
+
+
+def annotate_workbook(workbook_path: str, output_path: str) -> None:
+    """Annotate a workbook with automated annotation
+
+    :param workbook_path: The path to the workbook to be annotated
+        corresponding to the EML file.
+    :param output_path: The path to write the annotated workbook.
+    :returns: None
+    :notes: The workbook is annotated by annotators best suited for the XPaths
+        in the EML file. The annotated workbook is written back to the same
+        path as the original workbook.
+    """
+    # Ensure the workbook and eml file match to avoid errors
+    print(f"Annotating workbook {workbook_path}")
+
+    # Load the workbook and EML for processing
+    wb = pd.read_csv(workbook_path, sep="\t", encoding="utf-8")
+
+    # Iterate over workbook rows and annotate
+    wb_additional_rows = pd.DataFrame(columns=wb.columns)
+    for index, row in wb.iterrows():
+
+        # Adding standard predicates based on the subject element name
+        if row["element"] == "dataset":
+            wb.loc[index, "predicate"] = "is about"
+            wb.loc[index, "predicate_id"] = "http://purl.obolibrary.org/obo/IAO_0000136"
+        elif row["element"] == "attribute":
+            wb.loc[index, "predicate"] = "contains measurements of type"
+            wb.loc[index, "predicate_id"] = (
+                "http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#containsMeasurementsOfType"
+            )
+
+        # Get annotations for the element's descriptive text
+        if row["element"] == "dataset":
+            annotation = get_bioportal_annotation(
+                text=row["description"],
+                api_key=os.environ["BIOPORTAL_API_KEY"],
+                ontologies="ENVO",  # ENVO provides environmental terms
+                exclude_synonyms="true",
+            )
+        elif row["element"] == "attribute":
+            annotation = get_bioportal_annotation(
+                text=row["description"],
+                api_key=os.environ["BIOPORTAL_API_KEY"],
+                ontologies="ECSO",  # ECSO provides measurment terms
+                exclude_synonyms="true",
+            )
+        else:
+            continue
+
+        # Add annotations to the workbook. Add first annotation to row then the
+        # remainder to a separate data frame to be appended at the end.
+        if annotation:
+            wb.loc[index, "object"] = annotation[0]["label"]
+            wb.loc[index, "object_id"] = annotation[0]["uri"]
+            wb.loc[index, "author"] = "BioPortal Annotator"
+            wb.loc[index, "date"] = pd.Timestamp.now()
+        if len(annotation) > 1:
+            for item in annotation[1:]:
+                # Create row
+                new_row = wb.loc[index]
+                new_row.loc["object"] = item["label"]
+                new_row.loc["object_id"] = item["uri"]
+                new_row["author"] = "BioPortal Annotator"
+                new_row["date"] = pd.Timestamp.now()
+                # Append row to additional rows df
+                wb_additional_rows.loc[len(wb_additional_rows)] = new_row
+
+    # Append additional rows to the workbook
+    wb = pd.concat([wb, wb_additional_rows], ignore_index=True)
+
+    # Write the annotated workbook back to the original path
+    wb.to_csv(output_path, sep="\t", index=False, encoding="utf-8")
