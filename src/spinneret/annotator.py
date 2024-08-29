@@ -12,16 +12,16 @@ def get_bioportal_annotation(
     api_key: str,
     ontologies: str,
     semantic_types: str = "",
-    expand_semantic_types_hierarchy: bool = False,
-    expand_class_hierarchy: bool = False,
+    expand_semantic_types_hierarchy: str = "false",
+    expand_class_hierarchy: str = "false",
     class_hierarchy_max_level: int = 0,
-    expand_mappings: bool = False,
+    expand_mappings: str = "false",
     stop_words: str = "",
     minimum_match_length: int = 3,
-    exclude_numbers: bool = False,
-    whole_word_only: bool = True,
-    exclude_synonyms: bool = False,
-    longest_only: bool = False,
+    exclude_numbers: str = "false",
+    whole_word_only: str = "true",
+    exclude_synonyms: str = "false",
+    longest_only: str = "false",
 ) -> Union[list, None]:
     """Get an annotation from the BioPortal API
 
