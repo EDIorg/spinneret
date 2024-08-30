@@ -1,0 +1,801 @@
+package_id	url	element	element_id	element_xpath	context	description	subject	predicate	predicate_id	object	object_id	author	date	comment
+edi.3.9	https://portal.edirepository.org/nis/metadataviewer?packageid=edi.3.9	dataset	ccbc2d88-fff7-471c-a123-4f30f533b707	/eml:eml/dataset	edi.3.9	"The Santa Barbara Channel Marine Biodiversity Observation Network
+  (SBCMBON) tracks long-term patterns in species abundance and
+  diversity. This dataset contains cover of kelp forest sessile
+  invertebrates, understory macroalgae, and substrate types by
+  integrating data from four contributing projects working in the kelp
+  forests of the Santa Barbara Channel, USA. Divers collect data on
+  using either uniform point contact (UPC) or random point contact (RPC)
+  methods.
+
+      
+  The four contributing projects are two research projects: The Santa
+  Barbara Coastal LTER (SBC LTER) and the Partnership for
+  Interdisciplinary Studies of Coastal Oceans (PISCO), the kelp forest
+  monitoring program of the Santa Barbara Channel National Park, and the
+  San Nicolas Island monitoring program supported by USGS. Together,
+  these projects have recorded data for more than 200 species at
+  approximately 100 sites on both the mainland coast and on the Santa
+  Barbara Channel Islands. Sampling began in 1982 and is ongoing. Data
+  were collected by human observation (divers using SCUBA) during
+  regular surveys.
+
+      
+  Percent cover is recorded for taxa where individuals cannot be
+  counted. Cover can be calculated from the data here as the fraction of
+  total points at which the taxon was present x 100. With UPC and RPC
+  methods, multiple species can be recorded at any given point. The
+  total percent cover of all species combined using this method can
+  exceed 100%; however, the percent cover of any single species cannot
+  exceed 100%. See Methods for information on integration and data
+  processing.
+
+      
+  MBON is funded by National Aeronautics and Space Administration
+  (NASA), Bureau of Ocean Energy Management (BOEM), and National Oceanic
+  and Atmospheric Administration (NOAA).
+
+      
+  For users who are interested in using all or part of this integrated
+  datasets, please contact data owners to discuss your research
+  interests, data-related issues or any other questions. A recommended
+  citation for the data package is available from the download page. In
+  addition, any manuscript generated using this dataset is expected to
+  be sent to the data owners before publication so we can be sure the
+  data is used in the proper context and methods are reported
+  accurately:
+
+      
+  Santa Barbara Coastal LTER (LTER):
+
+      
+  Dan Reed dan.reed@lifesci.ucsb.edu
+
+      
+  Robert Miller miller@msi.ucsb.edu
+
+      
+  Partnership for Interdisciplinary Studies of Coastal Oceans (PISCO):
+
+      
+  Jenn Caselle caselle@ucsb.edu
+
+      
+  Kelp forest monitoring (KFM):
+
+      
+  David Kushner david_kushner@nps.gov
+
+      
+  Joshua Sprague joshua_sprague@nps.gov
+
+      
+  San Nicolas Island monitoring (SNI):
+
+      
+  Kevin Lafferty Klafferty@usgs.gov
+
+      
+  Mike Kenner mkenner@ucsc.edu Population Abundance BasisofRecord: HumanObservation Occurrence: OrganismQuantity Taxon: ScientificName algae invertebrate random point contact Santa Barbara Channel Marine BON uniform point contact"	dataset	is about	http://purl.obolibrary.org/obo/IAO_0000136	channel	http://purl.obolibrary.org/obo/ENVO_03000117	BioPortal Annotator	2024-08-29 15:16:39.742586	
+edi.3.9	https://portal.edirepository.org/nis/metadataviewer?packageid=edi.3.9	dataTable	74397dfa-151e-4eb8-818b-c9d63ead8272	/eml:eml/dataset/dataTable	dataset	SBCMBON kelp forest integrated benthic cover biological survey	SBCMBON_kelp_forest_integrated_benthic_cover_20210120.csv							
+edi.3.9	https://portal.edirepository.org/nis/metadataviewer?packageid=edi.3.9	attribute	6a2d4c50-e984-4dc0-91b5-4dd5a5ab989f	/eml:eml/dataset/dataTable/attributeList/attribute[1]	SBCMBON_kelp_forest_integrated_benthic_cover_20210120.csv	Source project for this data	data_source	contains measurements of type	http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#containsMeasurementsOfType					
+edi.3.9	https://portal.edirepository.org/nis/metadataviewer?packageid=edi.3.9	attribute	874b9da5-7494-44ef-ba52-149220062520	/eml:eml/dataset/dataTable/attributeList/attribute[2]	SBCMBON_kelp_forest_integrated_benthic_cover_20210120.csv	Sampling method	sample_method	contains measurements of type	http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#containsMeasurementsOfType					
+edi.3.9	https://portal.edirepository.org/nis/metadataviewer?packageid=edi.3.9	attribute	d2e4f6af-b556-4a0a-97e8-67a551590a92	/eml:eml/dataset/dataTable/attributeList/attribute[3]	SBCMBON_kelp_forest_integrated_benthic_cover_20210120.csv	Date of survey	date	contains measurements of type	http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#containsMeasurementsOfType	date	http://purl.dataone.org/odo/ECSO_00002051	BioPortal Annotator	2024-08-29 15:16:42.526561	
+edi.3.9	https://portal.edirepository.org/nis/metadataviewer?packageid=edi.3.9	attribute	f5304e0a-caa5-4f1d-b686-039722d3cda3	/eml:eml/dataset/dataTable/attributeList/attribute[4]	SBCMBON_kelp_forest_integrated_benthic_cover_20210120.csv	ID of a site, assigned by each project	site_id	contains measurements of type	http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#containsMeasurementsOfType					
+edi.3.9	https://portal.edirepository.org/nis/metadataviewer?packageid=edi.3.9	attribute	b534c98f-3d20-46ba-8d2c-4c188418d48f	/eml:eml/dataset/dataTable/attributeList/attribute[5]	SBCMBON_kelp_forest_integrated_benthic_cover_20210120.csv	Identifier for the subsite,one level below site	subsite_id	contains measurements of type	http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#containsMeasurementsOfType					
+edi.3.9	https://portal.edirepository.org/nis/metadataviewer?packageid=edi.3.9	attribute	28d7b009-3d4b-4535-943b-647cfdaae22d	/eml:eml/dataset/dataTable/attributeList/attribute[6]	SBCMBON_kelp_forest_integrated_benthic_cover_20210120.csv	Identifier for the transect	transect_id	contains measurements of type	http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#containsMeasurementsOfType					
+edi.3.9	https://portal.edirepository.org/nis/metadataviewer?packageid=edi.3.9	attribute	5daece56-6088-44c1-8434-ec8dba727b80	/eml:eml/dataset/dataTable/attributeList/attribute[7]	SBCMBON_kelp_forest_integrated_benthic_cover_20210120.csv	Identifier for the replicate	replicate_id	contains measurements of type	http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#containsMeasurementsOfType					
+edi.3.9	https://portal.edirepository.org/nis/metadataviewer?packageid=edi.3.9	attribute	790a95e1-22f2-4dac-8b36-7e0114f26bc4	/eml:eml/dataset/dataTable/attributeList/attribute[8]	SBCMBON_kelp_forest_integrated_benthic_cover_20210120.csv	Code assigned by SBC MBON for this taxon from this data source (project) 	proj_taxon_id	contains measurements of type	http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#containsMeasurementsOfType	data source	http://purl.dataone.org/odo/ECSO_00002744	BioPortal Annotator	2024-08-29 15:16:46.450903	
+edi.3.9	https://portal.edirepository.org/nis/metadataviewer?packageid=edi.3.9	attribute	1370ae52-41da-49d1-92dd-d5077500cfd9	/eml:eml/dataset/dataTable/attributeList/attribute[9]	SBCMBON_kelp_forest_integrated_benthic_cover_20210120.csv	Number of total points counted on a UPC or RPC survey	points	contains measurements of type	http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#containsMeasurementsOfType					
+edi.3.9	https://portal.edirepository.org/nis/metadataviewer?packageid=edi.3.9	attribute	d9ac0022-c157-416d-9f93-509f629273a1	/eml:eml/dataset/dataTable/attributeList/attribute[10]	SBCMBON_kelp_forest_integrated_benthic_cover_20210120.csv	Number of organisms counted 	count	contains measurements of type	http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#containsMeasurementsOfType					
+edi.3.9	https://portal.edirepository.org/nis/metadataviewer?packageid=edi.3.9	attribute	7de66f26-b649-459f-ad93-122d7eda3b1b	/eml:eml/dataset/dataTable/attributeList/attribute[11]	SBCMBON_kelp_forest_integrated_benthic_cover_20210120.csv	Taxon code assigned by an authoritative source	auth_taxon_id	contains measurements of type	http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#containsMeasurementsOfType	taxon code	http://purl.dataone.org/odo/ECSO_00002608	BioPortal Annotator	2024-08-29 15:16:48.821489	
+edi.3.9	https://portal.edirepository.org/nis/metadataviewer?packageid=edi.3.9	attribute	f8eb86e2-f02a-4ff9-bd9a-c0b810c312db	/eml:eml/dataset/dataTable/attributeList/attribute[12]	SBCMBON_kelp_forest_integrated_benthic_cover_20210120.csv	Name of the athority or registry assigning the Authoritative Taxon Code	auth_name	contains measurements of type	http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#containsMeasurementsOfType	Name	http://purl.dataone.org/odo/ECSO_00001193	BioPortal Annotator	2024-08-29 15:16:49.924972	
+edi.3.9	https://portal.edirepository.org/nis/metadataviewer?packageid=edi.3.9	attribute	686a51da-c990-45fe-a8bb-94fc5e52d41b	/eml:eml/dataset/dataTable/attributeList/attribute[13]	SBCMBON_kelp_forest_integrated_benthic_cover_20210120.csv	Taxon name, usually species binomial or other taxon name	taxon_name	contains measurements of type	http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#containsMeasurementsOfType	Name	http://purl.dataone.org/odo/ECSO_00001193	BioPortal Annotator	2024-08-29 15:16:51.246302	
+edi.3.9	https://portal.edirepository.org/nis/metadataviewer?packageid=edi.3.9	attribute	65cbc590-943a-4656-824b-e449b28cca01	/eml:eml/dataset/dataTable/attributeList/attribute[14]	SBCMBON_kelp_forest_integrated_benthic_cover_20210120.csv	The site, as named by each project	site_name	contains measurements of type	http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#containsMeasurementsOfType					
+edi.3.9	https://portal.edirepository.org/nis/metadataviewer?packageid=edi.3.9	attribute	93fa3786-fde3-453e-8dd8-85f892ce6191	/eml:eml/dataset/dataTable/attributeList/attribute[15]	SBCMBON_kelp_forest_integrated_benthic_cover_20210120.csv	Survey region within a site	subsite_name	contains measurements of type	http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#containsMeasurementsOfType					
+edi.3.9	https://portal.edirepository.org/nis/metadataviewer?packageid=edi.3.9	attribute	3bc6f4fc-40c1-47c5-96c7-5a6b2b6d649b	/eml:eml/dataset/dataTable/attributeList/attribute[16]	SBCMBON_kelp_forest_integrated_benthic_cover_20210120.csv	Site latitude	latitude	contains measurements of type	http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#containsMeasurementsOfType					
+edi.3.9	https://portal.edirepository.org/nis/metadataviewer?packageid=edi.3.9	attribute	18301dfd-766b-43d8-ae27-31ae32cd4828	/eml:eml/dataset/dataTable/attributeList/attribute[17]	SBCMBON_kelp_forest_integrated_benthic_cover_20210120.csv	Site longitude	longitude	contains measurements of type	http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#containsMeasurementsOfType					
+edi.3.9	https://portal.edirepository.org/nis/metadataviewer?packageid=edi.3.9	dataset	ccbc2d88-fff7-471c-a123-4f30f533b707	/eml:eml/dataset	edi.3.9	"The Santa Barbara Channel Marine Biodiversity Observation Network
+  (SBCMBON) tracks long-term patterns in species abundance and
+  diversity. This dataset contains cover of kelp forest sessile
+  invertebrates, understory macroalgae, and substrate types by
+  integrating data from four contributing projects working in the kelp
+  forests of the Santa Barbara Channel, USA. Divers collect data on
+  using either uniform point contact (UPC) or random point contact (RPC)
+  methods.
+
+      
+  The four contributing projects are two research projects: The Santa
+  Barbara Coastal LTER (SBC LTER) and the Partnership for
+  Interdisciplinary Studies of Coastal Oceans (PISCO), the kelp forest
+  monitoring program of the Santa Barbara Channel National Park, and the
+  San Nicolas Island monitoring program supported by USGS. Together,
+  these projects have recorded data for more than 200 species at
+  approximately 100 sites on both the mainland coast and on the Santa
+  Barbara Channel Islands. Sampling began in 1982 and is ongoing. Data
+  were collected by human observation (divers using SCUBA) during
+  regular surveys.
+
+      
+  Percent cover is recorded for taxa where individuals cannot be
+  counted. Cover can be calculated from the data here as the fraction of
+  total points at which the taxon was present x 100. With UPC and RPC
+  methods, multiple species can be recorded at any given point. The
+  total percent cover of all species combined using this method can
+  exceed 100%; however, the percent cover of any single species cannot
+  exceed 100%. See Methods for information on integration and data
+  processing.
+
+      
+  MBON is funded by National Aeronautics and Space Administration
+  (NASA), Bureau of Ocean Energy Management (BOEM), and National Oceanic
+  and Atmospheric Administration (NOAA).
+
+      
+  For users who are interested in using all or part of this integrated
+  datasets, please contact data owners to discuss your research
+  interests, data-related issues or any other questions. A recommended
+  citation for the data package is available from the download page. In
+  addition, any manuscript generated using this dataset is expected to
+  be sent to the data owners before publication so we can be sure the
+  data is used in the proper context and methods are reported
+  accurately:
+
+      
+  Santa Barbara Coastal LTER (LTER):
+
+      
+  Dan Reed dan.reed@lifesci.ucsb.edu
+
+      
+  Robert Miller miller@msi.ucsb.edu
+
+      
+  Partnership for Interdisciplinary Studies of Coastal Oceans (PISCO):
+
+      
+  Jenn Caselle caselle@ucsb.edu
+
+      
+  Kelp forest monitoring (KFM):
+
+      
+  David Kushner david_kushner@nps.gov
+
+      
+  Joshua Sprague joshua_sprague@nps.gov
+
+      
+  San Nicolas Island monitoring (SNI):
+
+      
+  Kevin Lafferty Klafferty@usgs.gov
+
+      
+  Mike Kenner mkenner@ucsc.edu Population Abundance BasisofRecord: HumanObservation Occurrence: OrganismQuantity Taxon: ScientificName algae invertebrate random point contact Santa Barbara Channel Marine BON uniform point contact"	dataset	is about	http://purl.obolibrary.org/obo/IAO_0000136	kelp forest	http://purl.obolibrary.org/obo/ENVO_01000058	BioPortal Annotator	2024-08-29 15:16:39.744541	
+edi.3.9	https://portal.edirepository.org/nis/metadataviewer?packageid=edi.3.9	dataset	ccbc2d88-fff7-471c-a123-4f30f533b707	/eml:eml/dataset	edi.3.9	"The Santa Barbara Channel Marine Biodiversity Observation Network
+  (SBCMBON) tracks long-term patterns in species abundance and
+  diversity. This dataset contains cover of kelp forest sessile
+  invertebrates, understory macroalgae, and substrate types by
+  integrating data from four contributing projects working in the kelp
+  forests of the Santa Barbara Channel, USA. Divers collect data on
+  using either uniform point contact (UPC) or random point contact (RPC)
+  methods.
+
+      
+  The four contributing projects are two research projects: The Santa
+  Barbara Coastal LTER (SBC LTER) and the Partnership for
+  Interdisciplinary Studies of Coastal Oceans (PISCO), the kelp forest
+  monitoring program of the Santa Barbara Channel National Park, and the
+  San Nicolas Island monitoring program supported by USGS. Together,
+  these projects have recorded data for more than 200 species at
+  approximately 100 sites on both the mainland coast and on the Santa
+  Barbara Channel Islands. Sampling began in 1982 and is ongoing. Data
+  were collected by human observation (divers using SCUBA) during
+  regular surveys.
+
+      
+  Percent cover is recorded for taxa where individuals cannot be
+  counted. Cover can be calculated from the data here as the fraction of
+  total points at which the taxon was present x 100. With UPC and RPC
+  methods, multiple species can be recorded at any given point. The
+  total percent cover of all species combined using this method can
+  exceed 100%; however, the percent cover of any single species cannot
+  exceed 100%. See Methods for information on integration and data
+  processing.
+
+      
+  MBON is funded by National Aeronautics and Space Administration
+  (NASA), Bureau of Ocean Energy Management (BOEM), and National Oceanic
+  and Atmospheric Administration (NOAA).
+
+      
+  For users who are interested in using all or part of this integrated
+  datasets, please contact data owners to discuss your research
+  interests, data-related issues or any other questions. A recommended
+  citation for the data package is available from the download page. In
+  addition, any manuscript generated using this dataset is expected to
+  be sent to the data owners before publication so we can be sure the
+  data is used in the proper context and methods are reported
+  accurately:
+
+      
+  Santa Barbara Coastal LTER (LTER):
+
+      
+  Dan Reed dan.reed@lifesci.ucsb.edu
+
+      
+  Robert Miller miller@msi.ucsb.edu
+
+      
+  Partnership for Interdisciplinary Studies of Coastal Oceans (PISCO):
+
+      
+  Jenn Caselle caselle@ucsb.edu
+
+      
+  Kelp forest monitoring (KFM):
+
+      
+  David Kushner david_kushner@nps.gov
+
+      
+  Joshua Sprague joshua_sprague@nps.gov
+
+      
+  San Nicolas Island monitoring (SNI):
+
+      
+  Kevin Lafferty Klafferty@usgs.gov
+
+      
+  Mike Kenner mkenner@ucsc.edu Population Abundance BasisofRecord: HumanObservation Occurrence: OrganismQuantity Taxon: ScientificName algae invertebrate random point contact Santa Barbara Channel Marine BON uniform point contact"	dataset	is about	http://purl.obolibrary.org/obo/IAO_0000136	understory	http://purl.obolibrary.org/obo/ENVO_01000335	BioPortal Annotator	2024-08-29 15:16:39.745649	
+edi.3.9	https://portal.edirepository.org/nis/metadataviewer?packageid=edi.3.9	dataset	ccbc2d88-fff7-471c-a123-4f30f533b707	/eml:eml/dataset	edi.3.9	"The Santa Barbara Channel Marine Biodiversity Observation Network
+  (SBCMBON) tracks long-term patterns in species abundance and
+  diversity. This dataset contains cover of kelp forest sessile
+  invertebrates, understory macroalgae, and substrate types by
+  integrating data from four contributing projects working in the kelp
+  forests of the Santa Barbara Channel, USA. Divers collect data on
+  using either uniform point contact (UPC) or random point contact (RPC)
+  methods.
+
+      
+  The four contributing projects are two research projects: The Santa
+  Barbara Coastal LTER (SBC LTER) and the Partnership for
+  Interdisciplinary Studies of Coastal Oceans (PISCO), the kelp forest
+  monitoring program of the Santa Barbara Channel National Park, and the
+  San Nicolas Island monitoring program supported by USGS. Together,
+  these projects have recorded data for more than 200 species at
+  approximately 100 sites on both the mainland coast and on the Santa
+  Barbara Channel Islands. Sampling began in 1982 and is ongoing. Data
+  were collected by human observation (divers using SCUBA) during
+  regular surveys.
+
+      
+  Percent cover is recorded for taxa where individuals cannot be
+  counted. Cover can be calculated from the data here as the fraction of
+  total points at which the taxon was present x 100. With UPC and RPC
+  methods, multiple species can be recorded at any given point. The
+  total percent cover of all species combined using this method can
+  exceed 100%; however, the percent cover of any single species cannot
+  exceed 100%. See Methods for information on integration and data
+  processing.
+
+      
+  MBON is funded by National Aeronautics and Space Administration
+  (NASA), Bureau of Ocean Energy Management (BOEM), and National Oceanic
+  and Atmospheric Administration (NOAA).
+
+      
+  For users who are interested in using all or part of this integrated
+  datasets, please contact data owners to discuss your research
+  interests, data-related issues or any other questions. A recommended
+  citation for the data package is available from the download page. In
+  addition, any manuscript generated using this dataset is expected to
+  be sent to the data owners before publication so we can be sure the
+  data is used in the proper context and methods are reported
+  accurately:
+
+      
+  Santa Barbara Coastal LTER (LTER):
+
+      
+  Dan Reed dan.reed@lifesci.ucsb.edu
+
+      
+  Robert Miller miller@msi.ucsb.edu
+
+      
+  Partnership for Interdisciplinary Studies of Coastal Oceans (PISCO):
+
+      
+  Jenn Caselle caselle@ucsb.edu
+
+      
+  Kelp forest monitoring (KFM):
+
+      
+  David Kushner david_kushner@nps.gov
+
+      
+  Joshua Sprague joshua_sprague@nps.gov
+
+      
+  San Nicolas Island monitoring (SNI):
+
+      
+  Kevin Lafferty Klafferty@usgs.gov
+
+      
+  Mike Kenner mkenner@ucsc.edu Population Abundance BasisofRecord: HumanObservation Occurrence: OrganismQuantity Taxon: ScientificName algae invertebrate random point contact Santa Barbara Channel Marine BON uniform point contact"	dataset	is about	http://purl.obolibrary.org/obo/IAO_0000136	park	http://purl.obolibrary.org/obo/ENVO_00000562	BioPortal Annotator	2024-08-29 15:16:39.751203	
+edi.3.9	https://portal.edirepository.org/nis/metadataviewer?packageid=edi.3.9	dataset	ccbc2d88-fff7-471c-a123-4f30f533b707	/eml:eml/dataset	edi.3.9	"The Santa Barbara Channel Marine Biodiversity Observation Network
+  (SBCMBON) tracks long-term patterns in species abundance and
+  diversity. This dataset contains cover of kelp forest sessile
+  invertebrates, understory macroalgae, and substrate types by
+  integrating data from four contributing projects working in the kelp
+  forests of the Santa Barbara Channel, USA. Divers collect data on
+  using either uniform point contact (UPC) or random point contact (RPC)
+  methods.
+
+      
+  The four contributing projects are two research projects: The Santa
+  Barbara Coastal LTER (SBC LTER) and the Partnership for
+  Interdisciplinary Studies of Coastal Oceans (PISCO), the kelp forest
+  monitoring program of the Santa Barbara Channel National Park, and the
+  San Nicolas Island monitoring program supported by USGS. Together,
+  these projects have recorded data for more than 200 species at
+  approximately 100 sites on both the mainland coast and on the Santa
+  Barbara Channel Islands. Sampling began in 1982 and is ongoing. Data
+  were collected by human observation (divers using SCUBA) during
+  regular surveys.
+
+      
+  Percent cover is recorded for taxa where individuals cannot be
+  counted. Cover can be calculated from the data here as the fraction of
+  total points at which the taxon was present x 100. With UPC and RPC
+  methods, multiple species can be recorded at any given point. The
+  total percent cover of all species combined using this method can
+  exceed 100%; however, the percent cover of any single species cannot
+  exceed 100%. See Methods for information on integration and data
+  processing.
+
+      
+  MBON is funded by National Aeronautics and Space Administration
+  (NASA), Bureau of Ocean Energy Management (BOEM), and National Oceanic
+  and Atmospheric Administration (NOAA).
+
+      
+  For users who are interested in using all or part of this integrated
+  datasets, please contact data owners to discuss your research
+  interests, data-related issues or any other questions. A recommended
+  citation for the data package is available from the download page. In
+  addition, any manuscript generated using this dataset is expected to
+  be sent to the data owners before publication so we can be sure the
+  data is used in the proper context and methods are reported
+  accurately:
+
+      
+  Santa Barbara Coastal LTER (LTER):
+
+      
+  Dan Reed dan.reed@lifesci.ucsb.edu
+
+      
+  Robert Miller miller@msi.ucsb.edu
+
+      
+  Partnership for Interdisciplinary Studies of Coastal Oceans (PISCO):
+
+      
+  Jenn Caselle caselle@ucsb.edu
+
+      
+  Kelp forest monitoring (KFM):
+
+      
+  David Kushner david_kushner@nps.gov
+
+      
+  Joshua Sprague joshua_sprague@nps.gov
+
+      
+  San Nicolas Island monitoring (SNI):
+
+      
+  Kevin Lafferty Klafferty@usgs.gov
+
+      
+  Mike Kenner mkenner@ucsc.edu Population Abundance BasisofRecord: HumanObservation Occurrence: OrganismQuantity Taxon: ScientificName algae invertebrate random point contact Santa Barbara Channel Marine BON uniform point contact"	dataset	is about	http://purl.obolibrary.org/obo/IAO_0000136	island	http://purl.obolibrary.org/obo/ENVO_00000098	BioPortal Annotator	2024-08-29 15:16:39.753826	
+edi.3.9	https://portal.edirepository.org/nis/metadataviewer?packageid=edi.3.9	dataset	ccbc2d88-fff7-471c-a123-4f30f533b707	/eml:eml/dataset	edi.3.9	"The Santa Barbara Channel Marine Biodiversity Observation Network
+  (SBCMBON) tracks long-term patterns in species abundance and
+  diversity. This dataset contains cover of kelp forest sessile
+  invertebrates, understory macroalgae, and substrate types by
+  integrating data from four contributing projects working in the kelp
+  forests of the Santa Barbara Channel, USA. Divers collect data on
+  using either uniform point contact (UPC) or random point contact (RPC)
+  methods.
+
+      
+  The four contributing projects are two research projects: The Santa
+  Barbara Coastal LTER (SBC LTER) and the Partnership for
+  Interdisciplinary Studies of Coastal Oceans (PISCO), the kelp forest
+  monitoring program of the Santa Barbara Channel National Park, and the
+  San Nicolas Island monitoring program supported by USGS. Together,
+  these projects have recorded data for more than 200 species at
+  approximately 100 sites on both the mainland coast and on the Santa
+  Barbara Channel Islands. Sampling began in 1982 and is ongoing. Data
+  were collected by human observation (divers using SCUBA) during
+  regular surveys.
+
+      
+  Percent cover is recorded for taxa where individuals cannot be
+  counted. Cover can be calculated from the data here as the fraction of
+  total points at which the taxon was present x 100. With UPC and RPC
+  methods, multiple species can be recorded at any given point. The
+  total percent cover of all species combined using this method can
+  exceed 100%; however, the percent cover of any single species cannot
+  exceed 100%. See Methods for information on integration and data
+  processing.
+
+      
+  MBON is funded by National Aeronautics and Space Administration
+  (NASA), Bureau of Ocean Energy Management (BOEM), and National Oceanic
+  and Atmospheric Administration (NOAA).
+
+      
+  For users who are interested in using all or part of this integrated
+  datasets, please contact data owners to discuss your research
+  interests, data-related issues or any other questions. A recommended
+  citation for the data package is available from the download page. In
+  addition, any manuscript generated using this dataset is expected to
+  be sent to the data owners before publication so we can be sure the
+  data is used in the proper context and methods are reported
+  accurately:
+
+      
+  Santa Barbara Coastal LTER (LTER):
+
+      
+  Dan Reed dan.reed@lifesci.ucsb.edu
+
+      
+  Robert Miller miller@msi.ucsb.edu
+
+      
+  Partnership for Interdisciplinary Studies of Coastal Oceans (PISCO):
+
+      
+  Jenn Caselle caselle@ucsb.edu
+
+      
+  Kelp forest monitoring (KFM):
+
+      
+  David Kushner david_kushner@nps.gov
+
+      
+  Joshua Sprague joshua_sprague@nps.gov
+
+      
+  San Nicolas Island monitoring (SNI):
+
+      
+  Kevin Lafferty Klafferty@usgs.gov
+
+      
+  Mike Kenner mkenner@ucsc.edu Population Abundance BasisofRecord: HumanObservation Occurrence: OrganismQuantity Taxon: ScientificName algae invertebrate random point contact Santa Barbara Channel Marine BON uniform point contact"	dataset	is about	http://purl.obolibrary.org/obo/IAO_0000136	coast	http://purl.obolibrary.org/obo/ENVO_01000687	BioPortal Annotator	2024-08-29 15:16:39.756324	
+edi.3.9	https://portal.edirepository.org/nis/metadataviewer?packageid=edi.3.9	dataset	ccbc2d88-fff7-471c-a123-4f30f533b707	/eml:eml/dataset	edi.3.9	"The Santa Barbara Channel Marine Biodiversity Observation Network
+  (SBCMBON) tracks long-term patterns in species abundance and
+  diversity. This dataset contains cover of kelp forest sessile
+  invertebrates, understory macroalgae, and substrate types by
+  integrating data from four contributing projects working in the kelp
+  forests of the Santa Barbara Channel, USA. Divers collect data on
+  using either uniform point contact (UPC) or random point contact (RPC)
+  methods.
+
+      
+  The four contributing projects are two research projects: The Santa
+  Barbara Coastal LTER (SBC LTER) and the Partnership for
+  Interdisciplinary Studies of Coastal Oceans (PISCO), the kelp forest
+  monitoring program of the Santa Barbara Channel National Park, and the
+  San Nicolas Island monitoring program supported by USGS. Together,
+  these projects have recorded data for more than 200 species at
+  approximately 100 sites on both the mainland coast and on the Santa
+  Barbara Channel Islands. Sampling began in 1982 and is ongoing. Data
+  were collected by human observation (divers using SCUBA) during
+  regular surveys.
+
+      
+  Percent cover is recorded for taxa where individuals cannot be
+  counted. Cover can be calculated from the data here as the fraction of
+  total points at which the taxon was present x 100. With UPC and RPC
+  methods, multiple species can be recorded at any given point. The
+  total percent cover of all species combined using this method can
+  exceed 100%; however, the percent cover of any single species cannot
+  exceed 100%. See Methods for information on integration and data
+  processing.
+
+      
+  MBON is funded by National Aeronautics and Space Administration
+  (NASA), Bureau of Ocean Energy Management (BOEM), and National Oceanic
+  and Atmospheric Administration (NOAA).
+
+      
+  For users who are interested in using all or part of this integrated
+  datasets, please contact data owners to discuss your research
+  interests, data-related issues or any other questions. A recommended
+  citation for the data package is available from the download page. In
+  addition, any manuscript generated using this dataset is expected to
+  be sent to the data owners before publication so we can be sure the
+  data is used in the proper context and methods are reported
+  accurately:
+
+      
+  Santa Barbara Coastal LTER (LTER):
+
+      
+  Dan Reed dan.reed@lifesci.ucsb.edu
+
+      
+  Robert Miller miller@msi.ucsb.edu
+
+      
+  Partnership for Interdisciplinary Studies of Coastal Oceans (PISCO):
+
+      
+  Jenn Caselle caselle@ucsb.edu
+
+      
+  Kelp forest monitoring (KFM):
+
+      
+  David Kushner david_kushner@nps.gov
+
+      
+  Joshua Sprague joshua_sprague@nps.gov
+
+      
+  San Nicolas Island monitoring (SNI):
+
+      
+  Kevin Lafferty Klafferty@usgs.gov
+
+      
+  Mike Kenner mkenner@ucsc.edu Population Abundance BasisofRecord: HumanObservation Occurrence: OrganismQuantity Taxon: ScientificName algae invertebrate random point contact Santa Barbara Channel Marine BON uniform point contact"	dataset	is about	http://purl.obolibrary.org/obo/IAO_0000136	present	http://purl.obolibrary.org/obo/PATO_0000467	BioPortal Annotator	2024-08-29 15:16:39.758559	
+edi.3.9	https://portal.edirepository.org/nis/metadataviewer?packageid=edi.3.9	dataset	ccbc2d88-fff7-471c-a123-4f30f533b707	/eml:eml/dataset	edi.3.9	"The Santa Barbara Channel Marine Biodiversity Observation Network
+  (SBCMBON) tracks long-term patterns in species abundance and
+  diversity. This dataset contains cover of kelp forest sessile
+  invertebrates, understory macroalgae, and substrate types by
+  integrating data from four contributing projects working in the kelp
+  forests of the Santa Barbara Channel, USA. Divers collect data on
+  using either uniform point contact (UPC) or random point contact (RPC)
+  methods.
+
+      
+  The four contributing projects are two research projects: The Santa
+  Barbara Coastal LTER (SBC LTER) and the Partnership for
+  Interdisciplinary Studies of Coastal Oceans (PISCO), the kelp forest
+  monitoring program of the Santa Barbara Channel National Park, and the
+  San Nicolas Island monitoring program supported by USGS. Together,
+  these projects have recorded data for more than 200 species at
+  approximately 100 sites on both the mainland coast and on the Santa
+  Barbara Channel Islands. Sampling began in 1982 and is ongoing. Data
+  were collected by human observation (divers using SCUBA) during
+  regular surveys.
+
+      
+  Percent cover is recorded for taxa where individuals cannot be
+  counted. Cover can be calculated from the data here as the fraction of
+  total points at which the taxon was present x 100. With UPC and RPC
+  methods, multiple species can be recorded at any given point. The
+  total percent cover of all species combined using this method can
+  exceed 100%; however, the percent cover of any single species cannot
+  exceed 100%. See Methods for information on integration and data
+  processing.
+
+      
+  MBON is funded by National Aeronautics and Space Administration
+  (NASA), Bureau of Ocean Energy Management (BOEM), and National Oceanic
+  and Atmospheric Administration (NOAA).
+
+      
+  For users who are interested in using all or part of this integrated
+  datasets, please contact data owners to discuss your research
+  interests, data-related issues or any other questions. A recommended
+  citation for the data package is available from the download page. In
+  addition, any manuscript generated using this dataset is expected to
+  be sent to the data owners before publication so we can be sure the
+  data is used in the proper context and methods are reported
+  accurately:
+
+      
+  Santa Barbara Coastal LTER (LTER):
+
+      
+  Dan Reed dan.reed@lifesci.ucsb.edu
+
+      
+  Robert Miller miller@msi.ucsb.edu
+
+      
+  Partnership for Interdisciplinary Studies of Coastal Oceans (PISCO):
+
+      
+  Jenn Caselle caselle@ucsb.edu
+
+      
+  Kelp forest monitoring (KFM):
+
+      
+  David Kushner david_kushner@nps.gov
+
+      
+  Joshua Sprague joshua_sprague@nps.gov
+
+      
+  San Nicolas Island monitoring (SNI):
+
+      
+  Kevin Lafferty Klafferty@usgs.gov
+
+      
+  Mike Kenner mkenner@ucsc.edu Population Abundance BasisofRecord: HumanObservation Occurrence: OrganismQuantity Taxon: ScientificName algae invertebrate random point contact Santa Barbara Channel Marine BON uniform point contact"	dataset	is about	http://purl.obolibrary.org/obo/IAO_0000136	ocean	http://purl.obolibrary.org/obo/ENVO_00000015	BioPortal Annotator	2024-08-29 15:16:39.760898	
+edi.3.9	https://portal.edirepository.org/nis/metadataviewer?packageid=edi.3.9	dataset	ccbc2d88-fff7-471c-a123-4f30f533b707	/eml:eml/dataset	edi.3.9	"The Santa Barbara Channel Marine Biodiversity Observation Network
+  (SBCMBON) tracks long-term patterns in species abundance and
+  diversity. This dataset contains cover of kelp forest sessile
+  invertebrates, understory macroalgae, and substrate types by
+  integrating data from four contributing projects working in the kelp
+  forests of the Santa Barbara Channel, USA. Divers collect data on
+  using either uniform point contact (UPC) or random point contact (RPC)
+  methods.
+
+      
+  The four contributing projects are two research projects: The Santa
+  Barbara Coastal LTER (SBC LTER) and the Partnership for
+  Interdisciplinary Studies of Coastal Oceans (PISCO), the kelp forest
+  monitoring program of the Santa Barbara Channel National Park, and the
+  San Nicolas Island monitoring program supported by USGS. Together,
+  these projects have recorded data for more than 200 species at
+  approximately 100 sites on both the mainland coast and on the Santa
+  Barbara Channel Islands. Sampling began in 1982 and is ongoing. Data
+  were collected by human observation (divers using SCUBA) during
+  regular surveys.
+
+      
+  Percent cover is recorded for taxa where individuals cannot be
+  counted. Cover can be calculated from the data here as the fraction of
+  total points at which the taxon was present x 100. With UPC and RPC
+  methods, multiple species can be recorded at any given point. The
+  total percent cover of all species combined using this method can
+  exceed 100%; however, the percent cover of any single species cannot
+  exceed 100%. See Methods for information on integration and data
+  processing.
+
+      
+  MBON is funded by National Aeronautics and Space Administration
+  (NASA), Bureau of Ocean Energy Management (BOEM), and National Oceanic
+  and Atmospheric Administration (NOAA).
+
+      
+  For users who are interested in using all or part of this integrated
+  datasets, please contact data owners to discuss your research
+  interests, data-related issues or any other questions. A recommended
+  citation for the data package is available from the download page. In
+  addition, any manuscript generated using this dataset is expected to
+  be sent to the data owners before publication so we can be sure the
+  data is used in the proper context and methods are reported
+  accurately:
+
+      
+  Santa Barbara Coastal LTER (LTER):
+
+      
+  Dan Reed dan.reed@lifesci.ucsb.edu
+
+      
+  Robert Miller miller@msi.ucsb.edu
+
+      
+  Partnership for Interdisciplinary Studies of Coastal Oceans (PISCO):
+
+      
+  Jenn Caselle caselle@ucsb.edu
+
+      
+  Kelp forest monitoring (KFM):
+
+      
+  David Kushner david_kushner@nps.gov
+
+      
+  Joshua Sprague joshua_sprague@nps.gov
+
+      
+  San Nicolas Island monitoring (SNI):
+
+      
+  Kevin Lafferty Klafferty@usgs.gov
+
+      
+  Mike Kenner mkenner@ucsc.edu Population Abundance BasisofRecord: HumanObservation Occurrence: OrganismQuantity Taxon: ScientificName algae invertebrate random point contact Santa Barbara Channel Marine BON uniform point contact"	dataset	is about	http://purl.obolibrary.org/obo/IAO_0000136	energy	http://purl.obolibrary.org/obo/ENVO_2000015	BioPortal Annotator	2024-08-29 15:16:39.763357	
+edi.3.9	https://portal.edirepository.org/nis/metadataviewer?packageid=edi.3.9	dataset	ccbc2d88-fff7-471c-a123-4f30f533b707	/eml:eml/dataset	edi.3.9	"The Santa Barbara Channel Marine Biodiversity Observation Network
+  (SBCMBON) tracks long-term patterns in species abundance and
+  diversity. This dataset contains cover of kelp forest sessile
+  invertebrates, understory macroalgae, and substrate types by
+  integrating data from four contributing projects working in the kelp
+  forests of the Santa Barbara Channel, USA. Divers collect data on
+  using either uniform point contact (UPC) or random point contact (RPC)
+  methods.
+
+      
+  The four contributing projects are two research projects: The Santa
+  Barbara Coastal LTER (SBC LTER) and the Partnership for
+  Interdisciplinary Studies of Coastal Oceans (PISCO), the kelp forest
+  monitoring program of the Santa Barbara Channel National Park, and the
+  San Nicolas Island monitoring program supported by USGS. Together,
+  these projects have recorded data for more than 200 species at
+  approximately 100 sites on both the mainland coast and on the Santa
+  Barbara Channel Islands. Sampling began in 1982 and is ongoing. Data
+  were collected by human observation (divers using SCUBA) during
+  regular surveys.
+
+      
+  Percent cover is recorded for taxa where individuals cannot be
+  counted. Cover can be calculated from the data here as the fraction of
+  total points at which the taxon was present x 100. With UPC and RPC
+  methods, multiple species can be recorded at any given point. The
+  total percent cover of all species combined using this method can
+  exceed 100%; however, the percent cover of any single species cannot
+  exceed 100%. See Methods for information on integration and data
+  processing.
+
+      
+  MBON is funded by National Aeronautics and Space Administration
+  (NASA), Bureau of Ocean Energy Management (BOEM), and National Oceanic
+  and Atmospheric Administration (NOAA).
+
+      
+  For users who are interested in using all or part of this integrated
+  datasets, please contact data owners to discuss your research
+  interests, data-related issues or any other questions. A recommended
+  citation for the data package is available from the download page. In
+  addition, any manuscript generated using this dataset is expected to
+  be sent to the data owners before publication so we can be sure the
+  data is used in the proper context and methods are reported
+  accurately:
+
+      
+  Santa Barbara Coastal LTER (LTER):
+
+      
+  Dan Reed dan.reed@lifesci.ucsb.edu
+
+      
+  Robert Miller miller@msi.ucsb.edu
+
+      
+  Partnership for Interdisciplinary Studies of Coastal Oceans (PISCO):
+
+      
+  Jenn Caselle caselle@ucsb.edu
+
+      
+  Kelp forest monitoring (KFM):
+
+      
+  David Kushner david_kushner@nps.gov
+
+      
+  Joshua Sprague joshua_sprague@nps.gov
+
+      
+  San Nicolas Island monitoring (SNI):
+
+      
+  Kevin Lafferty Klafferty@usgs.gov
+
+      
+  Mike Kenner mkenner@ucsc.edu Population Abundance BasisofRecord: HumanObservation Occurrence: OrganismQuantity Taxon: ScientificName algae invertebrate random point contact Santa Barbara Channel Marine BON uniform point contact"	dataset	is about	http://purl.obolibrary.org/obo/IAO_0000136	occurrence	http://purl.obolibrary.org/obo/PATO_0000057	BioPortal Annotator	2024-08-29 15:16:39.765489	
+edi.3.9	https://portal.edirepository.org/nis/metadataviewer?packageid=edi.3.9	attribute	f8eb86e2-f02a-4ff9-bd9a-c0b810c312db	/eml:eml/dataset/dataTable/attributeList/attribute[12]	SBCMBON_kelp_forest_integrated_benthic_cover_20210120.csv	Name of the athority or registry assigning the Authoritative Taxon Code	auth_name	contains measurements of type	http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#containsMeasurementsOfType	taxon code	http://purl.dataone.org/odo/ECSO_00002608	BioPortal Annotator	2024-08-29 15:16:49.926724	
+edi.3.9	https://portal.edirepository.org/nis/metadataviewer?packageid=edi.3.9	attribute	686a51da-c990-45fe-a8bb-94fc5e52d41b	/eml:eml/dataset/dataTable/attributeList/attribute[13]	SBCMBON_kelp_forest_integrated_benthic_cover_20210120.csv	Taxon name, usually species binomial or other taxon name	taxon_name	contains measurements of type	http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#containsMeasurementsOfType	Species	http://purl.dataone.org/odo/ECSO_00000313	BioPortal Annotator	2024-08-29 15:16:51.247773	
