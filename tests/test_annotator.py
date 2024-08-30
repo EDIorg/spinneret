@@ -4,8 +4,15 @@ import os
 from shutil import copyfile
 import pytest
 import pandas as pd
-from spinneret.annotator import get_bioportal_annotation, annotate_workbook
+from lxml import etree
+from spinneret.annotator import (
+    get_bioportal_annotation,
+    annotate_workbook,
+    annotate_eml,
+    create_annotation_element,
+)
 from spinneret.utilities import load_configuration
+from spinneret.datasets import get_example_eml_dir
 
 
 def test_get_bioportal_annotation():
@@ -81,3 +88,43 @@ def test_annotate_workbook(tmp_path):
     # The columns to be annotated should be full
     for col in cols_to_annotate:
         assert not wb[col].isnull().all()
+
+
+def test_annotate_eml(tmp_path):
+    """Test annotate_eml"""
+    eml_file = get_example_eml_dir() + "/" + "edi.3.9.xml"
+    wb_file = "tests/edi.3.9_annotation_workbook_annotated.tsv"
+    output_file = str(tmp_path) + "/edi.3.9_annotated.xml"
+
+    # Check that there are no annotations in the EML file
+    eml = etree.parse(eml_file)
+    assert eml.xpath(".//annotation") == []
+
+    # Annotate the EML file
+    annotate_eml(eml_path=eml_file, workbook_path=wb_file, output_path=output_file)
+
+    # Check that the EML file was annotated
+    assert os.path.exists(output_file)
+    eml_annotated = etree.parse(output_file)
+    annotations = eml_annotated.xpath(".//annotation")
+    assert annotations != []
+    # The number of annotation elements should be equal to the number of rows
+    # in the workbook where predicates and objects are both present.
+    wb = pd.read_csv(wb_file, sep="\t", encoding="utf-8")
+    num_rows = len(
+        wb.dropna(subset=["predicate", "predicate_id", "object", "object_id"])
+    )
+    assert len(annotations) == num_rows
+
+
+# pylint: disable=line-too-long
+def test_create_annotation_element():
+    """Test create_annotation_element"""
+    fixture = """<annotation><propertyURI label="predicate_label">predicate_id</propertyURI><valueURI label="object_label">object_id</valueURI></annotation>"""
+    annotation_element = create_annotation_element(
+        predicate_label="predicate_label",
+        predicate_id="predicate_id",
+        object_label="object_label",
+        object_id="object_id",
+    )
+    assert bytes.decode(etree.tostring(annotation_element)) == fixture

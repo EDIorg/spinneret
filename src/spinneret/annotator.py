@@ -4,6 +4,7 @@ import os
 from typing import Union
 from requests import get, exceptions
 import pandas as pd
+from lxml import etree
 
 
 # pylint: disable=too-many-locals
@@ -179,3 +180,80 @@ def annotate_workbook(workbook_path: str, output_path: str) -> None:
 
     # Write the annotated workbook back to the original path
     wb.to_csv(output_path, sep="\t", index=False, encoding="utf-8")
+
+
+def annotate_eml(eml_path: str, workbook_path: str, output_path: str) -> None:
+    """Annotate an EML file with terms from the corresponding workbook
+
+    :param eml_path: The path to the EML file to be annotated.
+    :param workbook_path: The path to the workbook corresponding to the EML file.
+    :param output_path: The path to write the annotated EML file.
+    :returns: None
+
+    :notes: The EML file is annotated with terms from the corresponding workbook.
+        Terms from the workbook are added even if they are already present in
+        the EML file.
+    """
+    # Load the EML and workbook for processing
+    eml = etree.parse(eml_path, parser=etree.XMLParser(remove_blank_text=True))
+    wb = pd.read_csv(workbook_path, sep="\t", encoding="utf-8")
+
+    # Iterate over workbook rows and annotate the EML
+    for _, row in wb.iterrows():
+
+        # Only annotate if required components are present
+        if (
+            not pd.isnull(row["predicate"])
+            and not pd.isnull(row["predicate_id"])
+            and not pd.isnull(row["object"])
+            and not pd.isnull(row["object_id"])
+        ):
+            # Create the annotation element
+            annotation = create_annotation_element(
+                predicate_label=row["predicate"],
+                predicate_id=row["predicate_id"],
+                object_label=row["object"],
+                object_id=row["object_id"],
+            )
+
+            # Insert the annotation
+            if row["element"] == "dataset":
+                # Insert the annotation before the contact element to correctly
+                # locate dataset level annotations in the EML, we use a
+                # consistent reference point that is required by the EML
+                # schema.
+                root = eml.getroot()
+                dataset = root.find(".//dataset")
+                contact = dataset.find("contact")
+                dataset.insert(dataset.index(contact), annotation)
+            elif row["element"] == "attribute":
+                # Convert absolute XPath to relative path to avoid errors
+                attribute_xpath = row["element_xpath"].replace("/eml:eml", "./")
+                # Insert the annotation at the end of the attribute list.
+                root = eml.getroot()
+                attribute = root.find(attribute_xpath)
+                attribute.insert(len(attribute) + 1, annotation)
+
+    # Write eml to file
+    eml.write(output_path, pretty_print=True, encoding="utf-8", xml_declaration=True)
+
+
+def create_annotation_element(predicate_label, predicate_id, object_label, object_id):
+    """Create an EML annotation element
+
+    :param predicate_label: The predicate label of the annotation.
+    :param predicate_id: The URI of the predicate.
+    :param object_label: The object label of the annotation.
+    :param object_id: The URI of the object.
+    """
+    annotation_elem = etree.Element("annotation")
+
+    property_uri_elem = etree.SubElement(annotation_elem, "propertyURI")
+    property_uri_elem.attrib["label"] = predicate_label
+    property_uri_elem.text = predicate_id
+
+    value_uri_elem = etree.SubElement(annotation_elem, "valueURI")
+    value_uri_elem.attrib["label"] = object_label
+    value_uri_elem.text = object_id
+
+    return annotation_elem
