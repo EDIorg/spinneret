@@ -161,11 +161,17 @@ def get_description(element: etree._Element) -> str:
     if element.tag in "dataset":
         # Add abstract and keywords, they are descriptive of the entire dataset
         abstract = element.xpath("./abstract")
-        abstract = etree.tostring(abstract[0], encoding="utf-8", method="text")
-        abstract = abstract.decode("utf-8").strip()
+        if len(abstract) != 0:  # abstract is optional
+            abstract = etree.tostring(abstract[0], encoding="utf-8", method="text")
+            abstract = abstract.decode("utf-8").strip()
+        else:
+            abstract = ""
         keywords = element.xpath(".//keyword")
-        keywords = [k.text for k in keywords]
-        description = abstract + " " + " ".join(keywords)
+        if len(keywords) != 0:  # keywords are optional
+            keywords = [k.text for k in keywords]
+        else:
+            keywords = ""
+        description = abstract + " ".join(keywords)
     elif element.tag in entities:
         description = element.findtext(".//entityName")
     elif element.tag in "attribute":
