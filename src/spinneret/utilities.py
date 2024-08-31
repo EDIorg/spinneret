@@ -2,6 +2,7 @@
 
 from os import environ
 from json import load
+from lxml import etree
 
 
 def load_configuration(config_file: str) -> None:
@@ -18,3 +19,14 @@ def load_configuration(config_file: str) -> None:
         config = load(config)
         for key, value in config.items():
             environ[key] = value
+
+
+def delete_empty_tags(xml: etree._ElementTree) -> etree._ElementTree:
+    """Deletes empty tags from an XML file
+
+    :param xml: The XML file to be cleaned.
+    :returns: The cleaned XML file.
+    """
+    for element in xml.xpath(".//*[not(node())]"):
+        element.getparent().remove(element)
+    return xml
