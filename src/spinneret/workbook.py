@@ -3,6 +3,7 @@
 from uuid import uuid4
 from lxml import etree
 import pandas as pd
+from spinneret.utilities import delete_empty_tags
 
 
 def create(
@@ -54,6 +55,7 @@ def create(
                   when revisiting an annotation at a later date.
     """
     eml = etree.parse(eml_file)
+    eml = delete_empty_tags(eml)
     package_id = eml.xpath("./@packageId")[0]
     url = base_url + package_id
     res = []
