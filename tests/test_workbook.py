@@ -54,3 +54,22 @@ def test_get_description():
         description = get_description(element)
         assert isinstance(description, str)
         assert len(description) > 0
+
+
+def test_get_description_handles_missing_element():
+    """Test that the get_description function returns an empty string when the
+    optional elements are missing"""
+
+    # Read test file
+    eml_file = datasets.get_example_eml_dir() + "/" + "edi.3.9.xml"
+    eml = etree.parse(eml_file)
+
+    # Remove abstract and keywordSet elements from dataset
+    element = eml.xpath(".//dataset")[0]
+    element.remove(element.find("abstract"))
+    for kw in element.findall(".//keywordSet"):
+        element.remove(kw)
+
+    # Test element with missing abstract
+    description = get_description(element)
+    assert description == ""
