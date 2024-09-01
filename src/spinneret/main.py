@@ -3,7 +3,7 @@
 import os
 from pathlib import Path
 from spinneret import workbook
-from spinneret.annotator import annotate_workbook
+from spinneret.annotator import annotate_workbook, annotate_eml
 from spinneret.utilities import load_configuration
 
 
@@ -74,6 +74,41 @@ def annotate_workbooks(workbook_dir: str, output_dir: str, config_path: str) -> 
         )
 
 
+def annotate_eml_files(workbook_dir: str, eml_dir: str, output_dir: str) -> None:
+    """Create workbooks for each EML file in a directory
+
+    :param workbook_dir: Directory of annotated workbooks
+    :param eml_dir: Directory of unannotated EML files
+    :output_dir: Directory to save annotated EML files
+    :return: None
+    :notes: Annotated EML files will not be created if they already exist.
+    """
+
+    # An annotated EML file is created for each annotated workbook file
+    workbook_files = os.listdir(workbook_dir)
+    eml_files = os.listdir(eml_dir)
+    eml_files = [f for f in eml_files if f.endswith(".xml")]  # Filter out non-XML files
+
+    # Iterate over workbook files and create annotated EML for each
+    for workbook_file in workbook_files:
+
+        # Continue if the EML file does not exist or is already annotated
+        eml_path = eml_dir + "/" + workbook_file.split("_")[0] + ".xml"
+        if not os.path.exists(eml_path):
+            continue
+        eml_path_annotated = output_dir + "/" + workbook_file.split("_")[0] + ".xml"
+        if os.path.exists(eml_path_annotated):
+            continue
+
+        # Create annotated EML file
+        print(f"Creating annotated EML file for {eml_path}")
+        annotate_eml(
+            eml_path=eml_path,
+            workbook_path=workbook_dir + "/" + workbook_file,
+            output_path=eml_path_annotated,
+        )
+
+
 if __name__ == "__main__":
 
     # create_workbooks(
@@ -81,8 +116,15 @@ if __name__ == "__main__":
     #     workbook_dir="/Users/csmith/Data/kgraph/workbook/raw",
     # )
 
-    annotate_workbooks(
-        workbook_dir="/Users/csmith/Data/kgraph/workbook/raw",
-        output_dir="/Users/csmith/Data/kgraph/workbook/annotated",
-        config_path="/Users/csmith/Code/spinneret_EDIorg/spinneret/config.json",
+    # annotate_workbooks(
+    #     workbook_dir="/Users/csmith/Data/kgraph/workbook/raw",
+    #     output_dir="/Users/csmith/Data/kgraph/workbook/annotated",
+    #     config_path="/Users/csmith/Code/spinneret_EDIorg/spinneret/config.json",
+    # )
+
+    annotate_eml_files(
+        workbook_dir="/Users/csmith/Data/kgraph/workbook/annotated",
+        eml_dir="/Users/csmith/Data/kgraph/eml/raw",
+        output_dir="/Users/csmith/Data/kgraph/eml/annotated",
     )
+
