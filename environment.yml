@@ -7,6 +7,7 @@ dependencies:
   - annotated-types=0.7.0
   - anyascii=0.3.2
   - astroid=3.2.4
+  - babel=2.14.0
   - black=24.8.0
   - brotli-python=1.1.0
   - bzip2=1.0.8
@@ -28,7 +29,7 @@ dependencies:
   - hpack=4.0.0
   - hyperframe=6.0.1
   - icu=75.1
-  - idna=3.7
+  - idna=3.8
   - imagesize=1.4.1
   - importlib-metadata=8.4.0
   - importlib-resources=6.4.3
@@ -74,11 +75,12 @@ dependencies:
   - pydantic-core=2.20.1
   - pygments=2.18.0
   - pylint=3.2.6
-  - pyparsing=3.1.2
+  - pyparsing=3.1.4
   - pysocks=1.7.1
   - pytest=8.3.2
   - pytest-cov=5.0.0
   - python=3.11.9
+  - python-dateutil=2.9.0
   - python-gitlab=4.9.0
   - python-semantic-release=9.8.7
   - python-tzdata=2024.1
@@ -93,6 +95,7 @@ dependencies:
   - setuptools=72.2.0
   - shellingham=1.5.4
   - six=1.16.0
+  - smmap=5.0.0
   - snowballstemmer=2.2.0
   - sphinx=8.0.2
   - sphinx-autoapi=3.2.1
@@ -101,6 +104,7 @@ dependencies:
   - sphinxcontrib-htmlhelp=2.1.0
   - sphinxcontrib-jsmath=1.0.1
   - sphinxcontrib-qthelp=2.0.0
+  - sphinxcontrib-serializinghtml=1.1.10
   - tk=8.6.13
   - toml=0.10.2
   - tomli=2.0.1
@@ -112,12 +116,16 @@ dependencies:
   - wheel=0.44.0
   - xz=5.2.6
   - yaml=0.2.5
-  - zipp=3.20.0
+  - zipp=3.20.1
   - zstandard=0.23.0
   - zstd=1.5.6
   - pip:
-      - babel==2.16.0
-      - python-dateutil==2.9.0.post0
-      - smmap==5.0.1
-      - sphinxcontrib-serializinghtml==2.0.0
+      - html5lib==1.1
+      - owlrl==6.0.2
+      - prettytable==3.11.0
+      - pyshacl==0.26.0
+      - soso==0.1.0
+      - spinneret==0.1.0
+      - wcwidth==0.2.13
+      - webencodings==0.5.1
 prefix: /opt/miniconda3/envs/spinneret

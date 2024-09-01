@@ -3,7 +3,6 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - python=3.11
   - black
   - lxml
   - myst-parser
@@ -12,7 +11,9 @@ dependencies:
   - pytest
   - pytest-cov
   - python-semantic-release
+  - python=3.11
   - rdflib
   - sphinx
   - sphinx-autoapi
+  - importlib_resources==6.4.3
 prefix: /opt/miniconda3/envs/spinneret
