@@ -1,7 +1,9 @@
 """The main module"""
 
 import os
+import json
 from pathlib import Path
+from requests import get, codes
 from soso.main import convert
 from soso.strategies.eml import EML, get_encoding_format
 from soso.utilities import delete_null_values, generate_citation_from_doi
@@ -112,56 +114,108 @@ def annotate_eml_files(workbook_dir: str, eml_dir: str, output_dir: str) -> None
         )
 
 
-def create_soso(metadata_file: str, dataset_id: str, doi: str) -> str:
-    """Wrapper function for the convert function that adds additional
-    properties
+def create_soso_files(eml_dir: str, output_dir: str) -> None:
+    """Create SOSO files for each EML file in a directory
 
-    :param metadata_file: The path to the metadata file.
-    :param dataset_id: The dataset identifier, assigned by the repository.
-    :param doi: The dataset's Digital Object Identifier."""
+    :param eml_dir: Directory of annotated EML files
+    :param output_dir: Directory to save SOSO files
+    :return: None
+    :notes: SOSO files will not be created if they already exist.
+    """
 
-    # Add properties that can't be derived from the EML record
-    url = "https://www.sample-data-repository.org/dataset/" + dataset_id
-    version = dataset_id.split(".")[1]
-    is_accessible_for_free = True
-    citation = generate_citation_from_doi(doi, style="apa", locale="en-US")
-    provider = {"@id": "https://www.sample-data-repository.org"}
-    publisher = {"@id": "https://www.sample-data-repository.org"}
+    # A SOSO file is created for each EML file
+    eml_files = os.listdir(eml_dir)
+    eml_files = [f for f in eml_files if f.endswith(".xml")]  # Filter out non-XML files
+    soso_files = os.listdir(output_dir)
 
-    # Modify the get_subject_of method to return the contentUrl
-    def get_subject_of(self):
-        encoding_format = get_encoding_format(self.metadata)
-        date_modified = self.get_date_modified()
-        if encoding_format and date_modified:
-            subject_of = {
-                "@type": "DataDownload",
-                "name": "EML metadata for dataset",
-                "description": "EML metadata describing the dataset",
-                "encodingFormat": encoding_format,
-                "contentUrl": "https://www.sample-data-repository/metadata/"
-                              + self.file.split("/")[-1],  # Add the contentUrl
-                "dateModified": date_modified,
+    # Iterate over EML files and create SOSO files for each
+    for eml_file in eml_files:
+
+        # Continue if SOSO file already exists
+        eml_pid = Path(eml_file).stem
+        soso_file = eml_pid + ".json"
+        if soso_file in soso_files:
+            continue
+
+        # Add properties that can't be derived from the EML record
+        scope, identifier, revision = eml_pid.split(".")
+        # url
+        url = (
+                "https://portal.edirepository.org/nis/mapbrowse?scope=" + scope +
+                "&identifier=" + identifier + "&revision=" + revision)
+        # is_accessible_for_free
+        is_accessible_for_free = True
+        # identifier
+        doi_uri = f"https://pasta.lternet.edu/package/doi/eml/{scope}/{identifier}/{revision}"
+        doi = get(doi_uri)
+        if doi.status_code == codes.ok:
+            doi = doi.text
+            doi = "https://doi.org/" + doi.split(":")[1]  # URL format
+        else:
+            doi = None
+        if doi is not None:
+            identifier = {  # DOI is more informative than the packageId
+                "@id": doi,
+                "@type": "PropertyValue",
+                "propertyID": "https://registry.identifiers.org/registry/doi",
+                "value": doi.split("https://doi.org/")[1],
+                "url": doi
             }
-            return delete_null_values(subject_of)
-        return None
-    EML.get_subject_of = get_subject_of  # Override the method
+        else:
+            identifier = None
+        # citation
+        if doi is not None:
+            citation = generate_citation_from_doi(doi, style="apa", locale="en-US")
+        else:
+            citation = None
+        provider = {"@id": "https://edirepository.org"}
+        publisher = {"@id": "https://edirepository.org"}
 
-    # Call convert to process data with additional properties and overridden method
-    additional_properties = {
-        "url": url,
-        "version": version,
-        "isAccessibleForFree": is_accessible_for_free,
-        "citation": citation,
-        "provider": provider,
-        "publisher": publisher
-    }
-    r = convert(
-        file=metadata_file,
-        strategy="EML",
-        **additional_properties
-    )
+        # Modify the get_subject_of method to add the missing contentUrl
+        def get_subject_of(self):
+            encoding_format = get_encoding_format(self.metadata)
+            date_modified = self.get_date_modified()
+            if encoding_format and date_modified:
+                file_name = self.file.split("/")[-1]
+                subject_of = {
+                    "@type": "DataDownload",
+                    "name": "EML metadata for dataset",
+                    "description": "EML metadata describing the dataset",
+                    "encodingFormat": encoding_format,
+                    "contentUrl": (
+                            "https://pasta.lternet.edu/package/metadata/eml/" +
+                            file_name.split(".")[0] + "/" +
+                            file_name.split(".")[1] + "/" +
+                            file_name.split(".")[2]),
+                    "dateModified": date_modified,
+                }
+                return delete_null_values(subject_of)
+            return None
 
-    return r
+        # Override the get_subject_of method of the EML strategy
+        EML.get_subject_of = get_subject_of
+
+        # Call the convert function with the additional properties
+        additional_properties = {
+            "url": url,
+            "version": revision,
+            "isAccessibleForFree": is_accessible_for_free,
+            "citation": citation,
+            "provider": provider,
+            "publisher": publisher,
+            "identifier": identifier
+        }
+        res = convert(
+            file=eml_dir + "/" + eml_file,
+            strategy="EML",
+            **additional_properties
+        )
+
+        # Reformat the JSON-LD for readability and write to file
+        json_ld = json.loads(json_ld)
+        j = json.dumps(json_ld, indent=2)
+        with open(output_dir + "/" + soso_file, "w") as fp:
+            fp.write(j)
 
 
 if __name__ == "__main__":
@@ -177,9 +231,15 @@ if __name__ == "__main__":
     #     config_path="/Users/csmith/Code/spinneret_EDIorg/spinneret/config.json",
     # )
 
-    annotate_eml_files(
-        workbook_dir="/Users/csmith/Data/kgraph/workbook/annotated",
-        eml_dir="/Users/csmith/Data/kgraph/eml/raw",
-        output_dir="/Users/csmith/Data/kgraph/eml/annotated",
+    # annotate_eml_files(
+    #     workbook_dir="/Users/csmith/Data/kgraph/workbook/annotated",
+    #     eml_dir="/Users/csmith/Data/kgraph/eml/raw",
+    #     output_dir="/Users/csmith/Data/kgraph/eml/annotated",
+    # )
+
+    create_soso_files(
+        metadata_file="/Users/csmith/Data/kgraph/eml/annotated/edi.1.xml",
+        dataset_id="edi.1.1",
+        doi="10.6073/pasta/4a8f0f4b4b2f3e9d7e2f1c4d4f5b5c7b",
     )
 
