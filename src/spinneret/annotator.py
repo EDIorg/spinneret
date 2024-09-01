@@ -218,17 +218,32 @@ def annotate_eml(eml_path: str, workbook_path: str, output_path: str) -> None:
 
             # Insert the annotation
             if row["element"] == "dataset":
-                # Insert the annotation before the contact element to correctly
-                # locate dataset level annotations in the EML, we use a
-                # consistent reference point that is required by the EML
-                # schema.
+
+                # Insert the annotation before the required contact element,
+                # and any optional elements preceding the contact element, to
+                # correctly locate dataset level annotations according to the
+                # EML schema.
                 root = eml.getroot()
                 dataset = root.find(".//dataset")
-                contact = dataset.find("contact")
-                dataset.insert(dataset.index(contact), annotation)
+                if dataset.find("purpose"):
+                    reference_element = dataset.find("purpose")
+                elif dataset.find("introduction"):
+                    reference_element = dataset.find("introduction")
+                elif dataset.find("gettingStarted"):
+                    reference_element = dataset.find("gettingStarted")
+                elif dataset.find("acknowledgements"):
+                    reference_element = dataset.find("acknowledgements")
+                elif dataset.find("maintenance"):
+                    reference_element = dataset.find("maintenance")
+                else:
+                    reference_element = dataset.find("contact")
+                dataset.insert(dataset.index(reference_element), annotation)
+
             elif row["element"] == "attribute":
+
                 # Convert absolute XPath to relative path to avoid errors
                 attribute_xpath = row["element_xpath"].replace("/eml:eml", "./")
+
                 # Insert the annotation at the end of the attribute list.
                 root = eml.getroot()
                 attribute = root.find(attribute_xpath)
