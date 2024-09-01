@@ -2,6 +2,9 @@
 
 import os
 from pathlib import Path
+from soso.main import convert
+from soso.strategies.eml import EML, get_encoding_format
+from soso.utilities import delete_null_values, generate_citation_from_doi
 from spinneret import workbook
 from spinneret.annotator import annotate_workbook, annotate_eml
 from spinneret.utilities import load_configuration
@@ -107,6 +110,58 @@ def annotate_eml_files(workbook_dir: str, eml_dir: str, output_dir: str) -> None
             workbook_path=workbook_dir + "/" + workbook_file,
             output_path=eml_path_annotated,
         )
+
+
+def create_soso(metadata_file: str, dataset_id: str, doi: str) -> str:
+    """Wrapper function for the convert function that adds additional
+    properties
+
+    :param metadata_file: The path to the metadata file.
+    :param dataset_id: The dataset identifier, assigned by the repository.
+    :param doi: The dataset's Digital Object Identifier."""
+
+    # Add properties that can't be derived from the EML record
+    url = "https://www.sample-data-repository.org/dataset/" + dataset_id
+    version = dataset_id.split(".")[1]
+    is_accessible_for_free = True
+    citation = generate_citation_from_doi(doi, style="apa", locale="en-US")
+    provider = {"@id": "https://www.sample-data-repository.org"}
+    publisher = {"@id": "https://www.sample-data-repository.org"}
+
+    # Modify the get_subject_of method to return the contentUrl
+    def get_subject_of(self):
+        encoding_format = get_encoding_format(self.metadata)
+        date_modified = self.get_date_modified()
+        if encoding_format and date_modified:
+            subject_of = {
+                "@type": "DataDownload",
+                "name": "EML metadata for dataset",
+                "description": "EML metadata describing the dataset",
+                "encodingFormat": encoding_format,
+                "contentUrl": "https://www.sample-data-repository/metadata/"
+                              + self.file.split("/")[-1],  # Add the contentUrl
+                "dateModified": date_modified,
+            }
+            return delete_null_values(subject_of)
+        return None
+    EML.get_subject_of = get_subject_of  # Override the method
+
+    # Call convert to process data with additional properties and overridden method
+    additional_properties = {
+        "url": url,
+        "version": version,
+        "isAccessibleForFree": is_accessible_for_free,
+        "citation": citation,
+        "provider": provider,
+        "publisher": publisher
+    }
+    r = convert(
+        file=metadata_file,
+        strategy="EML",
+        **additional_properties
+    )
+
+    return r
 
 
 if __name__ == "__main__":
