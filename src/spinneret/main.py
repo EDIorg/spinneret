@@ -1,7 +1,6 @@
 """The main module"""
 
 import os
-import json
 from pathlib import Path
 from requests import get, codes
 from soso.main import convert
@@ -59,7 +58,9 @@ def annotate_workbooks(workbook_dir: str, output_dir: str, config_path: str) -> 
 
     # An annotated workbook is created for unannotated workbook file
     workbook_files = os.listdir(workbook_dir)
-    workbook_files = [f for f in workbook_files if f.endswith(".tsv")]  # Filter out non-TSV files
+    workbook_files = [
+        f for f in workbook_files if f.endswith(".tsv")
+    ]  # Filter out non-TSV files
     output_files = os.listdir(output_dir)
     output_files = [f for f in output_files if f.endswith(".tsv")]
 
@@ -114,6 +115,7 @@ def annotate_eml_files(workbook_dir: str, eml_dir: str, output_dir: str) -> None
         )
 
 
+# pylint: disable=too-many-locals
 def create_soso_files(eml_dir: str, output_dir: str) -> None:
     """Create SOSO files for each EML file in a directory
 
@@ -136,30 +138,39 @@ def create_soso_files(eml_dir: str, output_dir: str) -> None:
         soso_file = eml_pid + ".json"
         if soso_file in soso_files:
             continue
+        print(f"Creating SOSO file for {eml_file}")
 
         # Add properties that can't be derived from the EML record
         scope, identifier, revision = eml_pid.split(".")
         # url
         url = (
-                "https://portal.edirepository.org/nis/mapbrowse?scope=" + scope +
-                "&identifier=" + identifier + "&revision=" + revision)
+            "https://portal.edirepository.org/nis/mapbrowse?scope="
+            + scope
+            + "&identifier="
+            + identifier
+            + "&revision="
+            + revision
+        )
         # is_accessible_for_free
         is_accessible_for_free = True
-        # identifier
-        doi_uri = f"https://pasta.lternet.edu/package/doi/eml/{scope}/{identifier}/{revision}"
-        doi = get(doi_uri)
-        if doi.status_code == codes.ok:
+        # doi
+        doi_uri = (
+            f"https://pasta.lternet.edu/package/doi/eml/{scope}/{identifier}/{revision}"
+        )
+        doi = get(doi_uri, timeout=10)
+        if doi.status_code == codes.ok:  # pylint: disable=no-member
             doi = doi.text
             doi = "https://doi.org/" + doi.split(":")[1]  # URL format
         else:
             doi = None
+        # identifier
         if doi is not None:
             identifier = {  # DOI is more informative than the packageId
                 "@id": doi,
                 "@type": "PropertyValue",
                 "propertyID": "https://registry.identifiers.org/registry/doi",
                 "value": doi.split("https://doi.org/")[1],
-                "url": doi
+                "url": doi,
             }
         else:
             identifier = None
@@ -183,17 +194,19 @@ def create_soso_files(eml_dir: str, output_dir: str) -> None:
                     "description": "EML metadata describing the dataset",
                     "encodingFormat": encoding_format,
                     "contentUrl": (
-                            "https://pasta.lternet.edu/package/metadata/eml/" +
-                            file_name.split(".")[0] + "/" +
-                            file_name.split(".")[1] + "/" +
-                            file_name.split(".")[2]),
+                        "https://pasta.lternet.edu/package/metadata/eml/"
+                        + file_name.split(".")[0]
+                        + "/"
+                        + file_name.split(".")[1]
+                        + "/"
+                        + file_name.split(".")[2]
+                    ),
                     "dateModified": date_modified,
                 }
                 return delete_null_values(subject_of)
             return None
 
-        # Override the get_subject_of method of the EML strategy
-        EML.get_subject_of = get_subject_of
+        EML.get_subject_of = get_subject_of  # Override the method
 
         # Call the convert function with the additional properties
         additional_properties = {
@@ -203,19 +216,15 @@ def create_soso_files(eml_dir: str, output_dir: str) -> None:
             "citation": citation,
             "provider": provider,
             "publisher": publisher,
-            "identifier": identifier
+            "identifier": identifier,
         }
-        res = convert(
-            file=eml_dir + "/" + eml_file,
-            strategy="EML",
-            **additional_properties
+        json_ld = convert(
+            file=eml_dir + "/" + eml_file, strategy="EML", **additional_properties
         )
 
         # Reformat the JSON-LD for readability and write to file
-        json_ld = json.loads(json_ld)
-        j = json.dumps(json_ld, indent=2)
-        with open(output_dir + "/" + soso_file, "w") as fp:
-            fp.write(j)
+        with open(output_dir + "/" + soso_file, "w", encoding="utf-8") as fp:
+            fp.write(json_ld)
 
 
 if __name__ == "__main__":
@@ -237,9 +246,9 @@ if __name__ == "__main__":
     #     output_dir="/Users/csmith/Data/kgraph/eml/annotated",
     # )
 
-    create_soso_files(
-        metadata_file="/Users/csmith/Data/kgraph/eml/annotated/edi.1.xml",
-        dataset_id="edi.1.1",
-        doi="10.6073/pasta/4a8f0f4b4b2f3e9d7e2f1c4d4f5b5c7b",
-    )
+    # create_soso_files(
+    #     eml_dir="/Users/csmith/Data/kgraph/eml/annotated",
+    #     output_dir="/Users/csmith/Data/kgraph/soso/raw",
+    # )
 
+    pass
