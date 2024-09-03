@@ -28,6 +28,32 @@ def load_vocabularies(files: list) -> Graph:
     return g
 
 
+def load_graph(metadata_files: list = None, vocabulary_files: list = None) -> Graph:
+    """
+    :param metadata_files: List of file paths to metadata in JSON-LD format
+    :param vocabulary_files: List of file paths to vocabularies
+    :returns: Graph of the combined metadata and vocabularies
+    :notes: If no vocabulary files are provided, only the metadata are loaded
+        into the graph, and vice versa if no metadata files are provided.
+
+        Vocabulary formats are identified by the file extension according
+        to `rdflib.util.guess_format`
+    """
+    g = Graph()
+
+    # Load metadata
+    if metadata_files is not None:
+        for filename in metadata_files:
+            g.parse(filename)
+
+    # Load vocabularies
+    if vocabulary_files is not None:
+        for filename in vocabulary_files:
+            g.parse(filename, format=guess_format(filename))
+
+    return g
+
+
 if __name__ == "__main__":
     # Example usage
     WORKING_DIR = "/Users/csmith/Data/soso/all_edi_test_results"
