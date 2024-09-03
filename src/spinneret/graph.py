@@ -4,30 +4,6 @@ from rdflib import Graph
 from rdflib.util import guess_format
 
 
-def load_metadata(files: list) -> Graph:
-    """
-    :param files:   List of file paths to metadata in JSON-LD format
-    :returns:       Graph of the combined metadata files
-    """
-    g = Graph()
-    for filename in files:
-        g.parse(filename)
-    return g
-
-
-def load_vocabularies(files: list) -> Graph:
-    """
-    :param files:   List of file paths to vocabularies
-    :returns:       Graph of the combined vocabularies
-    :notes: Vocabulary formats are identified by the file extension according
-        to `rdflib.util.guess_format`
-    """
-    g = Graph()
-    for filename in files:
-        g.parse(filename, format=guess_format(filename))
-    return g
-
-
 def load_graph(metadata_files: list = None, vocabulary_files: list = None) -> Graph:
     """
     :param metadata_files: List of file paths to metadata in JSON-LD format
@@ -59,7 +35,7 @@ if __name__ == "__main__":
     WORKING_DIR = "/Users/csmith/Data/soso/all_edi_test_results"
     list_of_files = ["edi.1.1.json", "edi.3.10.json", "edi.5.5.json"]
     working_files = [WORKING_DIR + "/" + f for f in list_of_files]
-    res = load_metadata(working_files)
+    res = load_graph(metadata_files=working_files)
 
     # # Full example
     # working_dir = "/Users/csmith/Data/soso/all_edi_test_results"
@@ -72,7 +48,7 @@ if __name__ == "__main__":
     # # import random
     # # working_files = random.choices(working_files, k=1000)
     # # Create full graph
-    # g = load_metadata(working_files)
+    # g = load_graph(metadata_files=working_files)
 
     # # Serialize to file
     # output_file = "/Users/csmith/Data/soso/all_edi_test_graph/combined.ttl"
@@ -93,9 +69,8 @@ if __name__ == "__main__":
     # res = g.query(lake_query)
     # for row in res:
     #     print(row)
-    #
+
     # # Iterate through the namespace bindings
     # ns_manager = g.namespace_manager
     # for prefix, uri in ns_manager.namespaces():
     #     print(f"Prefix: {prefix}, URI: {uri}")
-    #
