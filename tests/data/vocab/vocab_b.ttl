@@ -1,0 +1,15 @@
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix ex: <http://example.org/skos#> .
+
+ex:AnimalVocabulary a skos:ConceptScheme ;
+    skos:prefLabel "Animal Vocabulary" ;
+    skos:definition "A simple SKOS vocabulary for animals." .
+
+ex:Animal a skos:Concept ;
+    skos:prefLabel "Animal" ;
+    skos:definition "An example concept for animals." .
+
+ex:Dog a skos:Concept ;
+    skos:prefLabel "Dog" ;
+    skos:definition "A specific example of an animal." ;
+    skos:broader ex:Animal .
