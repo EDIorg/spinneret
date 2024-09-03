@@ -1,6 +1,7 @@
 """The graph module"""
 
 from rdflib import Graph
+from rdflib.util import guess_format
 
 
 def load_metadata(files: list) -> Graph:
@@ -11,6 +12,19 @@ def load_metadata(files: list) -> Graph:
     g = Graph()
     for filename in files:
         g.parse(filename)
+    return g
+
+
+def load_vocabularies(files: list) -> Graph:
+    """
+    :param files:   List of file paths to vocabularies
+    :returns:       Graph of the combined vocabularies
+    :notes: Vocabulary formats are identified by the file extension according
+        to `rdflib.util.guess_format`
+    """
+    g = Graph()
+    for filename in files:
+        g.parse(filename, format=guess_format(filename))
     return g
 
 
