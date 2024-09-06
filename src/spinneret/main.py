@@ -3,12 +3,14 @@
 import os
 from pathlib import Path
 from requests import get, codes
+from rdflib import Graph
 from soso.main import convert
 from soso.strategies.eml import EML, get_encoding_format
 from soso.utilities import delete_null_values, generate_citation_from_doi
 from spinneret import workbook
 from spinneret.annotator import annotate_workbook, annotate_eml
 from spinneret.utilities import load_configuration
+from spinneret.graph import load_graph
 
 
 def create_workbooks(eml_dir: str, workbook_dir: str) -> None:
@@ -227,6 +229,29 @@ def create_soso_files(eml_dir: str, output_dir: str) -> None:
             fp.write(json_ld)
 
 
+def create_kgraph(soso_dir: str, vocabulary_dir: str) -> Graph:
+    """Create a Knowledge Graph from SOSO files and vocabularies
+
+    :param soso_dir: Directory of SOSO files
+    :param vocabulary_dir: Directory of vocabulary files
+    :return: Knowledge Graph"""
+
+    # Get list of SOSO and vocabulary files
+    soso_files = [soso_dir + "/" + f for f in os.listdir(soso_dir)]
+    soso_files = [
+        f for f in soso_files if f.endswith(".json")
+    ]  # Filter out non-JSON files
+    vocabulary_files = [vocabulary_dir + "/" + f for f in os.listdir(vocabulary_dir)]
+    vocabulary_files = [
+        f for f in vocabulary_files if f.endswith(".ttl") or f.endswith(".owl")
+    ]  # Filter out non-TTL and non-OWL files
+
+    # Load knowledge graph
+    kgraph = load_graph(metadata_files=soso_files, vocabulary_files=vocabulary_files)
+
+    return kgraph
+
+
 if __name__ == "__main__":
 
     # create_workbooks(
@@ -248,7 +273,17 @@ if __name__ == "__main__":
 
     # create_soso_files(
     #     eml_dir="/Users/csmith/Data/kgraph/eml/annotated",
-    #     output_dir="/Users/csmith/Data/kgraph/soso/raw",
+    #     output_dir="/Users/csmith/Data/kgraph/soso/annotated",
+    # )
+
+    # g = create_kgraph(
+    #     soso_dir="/Users/csmith/Data/kgraph/soso/annotated",
+    #     vocabulary_dir="/Users/csmith/Data/kgraph/vocab",
+    # )
+    # # Serialize to file
+    # g.serialize(
+    #     destination="/Users/csmith/Data/kgraph/kgraph/edi_kgraph_top_20.ttl",
+    #     format="turtle"
     # )
 
     pass
