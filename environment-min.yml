@@ -4,16 +4,17 @@ channels:
   - defaults
 dependencies:
   - black
+  - importlib_resources==6.4.3
   - lxml
   - myst-parser
   - pandas
   - pylint
   - pytest
   - pytest-cov
+  - pytest-mock
   - python-semantic-release
   - python=3.11
   - rdflib
   - sphinx
   - sphinx-autoapi
-  - importlib_resources==6.4.3
 prefix: /opt/miniconda3/envs/spinneret

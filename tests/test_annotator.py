@@ -5,8 +5,8 @@ from shutil import copyfile
 import pytest
 import pandas as pd
 from lxml import etree
+from spinneret import annotator
 from spinneret.annotator import (
-    get_bioportal_annotation,
     annotate_workbook,
     annotate_eml,
     create_annotation_element,
@@ -15,7 +15,8 @@ from spinneret.utilities import load_configuration
 from spinneret.datasets import get_example_eml_dir
 
 
-def test_get_bioportal_annotation():
+@pytest.mark.parametrize("use_mock", [True])  # False tests with real HTTP requests
+def test_get_bioportal_annotation(mocker, use_mock, get_bioportal_annotation_fixture):
     """Test get_bioportal_annotation"""
     text = """
     This dataset contains cover of kelp forest sessile
@@ -25,10 +26,22 @@ def test_get_bioportal_annotation():
     using either uniform point contact (UPC) or random point contact (RPC)
     methods.
     """
-    if not os.path.exists("config.json"):
-        pytest.skip("Skipping test due to missing config.json file in package root.")
-    load_configuration("config.json")
-    res = get_bioportal_annotation(
+    if use_mock:
+        # Test with mock data
+        mocker.patch(
+            "spinneret.annotator.get_bioportal_annotation",
+            return_value=get_bioportal_annotation_fixture,
+        )
+        os.environ["BIOPORTAL_API_KEY"] = "mock api key"
+    else:
+        # Load the API key in the configuration file to enable API requests
+        if not os.path.exists("config.json"):
+            pytest.skip(
+                "Skipping test due to missing config.json file in package root."
+            )
+        load_configuration("config.json")
+
+    res = annotator.get_bioportal_annotation(
         text,
         api_key=os.environ["BIOPORTAL_API_KEY"],
         ontologies="ENVO",
@@ -48,12 +61,25 @@ def test_get_bioportal_annotation():
 
 
 # pylint: disable=duplicate-code
-def test_annotate_workbook(tmp_path):
+@pytest.mark.parametrize("use_mock", [True])  # False tests with real HTTP requests
+def test_annotate_workbook(
+    tmp_path, mocker, use_mock, get_bioportal_annotation_fixture
+):
     """Test annotate_workbook"""
-    # Load the API key in the configuration file
-    if not os.path.exists("config.json"):
-        pytest.skip("Skipping test due to missing config.json file in package root.")
-    load_configuration("config.json")
+    if use_mock:
+        # Test with mock data
+        mocker.patch(
+            "spinneret.annotator.get_bioportal_annotation",
+            return_value=get_bioportal_annotation_fixture,
+        )
+        os.environ["BIOPORTAL_API_KEY"] = "mock api key"
+    else:
+        # Load the API key in the configuration file
+        if not os.path.exists("config.json"):
+            pytest.skip(
+                "Skipping test due to missing config.json file in package root."
+            )
+        load_configuration("config.json")
 
     # Copy the workbook to tmp_path for editing
     wb_path = "tests/edi.3.9_annotation_workbook.tsv"
