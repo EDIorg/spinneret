@@ -21,6 +21,12 @@ Graph Module
 .. automodule:: spinneret.graph
    :members:
 
+Main Module
+-----------
+
+.. automodule:: spinneret.main
+   :members:
+
 SSSOM Module
 ------------
 
