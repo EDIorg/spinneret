@@ -123,19 +123,20 @@ def annotate_workbook(workbook_path: str, output_path: str) -> None:
     print(f"Annotating workbook {workbook_path}")
 
     # Load the workbook and EML for processing
-    wb = pd.read_csv(workbook_path, sep="\t", encoding="utf-8")
+    wb = pd.read_csv(workbook_path, sep="\t", encoding="utf-8", dtype=str)
 
     # Iterate over workbook rows and annotate
     wb_additional_rows = pd.DataFrame(columns=wb.columns)
     for index, row in wb.iterrows():
 
-        # Adding standard predicates based on the subject element name
-        if row["element"] == "dataset":
-            wb.loc[index, "predicate"] = "is about"
-            wb.loc[index, "predicate_id"] = "http://purl.obolibrary.org/obo/IAO_0000136"
-        elif row["element"] == "attribute":
-            wb.loc[index, "predicate"] = "contains measurements of type"
-            wb.loc[index, "predicate_id"] = (
+        # Operate on a copy of the row to avoid warnings
+        modified_row = row.copy()
+        if modified_row["element"] == "dataset":
+            modified_row["predicate"] = "is about"
+            modified_row["predicate_id"] = "http://purl.obolibrary.org/obo/IAO_0000136"
+        elif modified_row["element"] == "attribute":
+            modified_row["predicate"] = "contains measurements of type"
+            modified_row["predicate_id"] = (
                 "http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#containsMeasurementsOfType"
             )
 
@@ -160,16 +161,28 @@ def annotate_workbook(workbook_path: str, output_path: str) -> None:
         # Add annotations to the workbook. Add first annotation to row then the
         # remainder to a separate data frame to be appended at the end.
         if annotation:
-            wb.loc[index, "object"] = annotation[0]["label"]
-            wb.loc[index, "object_id"] = annotation[0]["uri"]
-            wb.loc[index, "author"] = "BioPortal Annotator"
-            wb.loc[index, "date"] = pd.Timestamp.now()
+            modified_row["object"] = annotation[0]["label"]
+            modified_row["object_id"] = annotation[0]["uri"]
+            modified_row["author"] = "BioPortal Annotator"
+            modified_row["date"] = pd.Timestamp.now()
+            wb.loc[index] = modified_row  # Update the row in the workbook
         if len(annotation) > 1:
             for item in annotation[1:]:
                 # Create row
-                new_row = wb.loc[index]
-                new_row.loc["object"] = item["label"]
-                new_row.loc["object_id"] = item["uri"]
+                new_row = row.copy()
+                if new_row["element"] == "dataset":
+                    new_row["predicate"] = "is about"
+                    new_row["predicate_id"] = (
+                        "http://purl.obolibrary.org/obo/IAO_0000136"
+                    )
+                elif new_row["element"] == "attribute":
+                    new_row["predicate"] = "contains measurements of type"
+                    new_row["predicate_id"] = (
+                        "http://ecoinformatics.org/oboe/oboe.1.2/"
+                        "oboe-core.owl#containsMeasurementsOfType"
+                    )
+                new_row["object"] = item["label"]
+                new_row["object_id"] = item["uri"]
                 new_row["author"] = "BioPortal Annotator"
                 new_row["date"] = pd.Timestamp.now()
                 # Append row to additional rows df
