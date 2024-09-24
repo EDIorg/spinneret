@@ -1,6 +1,7 @@
 """The utilities module"""
 
 from os import environ
+from urllib.parse import urlparse
 from json import load
 from lxml import etree
 
@@ -30,3 +31,16 @@ def delete_empty_tags(xml: etree._ElementTree) -> etree._ElementTree:
     for element in xml.xpath(".//*[not(node())]"):
         element.getparent().remove(element)
     return xml
+
+
+def is_uri(text: str) -> bool:
+    """
+    :param text: The string to be checked.
+    :returns: True if the string is likely a URI, False otherwise.
+    :note: A string is considered a URI if it has scheme and network
+        location values.
+    """
+    res = urlparse(text)
+    if res.scheme != "" and res.netloc != "":
+        return True
+    return False
