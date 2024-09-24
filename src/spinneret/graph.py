@@ -4,7 +4,7 @@ from rdflib import Graph
 from rdflib.util import guess_format
 
 
-def load_graph(metadata_files: list = None, vocabulary_files: list = None) -> Graph:
+def create_graph(metadata_files: list = None, vocabulary_files: list = None) -> Graph:
     """
     :param metadata_files: List of file paths to metadata in JSON-LD format
     :param vocabulary_files: List of file paths to vocabularies
@@ -35,7 +35,7 @@ if __name__ == "__main__":
     WORKING_DIR = "/Users/csmith/Data/soso/all_edi_test_results"
     list_of_files = ["edi.1.1.json", "edi.3.10.json", "edi.5.5.json"]
     working_files = [WORKING_DIR + "/" + f for f in list_of_files]
-    res = load_graph(metadata_files=working_files)
+    res = create_graph(metadata_files=working_files)
 
     # # Full example
     # working_dir = "/Users/csmith/Data/soso/all_edi_test_results"
@@ -48,7 +48,7 @@ if __name__ == "__main__":
     # # import random
     # # working_files = random.choices(working_files, k=1000)
     # # Create full graph
-    # g = load_graph(metadata_files=working_files)
+    # g = create_graph(metadata_files=working_files)
 
     # # Serialize to file
     # output_file = "/Users/csmith/Data/soso/all_edi_test_graph/combined.ttl"
