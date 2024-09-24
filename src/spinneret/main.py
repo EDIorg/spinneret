@@ -10,7 +10,7 @@ from soso.utilities import delete_null_values, generate_citation_from_doi
 from spinneret import workbook
 from spinneret.annotator import annotate_workbook, annotate_eml
 from spinneret.utilities import load_configuration
-from spinneret.graph import load_graph
+from spinneret.graph import create_graph
 
 
 def create_workbooks(eml_dir: str, workbook_dir: str) -> None:
@@ -247,7 +247,7 @@ def create_kgraph(soso_dir: str, vocabulary_dir: str) -> Graph:
     ]  # Filter out non-TTL and non-OWL files
 
     # Load knowledge graph
-    kgraph = load_graph(metadata_files=soso_files, vocabulary_files=vocabulary_files)
+    kgraph = create_graph(metadata_files=soso_files, vocabulary_files=vocabulary_files)
 
     return kgraph
 
