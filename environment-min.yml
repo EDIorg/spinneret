@@ -4,10 +4,10 @@ channels:
   - defaults
 dependencies:
   - black
-  - importlib_resources==6.4.3
   - lxml
   - myst-parser
   - pandas
+  - pip
   - pylint
   - pytest
   - pytest-cov
@@ -17,4 +17,6 @@ dependencies:
   - rdflib
   - sphinx
   - sphinx-autoapi
+  - pip:
+    - git+https://github.com/clnsmth/soso.git@main
 prefix: /opt/miniconda3/envs/spinneret
