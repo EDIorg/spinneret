@@ -153,6 +153,8 @@ def create_soso_files(eml_dir: str, output_dir: str) -> None:
             + "&revision="
             + revision
         )
+        # @id
+        dataset_id = url
         # is_accessible_for_free
         is_accessible_for_free = True
         # doi
@@ -219,6 +221,7 @@ def create_soso_files(eml_dir: str, output_dir: str) -> None:
             "provider": provider,
             "publisher": publisher,
             "identifier": identifier,
+            "@id": dataset_id,
         }
         json_ld = convert(
             file=eml_dir + "/" + eml_file, strategy="EML", **additional_properties
@@ -272,8 +275,8 @@ if __name__ == "__main__":
     # )
 
     # create_soso_files(
-    #     eml_dir="/Users/csmith/Data/kgraph/eml/annotated",
-    #     output_dir="/Users/csmith/Data/kgraph/soso/annotated",
+    #     eml_dir="/Users/csmith/Data/kgraph/eml/test",
+    #     output_dir="/Users/csmith/Data/kgraph/soso/test",
     # )
 
     # g = create_kgraph(
