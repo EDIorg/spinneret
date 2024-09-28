@@ -27,6 +27,12 @@ Main Module
 .. automodule:: spinneret.main
    :members:
 
+Silhouette Module
+-----------------
+
+.. automodule:: spinneret.silhouette
+   :members:
+
 SSSOM Module
 ------------
 
