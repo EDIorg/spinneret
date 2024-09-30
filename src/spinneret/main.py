@@ -312,8 +312,8 @@ if __name__ == "__main__":
     # )
 
     # create_soso_files(
-    #     eml_dir="/Users/csmith/Data/kgraph/eml/test",
-    #     output_dir="/Users/csmith/Data/kgraph/soso/test",
+    #     eml_dir="/Users/csmith/Data/kgraph/eml/shadow",
+    #     output_dir="/Users/csmith/Data/kgraph/soso/raw",
     # )
 
     # g = create_kgraph(
