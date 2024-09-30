@@ -33,11 +33,11 @@ def delete_empty_tags(xml: etree._ElementTree) -> etree._ElementTree:
     return xml
 
 
-def is_uri(text: str) -> bool:
+def is_url(text: str) -> bool:
     """
     :param text: The string to be checked.
-    :returns: True if the string is likely a URI, False otherwise.
-    :note: A string is considered a URI if it has scheme and network
+    :returns: True if the string is likely a URL, False otherwise.
+    :note: A string is considered a URL if it has scheme and network
         location values.
     """
     res = urlparse(text)
