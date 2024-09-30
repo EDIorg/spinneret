@@ -29,3 +29,21 @@ def convert_userid_to_url(eml: etree.ElementTree) -> etree.ElementTree:
             element.text = new_value
 
     return eml
+
+
+def create_shadow_eml(eml_path: str, output_path: str) -> None:
+    """
+    :param eml_path: The path to the EML file to be annotated.
+    :param output_path: The path to write the annotated EML file.
+    :returns: None
+    :notes: This function wraps a set of enrichment functions to create a
+        shadow EML file.
+    """
+    # Load the EML for processing
+    eml = etree.parse(eml_path, parser=etree.XMLParser(remove_blank_text=True))
+
+    # Call each enrichment functions, passing the result of each to the next
+    eml = convert_userid_to_url(eml)
+
+    # Write eml to file
+    eml.write(output_path, pretty_print=True, encoding="utf-8", xml_declaration=True)
