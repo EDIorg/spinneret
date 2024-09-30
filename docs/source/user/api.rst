@@ -27,10 +27,10 @@ Main Module
 .. automodule:: spinneret.main
    :members:
 
-Silhouette Module
------------------
+Shadow Module
+-------------
 
-.. automodule:: spinneret.silhouette
+.. automodule:: spinneret.shadow
    :members:
 
 SSSOM Module
