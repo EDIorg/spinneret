@@ -2,7 +2,7 @@
 
 from lxml import etree
 from spinneret import datasets
-from spinneret.utilities import delete_empty_tags, is_uri
+from spinneret.utilities import delete_empty_tags, is_url
 
 
 def test_delete_empty_tags():
@@ -26,6 +26,6 @@ def test_delete_empty_tags():
 
 
 def test_is_uri():
-    """Test that a string is a URI or not"""
-    assert is_uri("http://purl.dataone.org/odo/ECSO_00001203") is True
-    assert is_uri("A free text description.") is False
+    """Test that a string is a URL or not"""
+    assert is_url("http://purl.dataone.org/odo/ECSO_00001203") is True
+    assert is_url("A free text description.") is False

@@ -2,7 +2,7 @@
 
 from urllib.parse import urljoin
 from lxml import etree
-from spinneret.utilities import is_uri
+from spinneret.utilities import is_url
 
 
 def convert_userid_to_url(eml: etree.ElementTree) -> etree.ElementTree:
@@ -20,11 +20,11 @@ def convert_userid_to_url(eml: etree.ElementTree) -> etree.ElementTree:
 
         # If the directory isn't a URL, then there it is not possible to
         # convert the value to a URL so skip this element
-        if not is_uri(directory):
+        if not is_url(directory):
             continue
 
         # If the value is not a URL, then convert it to a URL
-        if not is_uri(value):
+        if not is_url(value):
             new_value = urljoin(directory, value)
             element.text = new_value
 
