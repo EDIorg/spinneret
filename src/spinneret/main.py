@@ -11,6 +11,7 @@ from spinneret import workbook
 from spinneret.annotator import annotate_workbook, annotate_eml
 from spinneret.utilities import load_configuration
 from spinneret.graph import create_graph
+from spinneret.shadow import create_shadow_eml
 
 
 def create_workbooks(eml_dir: str, workbook_dir: str) -> None:
@@ -232,6 +233,37 @@ def create_soso_files(eml_dir: str, output_dir: str) -> None:
             fp.write(json_ld)
 
 
+def create_shadow_eml_files(eml_dir: str, output_dir: str) -> None:
+    """Create shadow EML files for each EML file in a directory
+
+    :param eml_dir: Directory of EML files
+    :param output_dir: Directory to save shadow EML files
+    :return: None
+    :notes: Shadow EML files will not be created if they already exist.
+    """
+
+    # A shadow EML file is created for each EML file
+    eml_files = os.listdir(eml_dir)
+    eml_files = [f for f in eml_files if f.endswith(".xml")]  # Filter out non-XML files
+    shadow_files = os.listdir(output_dir)
+
+    # Iterate over EML files and create shadow EML files for each
+    for eml_file in eml_files:
+
+        # Continue if shadow file already exists
+        eml_pid = Path(eml_file).stem
+        shadow_file = eml_pid + ".xml"
+        if shadow_file in shadow_files:
+            continue
+
+        # Create shadow EML file
+        print(f"Creating shadow EML file for {eml_file}")
+        create_shadow_eml(
+            eml_path=eml_dir + "/" + eml_file,
+            output_path=output_dir + "/" + shadow_file,
+        )
+
+
 def create_kgraph(soso_dir: str, vocabulary_dir: str) -> Graph:
     """Create a Knowledge Graph from SOSO files and vocabularies
 
@@ -272,6 +304,11 @@ if __name__ == "__main__":
     #     workbook_dir="/Users/csmith/Data/kgraph/workbook/annotated",
     #     eml_dir="/Users/csmith/Data/kgraph/eml/raw",
     #     output_dir="/Users/csmith/Data/kgraph/eml/annotated",
+    # )
+
+    # create_shadow_eml_files(
+    #     eml_dir="/Users/csmith/Data/kgraph/eml/annotated",
+    #     output_dir="/Users/csmith/Data/kgraph/eml/shadow",
     # )
 
     # create_soso_files(
