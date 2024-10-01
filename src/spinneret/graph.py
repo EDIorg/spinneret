@@ -1,6 +1,6 @@
 """The graph module"""
 
-from rdflib import Graph
+from rdflib import Graph, Literal, URIRef, BNode
 from rdflib.util import guess_format
 
 
@@ -20,7 +20,27 @@ def create_graph(metadata_files: list = None, vocabulary_files: list = None) -> 
     # Load metadata
     if metadata_files is not None:
         for filename in metadata_files:
-            g.parse(filename)
+            f = Graph()
+            f.parse(filename, format="json-ld")
+
+            # TODO Follow this pattern to identify Literals for potential
+            #  conversion to URIRef. Encapsulate each path in a function to
+            #  be called in the parsing loop.
+            for s, p, o in f.triples((None, None, None)):
+                # Determine if p is schema:keywords
+                if p == URIRef("https://schema.org/keywords") and isinstance(o, BNode):
+                    # Get the value of the BNode
+                    for s2, p2, o2 in f.triples((o, None, None)):
+                        # print(s2, p2, o2)
+                        if o2 == URIRef("https://schema.org/DefinedTerm"):
+                            # Get the url of the DefinedTerm
+                            for s3, p3, o3 in f.triples(
+                                (s2, URIRef("https://schema.org/url"), None)
+                            ):
+                                print(s3, p3, o3)
+                                # TODO convert to URIRef if is Literal and is_url
+
+            # TODO g.add(f)  # Add the parsed graph to the combined graph
 
     # Load vocabularies
     if vocabulary_files is not None:
