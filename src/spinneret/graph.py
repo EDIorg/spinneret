@@ -1,6 +1,6 @@
 """The graph module"""
 
-from rdflib import Graph, Literal, URIRef, BNode
+from rdflib import Graph
 from rdflib.util import guess_format
 
 
@@ -20,34 +20,164 @@ def create_graph(metadata_files: list = None, vocabulary_files: list = None) -> 
     # Load metadata
     if metadata_files is not None:
         for filename in metadata_files:
-            f = Graph()
-            f.parse(filename, format="json-ld")
-
-            # TODO Follow this pattern to identify Literals for potential
-            #  conversion to URIRef. Encapsulate each path in a function to
-            #  be called in the parsing loop.
-            for s, p, o in f.triples((None, None, None)):
-                # Determine if p is schema:keywords
-                if p == URIRef("https://schema.org/keywords") and isinstance(o, BNode):
-                    # Get the value of the BNode
-                    for s2, p2, o2 in f.triples((o, None, None)):
-                        # print(s2, p2, o2)
-                        if o2 == URIRef("https://schema.org/DefinedTerm"):
-                            # Get the url of the DefinedTerm
-                            for s3, p3, o3 in f.triples(
-                                (s2, URIRef("https://schema.org/url"), None)
-                            ):
-                                print(s3, p3, o3)
-                                # TODO convert to URIRef if is Literal and is_url
-
-            # TODO g.add(f)  # Add the parsed graph to the combined graph
+            g.parse(filename, format="json-ld")
 
     # Load vocabularies
     if vocabulary_files is not None:
         for filename in vocabulary_files:
             g.parse(filename, format=guess_format(filename))
 
+    # Some string literals should be converted to URIRefs to create linked
+    # data with vocabularies. These are often cases where SOSO conventions
+    # recommend connecting the value to an object property (e.g. `url`) rather
+    # than the object @id. The following code makes these conversions based on
+    # where vocabulary URIs can be used in SOSO markup.
+    g = convert_keyword_url_to_uri(g)
+    g = convert_variable_property_id_to_uri(g)
+    g = convert_variable_measurement_technique_to_uri(g)
+    g = convert_variable_unit_code_to_uri(g)
+    g = convert_license_to_uri(g)
+
     return g
+
+
+def convert_keyword_url_to_uri(graph: Graph) -> Graph:
+    """
+    :param graph: Graph of metadata and vocabularies
+    :returns: Graph with keyword URLs converted to URIs
+    :notes: Converts values of `schema:keyword/schema:DefinedTerm/schema:url`
+        to URI references if the value appears to be a URL.
+    """
+    update_request = """
+    PREFIX schema: <https://schema.org/>
+
+    DELETE {
+        ?term schema:url ?value .
+    }
+    INSERT {
+        ?term schema:url ?newURI .
+    }
+    WHERE {
+        ?dataset schema:keywords ?term .
+        ?term a schema:DefinedTerm .
+        ?term schema:url ?value .
+        FILTER (isLiteral(?value) && REGEX(?value, "^https?://", "i")) .
+        BIND (URI(?value) AS ?newURI)
+    }
+    """
+    graph.update(update_request)
+    return graph
+
+
+def convert_variable_property_id_to_uri(graph: Graph) -> Graph:
+    """
+    :param graph: Graph of metadata and vocabularies
+    :returns: Graph with variable property IDs converted to URIs
+    :notes: Converts values of `schema:variableMeasured/schema:PropertyValue/
+        schema:propertyID` to URI references if the value appears to be a URL.
+    """
+    update_request = """
+    PREFIX schema: <https://schema.org/>
+
+    DELETE {
+        ?term schema:propertyID ?value .
+    }
+    INSERT {
+        ?term schema:propertyID ?newURI .
+    }
+    WHERE {
+        ?dataset schema:variableMeasured ?term .
+        ?term a schema:PropertyValue .
+        ?term schema:propertyID ?value .
+        FILTER (isLiteral(?value) && REGEX(?value, "^https?://", "i")) .
+        BIND (URI(?value) AS ?newURI)
+    }
+    """
+    graph.update(update_request)
+    return graph
+
+
+def convert_variable_measurement_technique_to_uri(graph: Graph) -> Graph:
+    """
+    :param graph: Graph of metadata and vocabularies
+    :returns: Graph with variable measurement techniques converted to URIs
+    :notes: Converts values of `schema:variableMeasured/schema:PropertyValue/
+        schema:measurementTechnique` to URI references if the value appears to
+        be a URL.
+    """
+    update_request = """
+    PREFIX schema: <https://schema.org/>
+
+    DELETE {
+        ?term schema:measurementTechnique ?value .
+    }
+    INSERT {
+        ?term schema:measurementTechnique ?newURI .
+    }
+    WHERE {
+        ?dataset schema:variableMeasured ?term .
+        ?term a schema:PropertyValue .
+        ?term schema:measurementTechnique ?value .
+        FILTER (isLiteral(?value) && REGEX(?value, "^https?://", "i")) .
+        BIND (URI(?value) AS ?newURI)
+    }
+    """
+    graph.update(update_request)
+    return graph
+
+
+def convert_variable_unit_code_to_uri(graph: Graph) -> Graph:
+    """
+    :param graph: Graph of metadata and vocabularies
+    :returns: Graph with variable unit codes converted to URIs
+    :notes: Converts values of `schema:variableMeasured/schema:PropertyValue/
+        schema:unitCode` to URI references if the value appears to be a URL.
+    """
+    update_request = """
+    PREFIX schema: <https://schema.org/>
+
+    DELETE {
+        ?term schema:unitCode ?value .
+    }
+    INSERT {
+        ?term schema:unitCode ?newURI .
+    }
+    WHERE {
+        ?dataset schema:variableMeasured ?term .
+        ?term a schema:PropertyValue .
+        ?term schema:unitCode ?value .
+        FILTER (isLiteral(?value) && REGEX(?value, "^https?://", "i")) .
+        BIND (URI(?value) AS ?newURI)
+    }
+    """
+    graph.update(update_request)
+    return graph
+
+
+def convert_license_to_uri(graph: Graph) -> Graph:
+    """
+    :param graph: Graph of metadata and vocabularies
+    :returns: Graph with licenses converted to URIs
+    :notes: Converts values of `schema:license` to URI references if the value
+        appears to be a URL.
+    """
+    update_request = """
+    PREFIX schema: <https://schema.org/>
+
+    DELETE {
+        ?dataset schema:license ?value .
+    }
+    INSERT {
+        ?dataset schema:license ?newURI .
+    }
+    WHERE {
+        ?dataset schema:license ?value .
+        FILTER (isLiteral(?value) && REGEX(?value, "^https?://", "i")) .
+        BIND (URI(?value) AS ?newURI)
+    }
+    """
+    graph.update(update_request)
+    return graph
 
 
 if __name__ == "__main__":
