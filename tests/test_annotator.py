@@ -154,3 +154,27 @@ def test_create_annotation_element():
         object_id="object_id",
     )
     assert bytes.decode(etree.tostring(annotation_element)) == fixture
+
+
+@pytest.mark.parametrize("use_mock", [True])  # False makes real HTTP requests
+def test_get_qudt_annotation(use_mock, mocker):
+    """Test get_qudt_annotation"""
+
+    # A mappable unit returns the QUDT equivalent
+    if use_mock:
+        mocker.patch(
+            "spinneret.annotator.get_qudt_annotation",
+            return_value=[{"label": "Meter", "uri": "http://qudt.org/vocab/unit/M"}],
+        )
+    r = annotator.get_qudt_annotation("meter")
+    assert r[0]["label"] == "Meter"
+    assert r[0]["uri"] == "http://qudt.org/vocab/unit/M"
+
+    # An unmappable unit returns None
+    if use_mock:
+        mocker.patch(
+            "spinneret.annotator.get_qudt_annotation",
+            return_value=None,
+        )
+    r = annotator.get_qudt_annotation("Martha Stewart")
+    assert r is None
