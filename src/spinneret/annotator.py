@@ -1,6 +1,7 @@
 """The annotator module"""
 
 import os
+from json import loads
 from typing import Union
 from requests import get, exceptions
 import pandas as pd
@@ -285,3 +286,37 @@ def create_annotation_element(predicate_label, predicate_id, object_label, objec
     value_uri_elem.text = object_id
 
     return annotation_elem
+
+
+def get_qudt_annotation(text: str) -> Union[list, None]:
+    """Get an annotation from the QUDT API
+
+    :param text: The text to be annotated. This should be the value from the
+        EML `standardUnit` or `customUnit` element.
+    :returns: A list of dictionaries, each with the annotation keys `label`
+        and `uri`, corresponding to the preferred label and URI of the
+        annotated concept. None if the request fails.
+
+    :notes: This function queries the Unit Annotations Service
+        https://vocab.lternet.edu/unitsws.html, developed by the EDI and LTER
+        units working group, for a match of the input `text` to a QUDT unit via
+        the service mapping.
+    """
+    url = (
+        f"https://vocab.lternet.edu/webservice/unitsws.php?rawunit={text}&"
+        f"returntype=json"
+    )
+
+    try:
+        r = get(url, timeout=10)
+        r.raise_for_status()
+    except exceptions.RequestException as e:
+        print(f"Error calling {url}: {e}")
+        return None
+
+    if r.text == "No_Match":
+        return None
+    json = loads(r.text)
+    label = json["qudtLabel"]
+    uri = json["qudtURI"]
+    return [{"label": label, "uri": uri}]
