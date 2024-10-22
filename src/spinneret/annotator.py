@@ -316,7 +316,60 @@ def get_qudt_annotation(text: str) -> Union[list, None]:
 
     if r.text == "No_Match":
         return None
+    if text == "number":  # FIXME this works around a bug in the service ... convert to try block
+        return None
+    print(r.text)
     json = loads(r.text)
     label = json["qudtLabel"]
     uri = json["qudtURI"]
     return [{"label": label, "uri": uri}]
+
+def add_qudt_annotations_to_workbook(workbook_path: str, eml_path: str, output_path: str, overwrite: bool = False) -> None:
+    """Add QUDT annotations to a workbook
+
+    :param workbook_path: The path to the workbook to be annotated.
+    :param eml_path: The path to the EML file corresponding to the workbook.
+    :param output_path: The path to write the annotated workbook.
+    :param overwrite: If True, overwrite existing QUDT annotations in the
+        workbook. This enables updating the annotations in the workbook with
+        the latest QUDT annotations.
+    :returns: None"""
+    # Load the workbook and EML for processing
+    wb = pd.read_csv(workbook_path, sep="\t", encoding="utf-8", dtype=str)
+    eml = etree.parse(eml_path, parser=etree.XMLParser(remove_blank_text=True))
+
+    # Get all standardUnit and customUnit elements from the EML using XPath
+    units = eml.xpath("//standardUnit") + eml.xpath("//customUnit")
+
+    # Iterate over units and add QUDT annotations to the workbook
+    for unit in units:
+        attribute_element = unit.xpath("ancestor::attribute[1]")
+        attribute_xpath = eml.getpath(attribute_element[0])
+
+        # Skip if a QUDT annotation already exists for the attribute xpath and
+        # overwrite is False
+        rows = wb[wb["element_xpath"] == attribute_xpath].index
+        base_uri = "http://qudt.org/vocab/unit/"
+        has_qudt_annotation = wb.loc[rows, "object_id"].str.contains(base_uri)
+        if has_qudt_annotation.any() and not overwrite:
+            continue
+
+        # Otherwise add the QUDT annotation
+        annotation = get_qudt_annotation(unit.text)
+        if annotation is not None:
+            # Operate on a copy of the row to avoid warnings
+            modified_row = wb.loc[rows[0]].copy()
+            modified_row["predicate"] = "uses standard"
+            modified_row["predicate_id"] = "http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#usesStandard"
+            modified_row["object"] = annotation[0]["label"]
+            modified_row["object_id"] = annotation[0]["uri"]
+            modified_row["author"] = "Unit Webservice Service"
+            modified_row["date"] = pd.Timestamp.now()
+            wb.loc[len(wb)] = modified_row
+
+    # Write the annotated workbook to output_path
+    wb.to_csv(output_path, sep="\t", index=False, encoding="utf-8")
+
+
+
+

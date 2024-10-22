@@ -10,13 +10,16 @@ from spinneret.annotator import (
     annotate_workbook,
     annotate_eml,
     create_annotation_element,
+    add_qudt_annotations_to_workbook,
 )
 from spinneret.utilities import load_configuration
 from spinneret.datasets import get_example_eml_dir
 
 
-@pytest.mark.parametrize("use_mock", [True])  # False tests with real HTTP requests
-def test_get_bioportal_annotation(mocker, use_mock, get_bioportal_annotation_fixture):
+@pytest.mark.parametrize("use_mock",
+                         [True])  # False tests with real HTTP requests
+def test_get_bioportal_annotation(mocker, use_mock,
+                                  get_bioportal_annotation_fixture):
     """Test get_bioportal_annotation"""
     text = """
     This dataset contains cover of kelp forest sessile
@@ -61,9 +64,10 @@ def test_get_bioportal_annotation(mocker, use_mock, get_bioportal_annotation_fix
 
 
 # pylint: disable=duplicate-code
-@pytest.mark.parametrize("use_mock", [True])  # False tests with real HTTP requests
+@pytest.mark.parametrize("use_mock",
+                         [True])  # False tests with real HTTP requests
 def test_annotate_workbook(
-    tmp_path, mocker, use_mock, get_bioportal_annotation_fixture
+        tmp_path, mocker, use_mock, get_bioportal_annotation_fixture
 ):
     """Test annotate_workbook"""
     if use_mock:
@@ -85,7 +89,8 @@ def test_annotate_workbook(
     wb_path = "tests/edi.3.9_annotation_workbook.tsv"
     wb_path_copy = str(tmp_path) + "/edi.3.9_annotation_workbook.tsv"
     copyfile(wb_path, wb_path_copy)
-    wb_path_annotated = str(tmp_path) + "/edi.3.9_annotation_workbook_annotated.tsv"
+    wb_path_annotated = str(
+        tmp_path) + "/edi.3.9_annotation_workbook_annotated.tsv"
 
     # Check features of the unannotated workbook
     assert os.path.exists(wb_path_copy)
@@ -127,7 +132,8 @@ def test_annotate_eml(tmp_path):
     assert eml.xpath(".//annotation") == []
 
     # Annotate the EML file
-    annotate_eml(eml_path=eml_file, workbook_path=wb_file, output_path=output_file)
+    annotate_eml(eml_path=eml_file, workbook_path=wb_file,
+                 output_path=output_file)
 
     # Check that the EML file was annotated
     assert os.path.exists(output_file)
@@ -164,7 +170,8 @@ def test_get_qudt_annotation(use_mock, mocker):
     if use_mock:
         mocker.patch(
             "spinneret.annotator.get_qudt_annotation",
-            return_value=[{"label": "Meter", "uri": "http://qudt.org/vocab/unit/M"}],
+            return_value=[
+                {"label": "Meter", "uri": "http://qudt.org/vocab/unit/M"}],
         )
     r = annotator.get_qudt_annotation("meter")
     assert r[0]["label"] == "Meter"
@@ -178,3 +185,29 @@ def test_get_qudt_annotation(use_mock, mocker):
         )
     r = annotator.get_qudt_annotation("Martha Stewart")
     assert r is None
+
+
+def test_add_qudt_annotations_to_workbook(tmp_path):
+    """Test add_qudt_annotations_to_workbook"""
+
+    # Parameterize the test
+    workbook_path = "tests/edi.3.9_annotation_workbook.tsv"
+    output_path = str(tmp_path) + "edi.3.9_annotation_workbook_qudt.tsv"
+
+    # The workbook shouldn't have any annotations yet
+    wb = pd.read_csv(workbook_path, sep="\t", encoding="utf-8")
+    assert wb["object_id"].isnull().all()
+
+    # Add QUDT annotations to the workbook
+    add_qudt_annotations_to_workbook(
+        workbook_path=workbook_path,
+        eml_path=get_example_eml_dir() + "/" + "edi.3.9.xml",
+        output_path=output_path,
+    )
+
+    # The workbook should now have annotations
+    wb = pd.read_csv(output_path, sep="\t", encoding="utf-8")
+    assert not wb["object_id"].isnull().all()
+    assert not wb["object"].isnull().all()
+    assert not wb["predicate_id"].isnull().all()
+    assert not wb["predicate"].isnull().all()
