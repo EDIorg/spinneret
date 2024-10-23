@@ -16,10 +16,8 @@ from spinneret.utilities import load_configuration
 from spinneret.datasets import get_example_eml_dir
 
 
-@pytest.mark.parametrize("use_mock",
-                         [True])  # False tests with real HTTP requests
-def test_get_bioportal_annotation(mocker, use_mock,
-                                  get_bioportal_annotation_fixture):
+@pytest.mark.parametrize("use_mock", [True])  # False tests with real HTTP requests
+def test_get_bioportal_annotation(mocker, use_mock, get_bioportal_annotation_fixture):
     """Test get_bioportal_annotation"""
     text = """
     This dataset contains cover of kelp forest sessile
@@ -64,10 +62,9 @@ def test_get_bioportal_annotation(mocker, use_mock,
 
 
 # pylint: disable=duplicate-code
-@pytest.mark.parametrize("use_mock",
-                         [True])  # False tests with real HTTP requests
+@pytest.mark.parametrize("use_mock", [True])  # False tests with real HTTP requests
 def test_annotate_workbook(
-        tmp_path, mocker, use_mock, get_bioportal_annotation_fixture
+    tmp_path, mocker, use_mock, get_bioportal_annotation_fixture
 ):
     """Test annotate_workbook"""
     if use_mock:
@@ -89,8 +86,7 @@ def test_annotate_workbook(
     wb_path = "tests/edi.3.9_annotation_workbook.tsv"
     wb_path_copy = str(tmp_path) + "/edi.3.9_annotation_workbook.tsv"
     copyfile(wb_path, wb_path_copy)
-    wb_path_annotated = str(
-        tmp_path) + "/edi.3.9_annotation_workbook_annotated.tsv"
+    wb_path_annotated = str(tmp_path) + "/edi.3.9_annotation_workbook_annotated.tsv"
 
     # Check features of the unannotated workbook
     assert os.path.exists(wb_path_copy)
@@ -132,8 +128,7 @@ def test_annotate_eml(tmp_path):
     assert eml.xpath(".//annotation") == []
 
     # Annotate the EML file
-    annotate_eml(eml_path=eml_file, workbook_path=wb_file,
-                 output_path=output_file)
+    annotate_eml(eml_path=eml_file, workbook_path=wb_file, output_path=output_file)
 
     # Check that the EML file was annotated
     assert os.path.exists(output_file)
@@ -170,8 +165,7 @@ def test_get_qudt_annotation(use_mock, mocker):
     if use_mock:
         mocker.patch(
             "spinneret.annotator.get_qudt_annotation",
-            return_value=[
-                {"label": "Meter", "uri": "http://qudt.org/vocab/unit/M"}],
+            return_value=[{"label": "Meter", "uri": "http://qudt.org/vocab/unit/M"}],
         )
     r = annotator.get_qudt_annotation("meter")
     assert r[0]["label"] == "Meter"
@@ -187,7 +181,8 @@ def test_get_qudt_annotation(use_mock, mocker):
     assert r is None
 
 
-def test_add_qudt_annotations_to_workbook(tmp_path):
+@pytest.mark.parametrize("use_mock", [True])  # False makes real HTTP requests
+def test_add_qudt_annotations_to_workbook(tmp_path, use_mock, mocker):
     """Test add_qudt_annotations_to_workbook"""
 
     # Parameterize the test
@@ -198,16 +193,46 @@ def test_add_qudt_annotations_to_workbook(tmp_path):
     wb = pd.read_csv(workbook_path, sep="\t", encoding="utf-8")
     assert wb["object_id"].isnull().all()
 
-    # Add QUDT annotations to the workbook
+    # The workbook has annotations after calling the function
+    if use_mock:
+        mocker.patch(  # a response returned in real requests
+            "spinneret.annotator.get_qudt_annotation",
+            return_value=[
+                {"label": "latitude", "uri": "http://qudt.org/vocab/unit/DEG"}
+            ],
+        )
     add_qudt_annotations_to_workbook(
         workbook_path=workbook_path,
         eml_path=get_example_eml_dir() + "/" + "edi.3.9.xml",
         output_path=output_path,
     )
-
-    # The workbook should now have annotations
     wb = pd.read_csv(output_path, sep="\t", encoding="utf-8")
     assert not wb["object_id"].isnull().all()
     assert not wb["object"].isnull().all()
     assert not wb["predicate_id"].isnull().all()
     assert not wb["predicate"].isnull().all()
+
+    # Overwriting changes the annotations. Note, we can't test this with real
+    # requests because we'll expect the same results as the first call.
+    if use_mock:
+        mocker.patch(  # an arbitrary response to check for
+            "spinneret.annotator.get_qudt_annotation",
+            return_value=[
+                {
+                    "label": "Martha_Stewart",
+                    "uri": "http://qudt.org/vocab/unit/Martha_Stewart",
+                }
+            ],
+        )
+        add_qudt_annotations_to_workbook(
+            workbook_path=output_path,  # the output from the first call
+            eml_path=get_example_eml_dir() + "/" + "edi.3.9.xml",
+            output_path=output_path,
+            overwrite=True,
+        )
+        wb = pd.read_csv(output_path, sep="\t", encoding="utf-8")
+        assert "Martha_Stewart" in wb["object"].values
+        assert "http://qudt.org/vocab/unit/Martha_Stewart" in wb["object_id"].values
+        # Original annotations are gone
+        assert "latitude" not in wb["object"].values
+        assert "http://qudt.org/vocab/unit/DEG" not in wb["object_id"].values
