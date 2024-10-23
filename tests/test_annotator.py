@@ -10,6 +10,7 @@ from spinneret.annotator import (
     annotate_workbook,
     annotate_eml,
     create_annotation_element,
+    add_qudt_annotations_to_workbook,
 )
 from spinneret.utilities import load_configuration
 from spinneret.datasets import get_example_eml_dir
@@ -178,3 +179,60 @@ def test_get_qudt_annotation(use_mock, mocker):
         )
     r = annotator.get_qudt_annotation("Martha Stewart")
     assert r is None
+
+
+@pytest.mark.parametrize("use_mock", [True])  # False makes real HTTP requests
+def test_add_qudt_annotations_to_workbook(tmp_path, use_mock, mocker):
+    """Test add_qudt_annotations_to_workbook"""
+
+    # Parameterize the test
+    workbook_path = "tests/edi.3.9_annotation_workbook.tsv"
+    output_path = str(tmp_path) + "edi.3.9_annotation_workbook_qudt.tsv"
+
+    # The workbook shouldn't have any annotations yet
+    wb = pd.read_csv(workbook_path, sep="\t", encoding="utf-8")
+    assert wb["object_id"].isnull().all()
+
+    # The workbook has annotations after calling the function
+    if use_mock:
+        mocker.patch(  # a response returned in real requests
+            "spinneret.annotator.get_qudt_annotation",
+            return_value=[
+                {"label": "latitude", "uri": "http://qudt.org/vocab/unit/DEG"}
+            ],
+        )
+    add_qudt_annotations_to_workbook(
+        workbook_path=workbook_path,
+        eml_path=get_example_eml_dir() + "/" + "edi.3.9.xml",
+        output_path=output_path,
+    )
+    wb = pd.read_csv(output_path, sep="\t", encoding="utf-8")
+    assert not wb["object_id"].isnull().all()
+    assert not wb["object"].isnull().all()
+    assert not wb["predicate_id"].isnull().all()
+    assert not wb["predicate"].isnull().all()
+
+    # Overwriting changes the annotations. Note, we can't test this with real
+    # requests because we'll expect the same results as the first call.
+    if use_mock:
+        mocker.patch(  # an arbitrary response to check for
+            "spinneret.annotator.get_qudt_annotation",
+            return_value=[
+                {
+                    "label": "Martha_Stewart",
+                    "uri": "http://qudt.org/vocab/unit/Martha_Stewart",
+                }
+            ],
+        )
+        add_qudt_annotations_to_workbook(
+            workbook_path=output_path,  # the output from the first call
+            eml_path=get_example_eml_dir() + "/" + "edi.3.9.xml",
+            output_path=output_path,
+            overwrite=True,
+        )
+        wb = pd.read_csv(output_path, sep="\t", encoding="utf-8")
+        assert "Martha_Stewart" in wb["object"].values
+        assert "http://qudt.org/vocab/unit/Martha_Stewart" in wb["object_id"].values
+        # Original annotations are gone
+        assert "latitude" not in wb["object"].values
+        assert "http://qudt.org/vocab/unit/DEG" not in wb["object_id"].values

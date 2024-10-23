@@ -1,7 +1,7 @@
 """The annotator module"""
 
 import os
-from json import loads
+from json import loads, decoder
 from typing import Union
 from requests import get, exceptions
 import pandas as pd
@@ -306,17 +306,72 @@ def get_qudt_annotation(text: str) -> Union[list, None]:
         f"https://vocab.lternet.edu/webservice/unitsws.php?rawunit={text}&"
         f"returntype=json"
     )
-
     try:
         r = get(url, timeout=10)
         r.raise_for_status()
     except exceptions.RequestException as e:
         print(f"Error calling {url}: {e}")
         return None
-
     if r.text == "No_Match":
         return None
-    json = loads(r.text)
+    try:  # the service has a few JSON encoding bugs
+        json = loads(r.text)
+    except decoder.JSONDecodeError as e:
+        print(f"Error decoding JSON from {url}: {e}")
+        return None
     label = json["qudtLabel"]
     uri = json["qudtURI"]
     return [{"label": label, "uri": uri}]
+
+
+def add_qudt_annotations_to_workbook(
+    workbook_path: str, eml_path: str, output_path: str, overwrite: bool = False
+) -> None:
+    """Add QUDT annotations to a workbook
+
+    :param workbook_path: The path to the workbook to be annotated.
+    :param eml_path: The path to the EML file corresponding to the workbook.
+    :param output_path: The path to write the annotated workbook.
+    :param overwrite: If True, overwrite existing QUDT annotations in the
+        workbook. This enables updating the annotations in the workbook with
+        the latest QUDT annotations.
+    :returns: None"""
+    # Load the workbook and EML for processing
+    wb = pd.read_csv(workbook_path, sep="\t", encoding="utf-8", dtype=str)
+    wb = wb.astype(str)  # dtype=str (above) not working for empty columns
+    eml = etree.parse(eml_path, parser=etree.XMLParser(remove_blank_text=True))
+
+    # Remove existing QUDT annotations if overwrite is True
+    if overwrite:
+        wb = wb[~wb["object_id"].str.contains("http://qudt.org/vocab/unit/")]
+
+    # Iterate over EML units and add QUDT annotations to the workbook
+    units = eml.xpath("//standardUnit") + eml.xpath("//customUnit")
+    for unit in units:
+        attribute_element = unit.xpath("ancestor::attribute[1]")
+        attribute_xpath = eml.getpath(attribute_element[0])
+
+        # Skip if a QUDT annotation already exists for the attribute xpath and
+        # overwrite is False
+        rows = wb[wb["element_xpath"] == attribute_xpath].index
+        base_uri = "http://qudt.org/vocab/unit/"
+        has_qudt_annotation = wb.loc[rows, "object_id"].str.contains(base_uri)
+        if has_qudt_annotation.any() and not overwrite:
+            continue
+
+        # Otherwise add the QUDT annotation
+        annotation = get_qudt_annotation(unit.text)
+        if annotation is not None:
+            modified_row = wb.loc[rows[0]].copy()  # copy avoids warnings
+            modified_row["predicate"] = "uses standard"
+            modified_row["predicate_id"] = (
+                "http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#usesStandard"
+            )
+            modified_row["object"] = annotation[0]["label"]
+            modified_row["object_id"] = annotation[0]["uri"]
+            modified_row["author"] = "Unit Webservice Service"
+            modified_row["date"] = pd.Timestamp.now()
+            wb.loc[len(wb)] = modified_row
+
+    # Write the annotated workbook to output_path
+    wb.to_csv(output_path, sep="\t", index=False, encoding="utf-8")
