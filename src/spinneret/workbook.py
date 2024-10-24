@@ -213,3 +213,30 @@ def initialize_workbook_row() -> pd.core.series.Series:
     """
     row = dict.fromkeys(list_workbook_columns(), "")
     return pd.Series(row)
+
+
+def get_package_id(eml: etree._ElementTree) -> str:
+    """
+    :param eml: The EML file as an lxml etree object
+    :returns: The packageId of the EML file
+    """
+    package_id = eml.xpath("./@packageId")[0]
+    return package_id
+
+
+def get_package_url(eml: etree._ElementTree, env: str = "production") -> str:
+    """
+    :param eml: The EML file as an lxml etree object
+    :param env: The environment to use for the base URL. Options are:
+        'production', 'staging', 'development'.
+    :returns: The URL to the data package landing page
+    """
+    if env == "staging":
+        base_url = "https://portal-s.edirepository.org/nis/metadataviewer?packageid="
+    elif env == "development":
+        base_url = "https://portal-d.edirepository.org/nis/metadataviewer?packageid="
+    else:
+        base_url = "https://portal.edirepository.org/nis/metadataviewer?packageid="
+    package_id = get_package_id(eml)
+    url = base_url + package_id
+    return url
