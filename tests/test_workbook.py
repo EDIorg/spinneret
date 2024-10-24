@@ -10,6 +10,8 @@ from spinneret.workbook import (
     get_description,
     initialize_workbook_row,
     list_workbook_columns,
+    get_package_id,
+    get_package_url,
 )
 
 
@@ -92,3 +94,28 @@ def test_initialize_workbook_row():
     assert isinstance(res, pd.core.series.Series)
     assert res.index.to_list() == list_workbook_columns()
     assert res.to_list() == [""] * len(res)
+
+
+def test_get_package_id():
+    """Test the get_package_id function"""
+    eml_file = datasets.get_example_eml_dir() + "/" + "edi.3.9.xml"
+    eml = etree.parse(eml_file)
+    assert get_package_id(eml) == "edi.3.9"
+
+
+def test_get_package_url():
+    """Test the get_package_url function"""
+
+    # Default environment is production
+    eml_file = datasets.get_example_eml_dir() + "/" + "edi.3.9.xml"
+    eml = etree.parse(eml_file)
+    expected_url = (
+        "https://portal.edirepository.org/nis/metadataviewer?packageid=edi.3.9"
+    )
+    assert get_package_url(eml) == expected_url
+
+    # Specify a different environment to get its URL
+    expected_url = (
+        "https://portal-s.edirepository.org/nis/metadataviewer?packageid=edi.3.9"
+    )
+    assert get_package_url(eml, env="staging") == expected_url
