@@ -1,6 +1,5 @@
 """The workbook module"""
 
-from uuid import uuid4
 from lxml import etree
 import pandas as pd
 from spinneret.utilities import delete_empty_tags
@@ -59,7 +58,10 @@ def create(
             row["package_id"] = get_package_id(eml)
             row["url"] = get_package_url(eml, env)
             row["element"] = element
-            row["element_id"] = str(uuid4())
+            if "id" in e.attrib:
+                row["element_id"] = e.attrib["id"]
+            else:
+                row["element_id"] = ""
             row["element_xpath"] = eml.getpath(e)
             row["context"] = get_subject_and_context(e)["context"]
             row["description"] = get_description(e)
