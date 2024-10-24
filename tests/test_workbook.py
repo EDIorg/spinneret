@@ -2,6 +2,7 @@
 
 import os
 import tempfile
+from time import sleep
 import pandas as pd
 from lxml import etree
 from spinneret import workbook
@@ -12,6 +13,8 @@ from spinneret.workbook import (
     list_workbook_columns,
     get_package_id,
     get_package_url,
+    create,
+    delete_duplicate_annotations,
 )
 
 
@@ -117,3 +120,36 @@ def test_get_package_url():
         "https://portal-s.edirepository.org/nis/metadataviewer?packageid=edi.3.9"
     )
     assert get_package_url(eml, env="staging") == expected_url
+
+
+def test_delete_duplicate_annotations():
+    """Test the delete_duplicate_annotations function"""
+
+    # Create a workbook with duplicate annotations
+    eml_file = datasets.get_example_eml_dir() + "/" + "edi.3.9.xml"
+    wb = create(
+        eml_file=eml_file,
+        elements=["dataset"],
+    )
+    # Row 1
+    wb.loc[0, "predicate"] = "predicate_1"
+    wb.loc[0, "predicate_id"] = "predicate_id_1"
+    wb.loc[0, "object"] = "object_1"
+    wb.loc[0, "object_id"] = "object_id_1"
+    wb.loc[0, "date"] = pd.Timestamp.now()
+    # Row 2 is a duplicate annotation of row 1
+    row = wb.iloc[0].copy()
+    wb.loc[len(wb)] = row
+    wb.loc[1, "predicate"] = "predicate_2"
+    wb.loc[1, "predicate_id"] = "predicate_id_2"
+    wb.loc[1, "object"] = "object_1"
+    wb.loc[1, "object_id"] = "object_id_1"
+    sleep(1)  # pause for 1 second to ensure the datetime is different
+    wb.loc[1, "date"] = pd.Timestamp.now()
+
+    # Test that the duplicate annotation is removed and the newest annotation
+    # is kept
+    newest_date = wb.loc[1, "date"]
+    wb = delete_duplicate_annotations(wb)
+    assert len(wb) == 1
+    assert wb.loc[1, "date"] == newest_date

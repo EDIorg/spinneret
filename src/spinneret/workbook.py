@@ -209,3 +209,27 @@ def get_package_url(eml: etree._ElementTree, env: str = "production") -> str:
     package_id = get_package_id(eml)
     url = base_url + package_id
     return url
+
+
+def delete_duplicate_annotations(
+    workbook: pd.core.frame.DataFrame,
+) -> pd.core.frame.DataFrame:
+    """
+    :param workbook: The annotation workbook
+    :returns: The workbook with duplicate annotations removed
+    :notes: The function removes duplicate annotations based on the
+        following columns: `element_xpath`, `object`, `object_id`, `date`. The
+        most recent annotation is preferred to allow improvements to other
+        fields set by the annotator.
+
+    """
+    wb = workbook.sort_values("date", ascending=False)
+    wb = wb.drop_duplicates(
+        subset=[
+            "element_xpath",
+            "object",
+            "object_id",
+        ],
+        keep="first",
+    )
+    return wb
