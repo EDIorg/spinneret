@@ -181,3 +181,35 @@ def get_description(element: etree._Element) -> str:
     else:
         description = None
     return description
+
+
+def list_workbook_columns() -> list:
+    """
+    :returns: A list of the columns in the workbook.
+    """
+    res = [
+        "package_id",
+        "url",
+        "element",
+        "element_id",
+        "element_xpath",
+        "context",
+        "description",
+        "subject",
+        "predicate",
+        "predicate_id",
+        "object",
+        "object_id",
+        "author",
+        "date",
+        "comment",
+    ]
+    return res
+
+
+def initialize_workbook_row() -> pd.core.series.Series:
+    """Initialize a row for the annotation workbook
+    :returns:   A pandas Series with the initialized row
+    """
+    row = dict.fromkeys(list_workbook_columns(), "")
+    return pd.Series(row)

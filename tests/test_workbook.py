@@ -6,7 +6,11 @@ import pandas as pd
 from lxml import etree
 from spinneret import workbook
 from spinneret import datasets
-from spinneret.workbook import get_description
+from spinneret.workbook import (
+    get_description,
+    initialize_workbook_row,
+    list_workbook_columns,
+)
 
 
 def test_create():
@@ -73,3 +77,18 @@ def test_get_description_handles_missing_element():
     # Test element with missing abstract
     description = get_description(element)
     assert description == ""
+
+
+def test_list_workbook_columns():
+    """Test the list_workbook_columns function"""
+    res = list_workbook_columns()
+    assert isinstance(res, list)
+    assert len(res) > 0
+
+
+def test_initialize_workbook_row():
+    """Test the initialize_workbook_row function"""
+    res = initialize_workbook_row()
+    assert isinstance(res, pd.core.series.Series)
+    assert res.index.to_list() == list_workbook_columns()
+    assert res.to_list() == [""] * len(res)
