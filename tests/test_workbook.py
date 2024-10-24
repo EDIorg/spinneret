@@ -19,13 +19,11 @@ def test_create():
     """Test workbook creation and attributes"""
 
     # A workbook is created for each EML file
-    eml_dir = datasets.get_example_eml_dir()
-    eml_file = eml_dir + "/" + "edi.3.9.xml"
+    eml_file = datasets.get_example_eml_dir() + "/" + "edi.3.9.xml"
     with tempfile.TemporaryDirectory() as tmpdir:
         wb = workbook.create(
             eml_file=eml_file,
             elements=["dataset", "dataTable", "otherEntity", "attribute"],
-            base_url="https://portal.edirepository.org/nis/metadataviewer?packageid=",
             path_out=tmpdir,
         )
         eml_file_name = os.path.basename(eml_file)

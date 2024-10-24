@@ -7,7 +7,7 @@ from spinneret.utilities import delete_empty_tags
 
 
 def create(
-    eml_file: str, elements: list, base_url: str, path_out: str = False
+    eml_file: str, elements: list, env: str = "production", path_out: str = False
 ) -> pd.core.frame.DataFrame:
     """Create an annotation workbook from an EML file
 
@@ -16,12 +16,8 @@ def create(
                         one or more of: 'dataset', 'dataTable', 'otherEntity',
                         'spatialVector', 'spatialRaster', 'storedProcedure',
                         'view', 'attribute'.
-    :param base_url:    Base URL of data package landing pages which is combined
-                        with the EML root attribute value 'packageId' to create
-                        link to data packages listed in the workbook. This
-                        fully formed URL is useful in the annotation process by
-                        linking the data curator to the full human readable
-                        data package landing page.
+    :param env: The environment to use for the base URL. Options are:
+        'production', 'staging', 'development'.
     :param path_out:    Path to a directory where the workbook will be written.
                         Will result in a file
                         '[packageId]_annotation_workbook.tsv'.
@@ -56,52 +52,23 @@ def create(
     """
     eml = etree.parse(eml_file)
     eml = delete_empty_tags(eml)
-    package_id = eml.xpath("./@packageId")[0]
-    url = base_url + package_id
-    res = []
+    wb = pd.DataFrame(columns=list_workbook_columns())  # initialize workbook
     for element in elements:
         for e in eml.xpath(".//" + element):
-            subcon = get_subject_and_context(e)
-            row = [
-                package_id,
-                url,
-                element,
-                str(uuid4()),
-                eml.getpath(e),
-                subcon["context"],
-                get_description(e),
-                subcon["subject"],
-                "",  # predicate
-                "",  # predicate id
-                "",  # object
-                "",  # object_id
-                "",  # author
-                "",  # date
-                "",  # comment
-            ]
-            res.append(row)
-    colnames = [
-        "package_id",
-        "url",
-        "element",
-        "element_id",
-        "element_xpath",
-        "context",
-        "description",
-        "subject",
-        "predicate",
-        "predicate_id",
-        "object",
-        "object_id",
-        "author",
-        "date",
-        "comment",
-    ]
-    res = pd.DataFrame(res, columns=colnames)
+            row = initialize_workbook_row()
+            row["package_id"] = get_package_id(eml)
+            row["url"] = get_package_url(eml, env)
+            row["element"] = element
+            row["element_id"] = str(uuid4())
+            row["element_xpath"] = eml.getpath(e)
+            row["context"] = get_subject_and_context(e)["context"]
+            row["description"] = get_description(e)
+            row["subject"] = get_subject_and_context(e)["subject"]
+            wb.loc[len(wb)] = row  # append row to workbook
     if path_out:
-        path_out = path_out + "/" + package_id + "_annotation_workbook.tsv"
-        res.to_csv(path_out, sep="\t", index=False, mode="x")
-    return res
+        path_out = path_out + "/" + get_package_id(eml) + "_annotation_workbook.tsv"
+        wb.to_csv(path_out, sep="\t", index=False, mode="x")
+    return wb
 
 
 def get_subject_and_context(element: etree._Element) -> dict:

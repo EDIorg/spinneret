@@ -41,7 +41,6 @@ def create_workbooks(eml_dir: str, workbook_dir: str) -> None:
         wb = workbook.create(
             eml_file=eml_dir + "/" + eml_file,
             elements=["dataset", "attribute"],
-            base_url="https://portal.edirepository.org/nis/metadataviewer?packageid=",
             path_out=workbook_dir,
         )
 
