@@ -359,7 +359,7 @@ def add_qudt_annotations_to_workbook(
             criteria={
                 "element": "attribute",
                 "object_id": "http://qudt.org/vocab/unit/",
-                "author": "Unit Webservice Service",
+                "author": "spinneret.annotator.get_qudt_annotation",
             },
         )
 
@@ -387,7 +387,7 @@ def add_qudt_annotations_to_workbook(
             )
             modified_row["object"] = annotation[0]["label"]
             modified_row["object_id"] = annotation[0]["uri"]
-            modified_row["author"] = "Unit Webservice Service"
+            modified_row["author"] = "spinneret.annotator.get_qudt_annotation"
             modified_row["date"] = pd.Timestamp.now()
             wb.loc[len(wb)] = modified_row
 
