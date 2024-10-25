@@ -15,6 +15,7 @@ from spinneret.workbook import (
     get_package_url,
     create,
     delete_duplicate_annotations,
+    delete_annotations,
 )
 
 
@@ -153,3 +154,37 @@ def test_delete_duplicate_annotations():
     wb = delete_duplicate_annotations(wb)
     assert len(wb) == 1
     assert wb.loc[1, "date"] == newest_date
+
+
+def test_delete_annotations():
+    """Test delete_annotations based on filter parameters"""
+
+    # A simple workbook for testing
+    row1 = initialize_workbook_row()
+    row1["element"] = "dataset"
+    row1["object_id"] = "http://purl.obolibrary.org/obo/ENVO_00000015"
+    row1["author"] = "BioPortal Annotator"
+    row2 = initialize_workbook_row()
+    row2["element"] = "dataset"
+    row2["object_id"] = "http://purl.obolibrary.org/obo/ENVO_00001253"
+    row2["author"] = "http://orcid.org/xxxx-xxxx-xxxx-xxxx"
+    wb = pd.DataFrame([row1, row2])
+
+    # Remove annotations based on one filter parameter
+    # Check that the criteria exist before deletion
+    assert any("ENVO" in str(x) for x in wb["object_id"])
+    new_wb = delete_annotations(wb, {"object_id": "ENVO"})
+    # Check that the matching criteria are removed
+    assert not any("ENVO" in str(x) for x in new_wb["object_id"])
+    assert len(new_wb) == 0  # all rows contained the criteria
+
+    # Remove annotations based on multiple filter parameters
+    # Check that the criteria exist before deletion
+    assert any("ENVO" in str(x) for x in wb["object_id"])
+    assert any("BioPortal Annotator" in str(x) for x in wb["author"])
+    criteria = {"object_id": "ENVO", "author": "BioPortal Annotator"}
+    new_wb = delete_annotations(wb, criteria)
+    # Check that the matching criteria are removed
+    assert any("ENVO" in str(x) for x in wb["object_id"])
+    assert not any("BioPortal Annotator" in str(x) for x in new_wb["object_id"])
+    assert len(new_wb) == 1  # not all rows met these criteria
