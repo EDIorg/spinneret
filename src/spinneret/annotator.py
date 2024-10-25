@@ -325,21 +325,30 @@ def get_qudt_annotation(text: str) -> Union[list, None]:
 
 
 def add_qudt_annotations_to_workbook(
-    workbook_path: str, eml_path: str, output_path: str, overwrite: bool = False
-) -> None:
+    workbook: Union[str, pd.core.frame.DataFrame],
+    eml: Union[str, etree._ElementTree],
+    output_path: str = None,
+    overwrite: bool = False,
+) -> Union[None, pd.core.frame.DataFrame]:
     """Add QUDT annotations to a workbook
 
-    :param workbook_path: The path to the workbook to be annotated.
-    :param eml_path: The path to the EML file corresponding to the workbook.
+    :param workbook: Either the path to the workbook to be annotated, or the
+        workbook itself as a pandas DataFrame.
+    :param eml: Either the path to the EML file corresponding to the workbook,
+        or the EML file itself as an lxml etree.
     :param output_path: The path to write the annotated workbook.
     :param overwrite: If True, overwrite existing QUDT annotations in the
         workbook. This enables updating the annotations in the workbook with
         the latest QUDT annotations.
     :returns: None"""
     # Load the workbook and EML for processing
-    wb = pd.read_csv(workbook_path, sep="\t", encoding="utf-8", dtype=str)
+    if isinstance(workbook, str):
+        wb = pd.read_csv(workbook, sep="\t", encoding="utf-8", dtype=str)
+    else:
+        wb = workbook
     wb = wb.astype(str)  # dtype=str (above) not working for empty columns
-    eml = etree.parse(eml_path, parser=etree.XMLParser(remove_blank_text=True))
+    if isinstance(eml, str):
+        eml = etree.parse(eml, parser=etree.XMLParser(remove_blank_text=True))
 
     # Remove existing QUDT annotations if overwrite is True
     if overwrite:
@@ -373,5 +382,8 @@ def add_qudt_annotations_to_workbook(
             modified_row["date"] = pd.Timestamp.now()
             wb.loc[len(wb)] = modified_row
 
-    # Write the annotated workbook to output_path
-    wb.to_csv(output_path, sep="\t", index=False, encoding="utf-8")
+    if output_path:
+        # Write the annotated workbook to output_path
+        wb.to_csv(output_path, sep="\t", index=False, encoding="utf-8")
+        return None
+    return wb
