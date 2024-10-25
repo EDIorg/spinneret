@@ -270,3 +270,30 @@ def test_add_qudt_annotations_to_workbook_io_options(tmp_path, mocker):
     assert not wb["object"].isnull().all()
     assert not wb["predicate_id"].isnull().all()
     assert not wb["predicate"].isnull().all()
+
+
+def has_annotations(workbook):
+    """
+    :param workbook: pd.DataFrame
+    :return: True if the workbook has annotations, False otherwise.
+    :notes: The workbook has annotations if the columns `predicate`,
+    `predicate_id`, `object` and `object_id` are not all null.
+    """
+    annotation_cols = workbook[["predicate", "predicate_id", "object", "object_id"]]
+    return not annotation_cols.isnull().all().all()
+
+
+def test_has_annotations():
+    """Test the has_annotations helper function"""
+
+    # The empty workbook has no annotations
+    wb = pd.read_csv(
+        "tests/edi.3.9_annotation_workbook.tsv", sep="\t", encoding="utf-8"
+    )
+    assert has_annotations(wb) is False
+
+    # The workbook with annotations has annotations
+    wb = pd.read_csv(
+        "tests/edi.3.9_annotation_workbook_annotated.tsv", sep="\t", encoding="utf-8"
+    )
+    assert has_annotations(wb) is True
