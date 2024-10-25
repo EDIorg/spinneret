@@ -233,3 +233,26 @@ def delete_duplicate_annotations(
         keep="first",
     )
     return wb
+
+
+def delete_annotations(
+    workbook: pd.core.frame.DataFrame, criteria: dict
+) -> pd.core.frame.DataFrame:
+    """
+    :param workbook: The workbook to delete rows of annotations from.
+    :param criteria: A dictionary of key-value pairs to define rows to delete.
+        Each key corresponds to a column in the workbook and each value is a
+        string to match in the column.
+    :returns: The workbook with annotations deleted corresponding to the
+        criteria.
+    :notes: A matching row must contain all key-value pairs in the criteria
+        dictionary to be deleted. Matching is case-sensitive. Partial
+        matches are supported.
+    """
+    wb = workbook.copy()
+    filtered_wb = wb[
+        ~wb[list(criteria)]
+        .apply(lambda x: x.str.contains(criteria[x.name]))
+        .all(axis=1)
+    ]
+    return filtered_wb
