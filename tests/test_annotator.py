@@ -202,8 +202,8 @@ def test_add_qudt_annotations_to_workbook(tmp_path, use_mock, mocker):
             ],
         )
     add_qudt_annotations_to_workbook(
-        workbook_path=workbook_path,
-        eml_path=get_example_eml_dir() + "/" + "edi.3.9.xml",
+        workbook=workbook_path,
+        eml=get_example_eml_dir() + "/" + "edi.3.9.xml",
         output_path=output_path,
     )
     wb = pd.read_csv(output_path, sep="\t", encoding="utf-8")
@@ -225,8 +225,8 @@ def test_add_qudt_annotations_to_workbook(tmp_path, use_mock, mocker):
             ],
         )
         add_qudt_annotations_to_workbook(
-            workbook_path=output_path,  # the output from the first call
-            eml_path=get_example_eml_dir() + "/" + "edi.3.9.xml",
+            workbook=output_path,  # the output from the first call
+            eml=get_example_eml_dir() + "/" + "edi.3.9.xml",
             output_path=output_path,
             overwrite=True,
         )
@@ -236,3 +236,37 @@ def test_add_qudt_annotations_to_workbook(tmp_path, use_mock, mocker):
         # Original annotations are gone
         assert "latitude" not in wb["object"].values
         assert "http://qudt.org/vocab/unit/DEG" not in wb["object_id"].values
+
+
+def test_add_qudt_annotations_to_workbook_io_options(tmp_path, mocker):
+    """Test add_qudt_annotations_to_workbook with different input and output
+    options"""
+
+    mocker.patch(
+        "spinneret.annotator.get_qudt_annotation",
+        return_value=[{"label": "latitude", "uri": "http://qudt.org/vocab/unit/DEG"}],
+    )
+
+    # Accepts file path as input
+    output_path = str(tmp_path) + "edi.3.9_annotation_workbook_qudt.tsv"
+    add_qudt_annotations_to_workbook(
+        workbook="tests/edi.3.9_annotation_workbook.tsv",
+        eml=get_example_eml_dir() + "/" + "edi.3.9.xml",
+        output_path=output_path,
+    )
+    wb = pd.read_csv(output_path, sep="\t", encoding="utf-8")
+    assert not wb["object_id"].isnull().all()
+    assert not wb["object"].isnull().all()
+    assert not wb["predicate_id"].isnull().all()
+    assert not wb["predicate"].isnull().all()
+
+    # Accepts dataframes and etree objects as input
+    wb = pd.read_csv(
+        "tests/edi.3.9_annotation_workbook.tsv", sep="\t", encoding="utf-8"
+    )
+    eml = etree.parse(get_example_eml_dir() + "/" + "edi.3.9.xml")
+    wb = add_qudt_annotations_to_workbook(workbook=wb, eml=eml)
+    assert not wb["object_id"].isnull().all()
+    assert not wb["object"].isnull().all()
+    assert not wb["predicate_id"].isnull().all()
+    assert not wb["predicate"].isnull().all()
