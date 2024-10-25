@@ -329,9 +329,8 @@ def add_qudt_annotations_to_workbook(
     eml: Union[str, etree._ElementTree],
     output_path: str = None,
     overwrite: bool = False,
-) -> Union[None, pd.core.frame.DataFrame]:
-    """Add QUDT annotations to a workbook
-
+) -> pd.core.frame.DataFrame:
+    """
     :param workbook: Either the path to the workbook to be annotated, or the
         workbook itself as a pandas DataFrame.
     :param eml: Either the path to the EML file corresponding to the workbook,
@@ -340,7 +339,8 @@ def add_qudt_annotations_to_workbook(
     :param overwrite: If True, overwrite existing QUDT annotations in the
         workbook. This enables updating the annotations in the workbook with
         the latest QUDT annotations.
-    :returns: None"""
+    :returns: Workbook with QUDT annotations."""
+
     # Load the workbook and EML for processing
     if isinstance(workbook, str):
         wb = pd.read_csv(workbook, sep="\t", encoding="utf-8", dtype=str)
@@ -383,7 +383,5 @@ def add_qudt_annotations_to_workbook(
             wb.loc[len(wb)] = modified_row
 
     if output_path:
-        # Write the annotated workbook to output_path
         wb.to_csv(output_path, sep="\t", index=False, encoding="utf-8")
-        return None
     return wb

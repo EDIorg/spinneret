@@ -201,12 +201,11 @@ def test_add_qudt_annotations_to_workbook(tmp_path, use_mock, mocker):
                 {"label": "latitude", "uri": "http://qudt.org/vocab/unit/DEG"}
             ],
         )
-    add_qudt_annotations_to_workbook(
+    wb = add_qudt_annotations_to_workbook(
         workbook=workbook_path,
         eml=get_example_eml_dir() + "/" + "edi.3.9.xml",
         output_path=output_path,
     )
-    wb = pd.read_csv(output_path, sep="\t", encoding="utf-8")
     assert has_annotations(wb)
 
     # Overwriting changes the annotations. Note, we can't test this with real
@@ -221,13 +220,12 @@ def test_add_qudt_annotations_to_workbook(tmp_path, use_mock, mocker):
                 }
             ],
         )
-        add_qudt_annotations_to_workbook(
+        wb = add_qudt_annotations_to_workbook(
             workbook=output_path,  # the output from the first call
             eml=get_example_eml_dir() + "/" + "edi.3.9.xml",
             output_path=output_path,
             overwrite=True,
         )
-        wb = pd.read_csv(output_path, sep="\t", encoding="utf-8")
         assert "Martha_Stewart" in wb["object"].values
         assert "http://qudt.org/vocab/unit/Martha_Stewart" in wb["object_id"].values
         # Original annotations are gone
@@ -246,7 +244,7 @@ def test_add_qudt_annotations_to_workbook_io_options(tmp_path, mocker):
 
     # Accepts file path as input
     output_path = str(tmp_path) + "edi.3.9_annotation_workbook_qudt.tsv"
-    add_qudt_annotations_to_workbook(
+    wb = add_qudt_annotations_to_workbook(
         workbook="tests/edi.3.9_annotation_workbook.tsv",
         eml=get_example_eml_dir() + "/" + "edi.3.9.xml",
         output_path=output_path,
