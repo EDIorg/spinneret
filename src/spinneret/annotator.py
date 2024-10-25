@@ -6,7 +6,14 @@ from typing import Union
 from requests import get, exceptions
 import pandas as pd
 from lxml import etree
-from spinneret.workbook import delete_annotations
+from spinneret.workbook import (
+    delete_annotations,
+    initialize_workbook_row,
+    get_package_id,
+    get_package_url,
+    get_subject_and_context,
+    get_description,
+)
 
 
 # pylint: disable=too-many-locals
@@ -366,8 +373,8 @@ def add_qudt_annotations_to_workbook(
     # Iterate over EML units and add QUDT annotations to the workbook
     units = eml.xpath("//standardUnit") + eml.xpath("//customUnit")
     for unit in units:
-        attribute_element = unit.xpath("ancestor::attribute[1]")
-        attribute_xpath = eml.getpath(attribute_element[0])
+        attribute_element = unit.xpath("ancestor::attribute[1]")[0]
+        attribute_xpath = eml.getpath(attribute_element)
 
         # Skip if a QUDT annotation already exists for the attribute xpath and
         # overwrite is False
@@ -380,16 +387,27 @@ def add_qudt_annotations_to_workbook(
         # Otherwise add the QUDT annotation
         annotation = get_qudt_annotation(unit.text)
         if annotation is not None:
-            modified_row = wb.loc[rows[0]].copy()  # copy avoids warnings
-            modified_row["predicate"] = "uses standard"
-            modified_row["predicate_id"] = (
+            row = initialize_workbook_row()
+            row["package_id"] = get_package_id(eml)
+            row["url"] = get_package_url(eml)
+            row["element"] = attribute_element.tag
+            if "id" in attribute_element.attrib:
+                row["element_id"] = attribute_element.attrib["id"]
+            else:
+                row["element_id"] = ""
+            row["element_xpath"] = attribute_xpath
+            row["context"] = get_subject_and_context(attribute_element)["context"]
+            row["description"] = get_description(attribute_element)
+            row["subject"] = get_subject_and_context(attribute_element)["subject"]
+            row["predicate"] = "uses standard"
+            row["predicate_id"] = (
                 "http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#usesStandard"
             )
-            modified_row["object"] = annotation[0]["label"]
-            modified_row["object_id"] = annotation[0]["uri"]
-            modified_row["author"] = "spinneret.annotator.get_qudt_annotation"
-            modified_row["date"] = pd.Timestamp.now()
-            wb.loc[len(wb)] = modified_row
+            row["object"] = annotation[0]["label"]
+            row["object_id"] = annotation[0]["uri"]
+            row["author"] = "spinneret.annotator.get_qudt_annotation"
+            row["date"] = pd.Timestamp.now()
+            wb.loc[len(wb)] = row
 
     if output_path:
         wb.to_csv(output_path, sep="\t", index=False, encoding="utf-8")
