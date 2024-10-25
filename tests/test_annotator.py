@@ -191,7 +191,7 @@ def test_add_qudt_annotations_to_workbook(tmp_path, use_mock, mocker):
 
     # The workbook shouldn't have any annotations yet
     wb = pd.read_csv(workbook_path, sep="\t", encoding="utf-8")
-    assert wb["object_id"].isnull().all()
+    assert not has_annotations(wb)
 
     # The workbook has annotations after calling the function
     if use_mock:
@@ -207,10 +207,7 @@ def test_add_qudt_annotations_to_workbook(tmp_path, use_mock, mocker):
         output_path=output_path,
     )
     wb = pd.read_csv(output_path, sep="\t", encoding="utf-8")
-    assert not wb["object_id"].isnull().all()
-    assert not wb["object"].isnull().all()
-    assert not wb["predicate_id"].isnull().all()
-    assert not wb["predicate"].isnull().all()
+    assert has_annotations(wb)
 
     # Overwriting changes the annotations. Note, we can't test this with real
     # requests because we'll expect the same results as the first call.
@@ -255,10 +252,7 @@ def test_add_qudt_annotations_to_workbook_io_options(tmp_path, mocker):
         output_path=output_path,
     )
     wb = pd.read_csv(output_path, sep="\t", encoding="utf-8")
-    assert not wb["object_id"].isnull().all()
-    assert not wb["object"].isnull().all()
-    assert not wb["predicate_id"].isnull().all()
-    assert not wb["predicate"].isnull().all()
+    assert has_annotations(wb)
 
     # Accepts dataframes and etree objects as input
     wb = pd.read_csv(
@@ -266,10 +260,7 @@ def test_add_qudt_annotations_to_workbook_io_options(tmp_path, mocker):
     )
     eml = etree.parse(get_example_eml_dir() + "/" + "edi.3.9.xml")
     wb = add_qudt_annotations_to_workbook(workbook=wb, eml=eml)
-    assert not wb["object_id"].isnull().all()
-    assert not wb["object"].isnull().all()
-    assert not wb["predicate_id"].isnull().all()
-    assert not wb["predicate"].isnull().all()
+    assert has_annotations(wb)
 
 
 def has_annotations(workbook):
