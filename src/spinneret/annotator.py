@@ -6,6 +6,7 @@ from typing import Union
 from requests import get, exceptions
 import pandas as pd
 from lxml import etree
+from spinneret.workbook import delete_annotations
 
 
 # pylint: disable=too-many-locals
@@ -350,9 +351,17 @@ def add_qudt_annotations_to_workbook(
     if isinstance(eml, str):
         eml = etree.parse(eml, parser=etree.XMLParser(remove_blank_text=True))
 
-    # Remove existing QUDT annotations if overwrite is True
+    # Remove existing QUDT annotations if overwrite is True, using a set of
+    # criteria that accurately define the annotations to remove.
     if overwrite:
-        wb = wb[~wb["object_id"].str.contains("http://qudt.org/vocab/unit/")]
+        wb = delete_annotations(
+            workbook=wb,
+            criteria={
+                "element": "attribute",
+                "object_id": "http://qudt.org/vocab/unit/",
+                "author": "Unit Webservice Service",
+            },
+        )
 
     # Iterate over EML units and add QUDT annotations to the workbook
     units = eml.xpath("//standardUnit") + eml.xpath("//customUnit")
