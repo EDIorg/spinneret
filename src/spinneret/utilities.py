@@ -1,9 +1,11 @@
 """The utilities module"""
 
 from os import environ
+from typing import Union
 from urllib.parse import urlparse
 from json import load
 from lxml import etree
+import pandas as pd
 
 
 def load_configuration(config_file: str) -> None:
@@ -44,3 +46,29 @@ def is_url(text: str) -> bool:
     if res.scheme != "" and res.netloc != "":
         return True
     return False
+
+
+def load_workbook(
+    workbook: Union[str, pd.core.frame.DataFrame]
+) -> pd.core.frame.DataFrame:
+    """
+    :param workbook: The workbook to be loaded.
+    :returns: The loaded workbook.
+    """
+    if isinstance(workbook, str):
+        wb = pd.read_csv(workbook, sep="\t", encoding="utf-8", dtype=str)
+    else:
+        wb = workbook
+    wb = wb.astype(str)  # dtype=str (above) not working for empty columns
+    return wb
+
+
+# pylint: disable=protected-access
+def load_eml(eml: Union[str, etree._ElementTree]) -> etree._ElementTree:
+    """
+    :param eml: The EML file to be loaded.
+    :returns: The loaded EML file.
+    """
+    if isinstance(eml, str):
+        eml = etree.parse(eml, parser=etree.XMLParser(remove_blank_text=True))
+    return eml
