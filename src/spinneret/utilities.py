@@ -4,8 +4,9 @@ from os import environ
 from typing import Union
 from urllib.parse import urlparse
 from json import load
-from lxml import etree
+
 import pandas as pd
+from lxml import etree
 
 
 def load_configuration(config_file: str) -> None:
@@ -59,7 +60,7 @@ def load_workbook(
         wb = pd.read_csv(workbook, sep="\t", encoding="utf-8", dtype=str)
     else:
         wb = workbook
-    wb = wb.astype(str)  # dtype=str (above) not working for empty columns
+    wb.fillna(pd.NA, inplace=True)
     return wb
 
 

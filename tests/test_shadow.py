@@ -3,7 +3,7 @@
 from lxml import etree
 from spinneret.shadow import convert_userid_to_url, create_shadow_eml
 from spinneret.datasets import get_example_eml_dir
-from spinneret.utilities import is_url
+from spinneret.utilities import is_url, load_eml
 
 
 def test_convert_userid_to_url():
@@ -69,8 +69,8 @@ def test_create_shadow_eml(tmp_path):
 
     create_shadow_eml(eml_path=eml_file, output_path=output_file)
 
-    eml = etree.parse(eml_file)
-    shadow_eml = etree.parse(output_file)
+    eml = load_eml(eml_file)
+    shadow_eml = load_eml(output_file)
 
     # Check that the shadow EML is different from the original EML
     assert etree.tostring(eml) != etree.tostring(shadow_eml)

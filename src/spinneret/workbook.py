@@ -2,7 +2,7 @@
 
 from lxml import etree
 import pandas as pd
-from spinneret.utilities import delete_empty_tags
+from spinneret.utilities import delete_empty_tags, load_eml
 
 
 def create(
@@ -49,7 +49,7 @@ def create(
                 * `comment`: Comments related to the annotation. Can be useful
                   when revisiting an annotation at a later date.
     """
-    eml = etree.parse(eml_file)
+    eml = load_eml(eml_file)
     eml = delete_empty_tags(eml)
     wb = pd.DataFrame(columns=list_workbook_columns())  # initialize workbook
     for element in elements:
@@ -61,7 +61,7 @@ def create(
             if "id" in e.attrib:
                 row["element_id"] = e.attrib["id"]
             else:
-                row["element_id"] = ""
+                row["element_id"] = pd.NA
             row["element_xpath"] = eml.getpath(e)
             row["context"] = get_subject_and_context(e)["context"]
             row["description"] = get_description(e)
@@ -180,7 +180,7 @@ def initialize_workbook_row() -> pd.core.series.Series:
     """Initialize a row for the annotation workbook
     :returns:   A pandas Series with the initialized row
     """
-    row = dict.fromkeys(list_workbook_columns(), "")
+    row = dict.fromkeys(list_workbook_columns(), pd.NA)
     return pd.Series(row)
 
 

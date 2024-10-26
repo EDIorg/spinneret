@@ -4,7 +4,6 @@ import os
 import tempfile
 from time import sleep
 import pandas as pd
-from lxml import etree
 from spinneret import workbook
 from spinneret import datasets
 from spinneret.workbook import (
@@ -17,6 +16,7 @@ from spinneret.workbook import (
     delete_duplicate_annotations,
     delete_annotations,
 )
+from spinneret.utilities import load_eml, load_workbook
 
 
 def test_create():
@@ -38,7 +38,7 @@ def test_create():
         assert len(wb.package_id.unique()) == 1
 
         # Test workbook attributes against fixture
-        wbf = pd.read_csv("tests/edi.3.9_annotation_workbook.tsv", sep="\t").fillna("")
+        wbf = load_workbook("tests/edi.3.9_annotation_workbook.tsv")
         cols = wb.columns.to_list()
         for c in cols:
             if c != "element_id":  # new UUIDs won't match the fixture
@@ -51,7 +51,7 @@ def test_get_description():
     # Read test file
     eml_dir = datasets.get_example_eml_dir()
     eml_file = eml_dir + "/" + "edi.3.9.xml"
-    eml = etree.parse(eml_file)
+    eml = load_eml(eml_file)
 
     # Elements to test (note dataTable is a general test for data entities)
     elements = ["dataset", "dataTable", "attribute"]
@@ -70,7 +70,7 @@ def test_get_description_handles_missing_element():
 
     # Read test file
     eml_file = datasets.get_example_eml_dir() + "/" + "edi.3.9.xml"
-    eml = etree.parse(eml_file)
+    eml = load_eml(eml_file)
 
     # Remove abstract and keywordSet elements from dataset
     element = eml.xpath(".//dataset")[0]
@@ -95,13 +95,13 @@ def test_initialize_workbook_row():
     res = initialize_workbook_row()
     assert isinstance(res, pd.core.series.Series)
     assert res.index.to_list() == list_workbook_columns()
-    assert res.to_list() == [""] * len(res)
+    assert res.to_list() == [pd.NA] * len(res)
 
 
 def test_get_package_id():
     """Test the get_package_id function"""
     eml_file = datasets.get_example_eml_dir() + "/" + "edi.3.9.xml"
-    eml = etree.parse(eml_file)
+    eml = load_eml(eml_file)
     assert get_package_id(eml) == "edi.3.9"
 
 
@@ -110,7 +110,7 @@ def test_get_package_url():
 
     # Default environment is production
     eml_file = datasets.get_example_eml_dir() + "/" + "edi.3.9.xml"
-    eml = etree.parse(eml_file)
+    eml = load_eml(eml_file)
     expected_url = (
         "https://portal.edirepository.org/nis/metadataviewer?packageid=edi.3.9"
     )

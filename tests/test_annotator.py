@@ -3,7 +3,6 @@
 import os
 from shutil import copyfile
 import pytest
-import pandas as pd
 from lxml import etree
 from spinneret import annotator
 from spinneret.annotator import (
@@ -12,7 +11,7 @@ from spinneret.annotator import (
     create_annotation_element,
     add_qudt_annotations_to_workbook,
 )
-from spinneret.utilities import load_configuration
+from spinneret.utilities import load_configuration, load_eml, load_workbook
 from spinneret.datasets import get_example_eml_dir
 
 
@@ -90,7 +89,7 @@ def test_annotate_workbook(
 
     # Check features of the unannotated workbook
     assert os.path.exists(wb_path_copy)
-    wb = pd.read_csv(wb_path_copy, sep="\t", encoding="utf-8")
+    wb = load_workbook(wb_path_copy)
     # The columns to be annotated should be empty
     cols_to_annotate = [
         "predicate",
@@ -111,7 +110,7 @@ def test_annotate_workbook(
 
     # Check the workbook was annotated
     assert os.path.exists(wb_path_annotated)
-    wb = pd.read_csv(wb_path_annotated, sep="\t", encoding="utf-8")
+    wb = load_workbook(wb_path_annotated)
     # The columns to be annotated should be full
     for col in cols_to_annotate:
         assert not wb[col].isnull().all()
@@ -124,7 +123,7 @@ def test_annotate_eml(tmp_path):
     output_file = str(tmp_path) + "/edi.3.9_annotated.xml"
 
     # Check that there are no annotations in the EML file
-    eml = etree.parse(eml_file)
+    eml = load_eml(eml_file)
     assert eml.xpath(".//annotation") == []
 
     # Annotate the EML file
@@ -132,12 +131,12 @@ def test_annotate_eml(tmp_path):
 
     # Check that the EML file was annotated
     assert os.path.exists(output_file)
-    eml_annotated = etree.parse(output_file)
+    eml_annotated = load_eml(output_file)
     annotations = eml_annotated.xpath(".//annotation")
     assert annotations != []
     # The number of annotation elements should be equal to the number of rows
     # in the workbook where predicates and objects are both present.
-    wb = pd.read_csv(wb_file, sep="\t", encoding="utf-8")
+    wb = load_workbook(wb_file)
     num_rows = len(
         wb.dropna(subset=["predicate", "predicate_id", "object", "object_id"])
     )
@@ -190,7 +189,7 @@ def test_add_qudt_annotations_to_workbook(tmp_path, use_mock, mocker):
     output_path = str(tmp_path) + "edi.3.9_annotation_workbook_qudt.tsv"
 
     # The workbook shouldn't have any annotations yet
-    wb = pd.read_csv(workbook_path, sep="\t", encoding="utf-8")
+    wb = load_workbook(workbook_path)
     assert not has_annotations(wb)
 
     # The workbook has annotations after calling the function
@@ -226,11 +225,16 @@ def test_add_qudt_annotations_to_workbook(tmp_path, use_mock, mocker):
             output_path=output_path,
             overwrite=True,
         )
-        assert "Martha_Stewart" in wb["object"].values
-        assert "http://qudt.org/vocab/unit/Martha_Stewart" in wb["object_id"].values
+        assert wb["object"].str.contains("Martha_Stewart").any()
+        assert (
+            wb["object_id"]
+            .str.contains("http://qudt.org/vocab/unit/Martha_Stewart")
+            .any()
+        )
+
         # Original annotations are gone
-        assert "latitude" not in wb["object"].values
-        assert "http://qudt.org/vocab/unit/DEG" not in wb["object_id"].values
+        assert not wb["object"].str.contains("latitude").any()
+        assert not wb["object_id"].str.contains("http://qudt.org/vocab/unit/DEG").any()
 
 
 def test_add_qudt_annotations_to_workbook_io_options(tmp_path, mocker):
@@ -249,14 +253,12 @@ def test_add_qudt_annotations_to_workbook_io_options(tmp_path, mocker):
         eml=get_example_eml_dir() + "/" + "edi.3.9.xml",
         output_path=output_path,
     )
-    wb = pd.read_csv(output_path, sep="\t", encoding="utf-8")
+    wb = load_workbook(output_path)
     assert has_annotations(wb)
 
     # Accepts dataframes and etree objects as input
-    wb = pd.read_csv(
-        "tests/edi.3.9_annotation_workbook.tsv", sep="\t", encoding="utf-8"
-    )
-    eml = etree.parse(get_example_eml_dir() + "/" + "edi.3.9.xml")
+    wb = load_workbook("tests/edi.3.9_annotation_workbook.tsv")
+    eml = load_eml(get_example_eml_dir() + "/" + "edi.3.9.xml")
     wb = add_qudt_annotations_to_workbook(workbook=wb, eml=eml)
     assert has_annotations(wb)
 
@@ -276,13 +278,9 @@ def test_has_annotations():
     """Test the has_annotations helper function"""
 
     # The empty workbook has no annotations
-    wb = pd.read_csv(
-        "tests/edi.3.9_annotation_workbook.tsv", sep="\t", encoding="utf-8"
-    )
+    wb = load_workbook("tests/edi.3.9_annotation_workbook.tsv")
     assert has_annotations(wb) is False
 
     # The workbook with annotations has annotations
-    wb = pd.read_csv(
-        "tests/edi.3.9_annotation_workbook_annotated.tsv", sep="\t", encoding="utf-8"
-    )
+    wb = load_workbook("tests/edi.3.9_annotation_workbook_annotated.tsv")
     assert has_annotations(wb) is True
