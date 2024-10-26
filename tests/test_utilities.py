@@ -12,7 +12,7 @@ def test_delete_empty_tags():
 
     # Read test file
     eml_file = datasets.get_example_eml_dir() + "/" + "edi.3.9.xml"
-    eml = etree.parse(eml_file)
+    eml = load_eml(eml_file)
 
     # Add an empty tag to the XML and check that it is added
     # to the XML
@@ -55,6 +55,6 @@ def test_load_eml():
     assert isinstance(eml, etree._ElementTree)
 
     # Input can be an ElementTree
-    eml = etree.parse(get_example_eml_dir() + "/" + "edi.3.9.xml")
+    eml = load_eml(get_example_eml_dir() + "/" + "edi.3.9.xml")
     eml = load_eml(eml)
     assert isinstance(eml, etree._ElementTree)

@@ -14,6 +14,7 @@ from spinneret.workbook import (
     get_subject_and_context,
     get_description,
 )
+from spinneret.utilities import load_eml, load_workbook
 
 
 # pylint: disable=too-many-locals
@@ -132,7 +133,7 @@ def annotate_workbook(workbook_path: str, output_path: str) -> None:
     print(f"Annotating workbook {workbook_path}")
 
     # Load the workbook and EML for processing
-    wb = pd.read_csv(workbook_path, sep="\t", encoding="utf-8", dtype=str)
+    wb = load_workbook(workbook_path)
 
     # Iterate over workbook rows and annotate
     wb_additional_rows = pd.DataFrame(columns=wb.columns)
@@ -217,8 +218,8 @@ def annotate_eml(eml_path: str, workbook_path: str, output_path: str) -> None:
         the EML file.
     """
     # Load the EML and workbook for processing
-    eml = etree.parse(eml_path, parser=etree.XMLParser(remove_blank_text=True))
-    wb = pd.read_csv(workbook_path, sep="\t", encoding="utf-8")
+    eml = load_eml(eml_path)
+    wb = load_workbook(workbook_path)
 
     # Iterate over workbook rows and annotate the EML
     for _, row in wb.iterrows():
@@ -350,13 +351,8 @@ def add_qudt_annotations_to_workbook(
     :returns: Workbook with QUDT annotations."""
 
     # Load the workbook and EML for processing
-    if isinstance(workbook, str):
-        wb = pd.read_csv(workbook, sep="\t", encoding="utf-8", dtype=str)
-    else:
-        wb = workbook
-    wb = wb.astype(str)  # dtype=str (above) not working for empty columns
-    if isinstance(eml, str):
-        eml = etree.parse(eml, parser=etree.XMLParser(remove_blank_text=True))
+    wb = load_workbook(workbook)
+    eml = load_eml(eml)
 
     # Remove existing QUDT annotations if overwrite is True, using a set of
     # criteria that accurately define the annotations to remove.
@@ -394,7 +390,7 @@ def add_qudt_annotations_to_workbook(
             if "id" in attribute_element.attrib:
                 row["element_id"] = attribute_element.attrib["id"]
             else:
-                row["element_id"] = ""
+                row["element_id"] = pd.NA
             row["element_xpath"] = attribute_xpath
             row["context"] = get_subject_and_context(attribute_element)["context"]
             row["description"] = get_description(attribute_element)
@@ -407,7 +403,8 @@ def add_qudt_annotations_to_workbook(
             row["object_id"] = annotation[0]["uri"]
             row["author"] = "spinneret.annotator.get_qudt_annotation"
             row["date"] = pd.Timestamp.now()
-            wb.loc[len(wb)] = row
+            row = pd.DataFrame([row], dtype=str)
+            wb = pd.concat([wb, row], ignore_index=True)
 
     if output_path:
         wb.to_csv(output_path, sep="\t", index=False, encoding="utf-8")
