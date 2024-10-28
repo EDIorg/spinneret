@@ -88,7 +88,7 @@ def annotate_workbooks(
         print(f"Creating annotated workbook for {workbook_file}")
         annotate_workbook(
             workbook_path=workbook_dir + "/" + workbook_file,
-            eml_path=eml_file,
+            eml_path=eml_dir + "/" + eml_file,
             output_path=output_dir + "/" + workbook_file_annotated,
         )
 
