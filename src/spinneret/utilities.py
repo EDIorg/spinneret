@@ -72,4 +72,5 @@ def load_eml(eml: Union[str, etree._ElementTree]) -> etree._ElementTree:
     """
     if isinstance(eml, str):
         eml = etree.parse(eml, parser=etree.XMLParser(remove_blank_text=True))
+    eml = delete_empty_tags(eml)
     return eml
