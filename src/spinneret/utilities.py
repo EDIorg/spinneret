@@ -83,3 +83,12 @@ def write_workbook(workbook: pd.core.frame.DataFrame, output_path: str) -> None:
     :returns: None
     """
     workbook.to_csv(output_path, sep="\t", index=False, encoding="utf-8")
+
+
+def write_eml(eml: etree._ElementTree, output_path: str) -> None:
+    """
+    :param eml: The EML file to be written.
+    :param output_path: The path to write the EML file to.
+    :returns: None
+    """
+    eml.write(output_path, pretty_print=True, encoding="utf-8", xml_declaration=True)

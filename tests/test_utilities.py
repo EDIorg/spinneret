@@ -10,6 +10,7 @@ from spinneret.utilities import (
     load_workbook,
     load_eml,
     write_workbook,
+    write_eml,
 )
 from spinneret.datasets import get_example_eml_dir
 
@@ -75,3 +76,13 @@ def test_write_workbook(tmp_path):
     assert exists(output_path)  # Check that the file exists
     wb2 = load_workbook(output_path)  # file contents are the same
     assert wb.equals(wb2)
+
+
+def test_write_eml(tmp_path):
+    """Test that an EML ElementTree is written to a file"""
+    eml = load_eml(get_example_eml_dir() + "/" + "edi.3.9.xml")
+    output_path = str(tmp_path) + "/edi.3.9.xml"
+    write_eml(eml, output_path)
+    assert exists(output_path)  # Check that the file exists
+    eml2 = load_eml(output_path)  # file contents are the same
+    assert etree.tostring(eml) == etree.tostring(eml2)
