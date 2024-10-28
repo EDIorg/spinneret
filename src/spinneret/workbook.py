@@ -2,7 +2,7 @@
 
 from lxml import etree
 import pandas as pd
-from spinneret.utilities import delete_empty_tags, load_eml
+from spinneret.utilities import delete_empty_tags, load_eml, write_workbook
 
 
 def create(
@@ -69,7 +69,7 @@ def create(
             wb.loc[len(wb)] = row  # append row to workbook
     if path_out:
         path_out = path_out + "/" + get_package_id(eml) + "_annotation_workbook.tsv"
-        wb.to_csv(path_out, sep="\t", index=False, mode="x")
+        write_workbook(wb, path_out)
     return wb
 
 
