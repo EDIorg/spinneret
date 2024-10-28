@@ -107,6 +107,7 @@ def test_annotate_workbook(
     # Annotate the workbook copy
     annotate_workbook(
         workbook_path=wb_path_copy,
+        eml_path=get_example_eml_dir() + "/" + "edi.3.9.xml",
         output_path=wb_path_annotated,
     )
 

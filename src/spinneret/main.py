@@ -45,10 +45,13 @@ def create_workbooks(eml_dir: str, workbook_dir: str) -> None:
         )
 
 
-def annotate_workbooks(workbook_dir: str, output_dir: str, config_path: str) -> None:
+def annotate_workbooks(
+    workbook_dir: str, eml_dir: str, output_dir: str, config_path: str
+) -> None:
     """Create workbooks for each EML file in a directory
 
     :param workbook_dir: Directory of unannotated workbooks
+    :param eml_dir: Directory of EML files corresponding to workbooks
     :param output_dir: Directory to save annotated workbooks
     :param config_path: Path to configuration file
     :return: None
@@ -74,10 +77,18 @@ def annotate_workbooks(workbook_dir: str, output_dir: str, config_path: str) -> 
         if workbook_file_annotated in output_files:
             continue
 
+        # Match EML file to workbook file
+        eml_pid = workbook_file.split("_")[0]
+        eml_file = eml_pid + ".xml"
+        if not os.path.exists(eml_dir + "/" + eml_file):
+            print(f"Could not find EML file for {workbook_file}")
+            continue
+
         # Create annotated workbook
         print(f"Creating annotated workbook for {workbook_file}")
         annotate_workbook(
             workbook_path=workbook_dir + "/" + workbook_file,
+            eml_path=eml_file,
             output_path=output_dir + "/" + workbook_file_annotated,
         )
 
@@ -295,6 +306,7 @@ if __name__ == "__main__":
 
     # annotate_workbooks(
     #     workbook_dir="/Users/csmith/Data/kgraph/workbook/raw",
+    #     eml_dir="/Users/csmith/Data/kgraph/eml/raw",
     #     output_dir="/Users/csmith/Data/kgraph/workbook/annotated",
     #     config_path="/Users/csmith/Code/spinneret_EDIorg/spinneret/config.json",
     # )
