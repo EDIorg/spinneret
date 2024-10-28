@@ -74,3 +74,12 @@ def load_eml(eml: Union[str, etree._ElementTree]) -> etree._ElementTree:
         eml = etree.parse(eml, parser=etree.XMLParser(remove_blank_text=True))
     eml = delete_empty_tags(eml)
     return eml
+
+
+def write_workbook(workbook: pd.core.frame.DataFrame, output_path: str) -> None:
+    """
+    :param workbook: The workbook to be written.
+    :param output_path: The path to write the workbook to.
+    :returns: None
+    """
+    workbook.to_csv(output_path, sep="\t", index=False, encoding="utf-8")
