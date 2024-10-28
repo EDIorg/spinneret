@@ -14,7 +14,7 @@ from spinneret.workbook import (
     get_subject_and_context,
     get_description,
 )
-from spinneret.utilities import load_eml, load_workbook, write_workbook
+from spinneret.utilities import load_eml, load_workbook, write_workbook, write_eml
 
 
 # pylint: disable=too-many-locals
@@ -273,7 +273,7 @@ def annotate_eml(eml_path: str, workbook_path: str, output_path: str) -> None:
                 attribute.insert(len(attribute) + 1, annotation)
 
     # Write eml to file
-    eml.write(output_path, pretty_print=True, encoding="utf-8", xml_declaration=True)
+    write_eml(eml, output_path)
 
 
 def create_annotation_element(predicate_label, predicate_id, object_label, object_id):
