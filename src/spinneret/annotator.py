@@ -14,7 +14,7 @@ from spinneret.workbook import (
     get_subject_and_context,
     get_description,
 )
-from spinneret.utilities import load_eml, load_workbook
+from spinneret.utilities import load_eml, load_workbook, write_workbook
 
 
 # pylint: disable=too-many-locals
@@ -202,7 +202,7 @@ def annotate_workbook(workbook_path: str, output_path: str) -> None:
     wb = pd.concat([wb, wb_additional_rows], ignore_index=True)
 
     # Write the annotated workbook back to the original path
-    wb.to_csv(output_path, sep="\t", index=False, encoding="utf-8")
+    write_workbook(wb, output_path)
 
 
 def annotate_eml(eml_path: str, workbook_path: str, output_path: str) -> None:
@@ -407,5 +407,5 @@ def add_qudt_annotations_to_workbook(
             wb = pd.concat([wb, row], ignore_index=True)
 
     if output_path:
-        wb.to_csv(output_path, sep="\t", index=False, encoding="utf-8")
+        write_workbook(wb, output_path)
     return wb
