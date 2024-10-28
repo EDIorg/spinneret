@@ -2,7 +2,7 @@
 
 from urllib.parse import urljoin
 from lxml import etree
-from spinneret.utilities import is_url, load_eml
+from spinneret.utilities import is_url, load_eml, write_eml
 
 
 def convert_userid_to_url(eml: etree.ElementTree) -> etree.ElementTree:
@@ -46,4 +46,4 @@ def create_shadow_eml(eml_path: str, output_path: str) -> None:
     eml = convert_userid_to_url(eml)
 
     # Write eml to file
-    eml.write(output_path, pretty_print=True, encoding="utf-8", xml_declaration=True)
+    write_eml(eml, output_path)
