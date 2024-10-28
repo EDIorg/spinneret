@@ -130,80 +130,26 @@ def annotate_workbook(workbook_path: str, eml_path: str, output_path: str) -> No
         in the EML file. The annotated workbook is written back to the same
         path as the original workbook.
     """
-    # Ensure the workbook and eml file match to avoid errors
     print(f"Annotating workbook {workbook_path}")
+
+    # Ensure the workbook and eml file match to avoid errors
+    pid = os.path.basename(workbook_path).split("_")[0]
+    eml_file = pid + ".xml"
+    if eml_file not in eml_path:
+        print(f"EML file {eml_file} does not match workbook {workbook_path}")
+        return None
 
     # Load the workbook and EML for processing
     wb = load_workbook(workbook_path)
+    eml = load_eml(eml_path)
 
-    # Iterate over workbook rows and annotate
-    wb_additional_rows = pd.DataFrame(columns=wb.columns)
-    for index, row in wb.iterrows():
+    # Run workbook annotators, results of one are used as input for the next
+    wb = add_dataset_annotations_to_workbook(wb, eml)
+    wb = add_measurement_type_annotations_to_workbook(wb, eml)
+    wb = add_qudt_annotations_to_workbook(wb, eml)
 
-        # Operate on a copy of the row to avoid warnings
-        modified_row = row.copy()
-        if modified_row["element"] == "dataset":
-            modified_row["predicate"] = "is about"
-            modified_row["predicate_id"] = "http://purl.obolibrary.org/obo/IAO_0000136"
-        elif modified_row["element"] == "attribute":
-            modified_row["predicate"] = "contains measurements of type"
-            modified_row["predicate_id"] = (
-                "http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#containsMeasurementsOfType"
-            )
-
-        # Get annotations for the element's descriptive text
-        if row["element"] == "dataset":
-            annotation = get_bioportal_annotation(
-                text=row["description"],
-                api_key=os.environ["BIOPORTAL_API_KEY"],
-                ontologies="ENVO",  # ENVO provides environmental terms
-                exclude_synonyms="true",
-            )
-        elif row["element"] == "attribute":
-            annotation = get_bioportal_annotation(
-                text=row["description"],
-                api_key=os.environ["BIOPORTAL_API_KEY"],
-                ontologies="ECSO",  # ECSO provides measurment terms
-                exclude_synonyms="true",
-            )
-        else:
-            continue
-
-        # Add annotations to the workbook. Add first annotation to row then the
-        # remainder to a separate data frame to be appended at the end.
-        if annotation:
-            modified_row["object"] = annotation[0]["label"]
-            modified_row["object_id"] = annotation[0]["uri"]
-            modified_row["author"] = "BioPortal Annotator"
-            modified_row["date"] = pd.Timestamp.now()
-            wb.loc[index] = modified_row  # Update the row in the workbook
-        if len(annotation) > 1:
-            for item in annotation[1:]:
-                # Create row
-                new_row = row.copy()
-                if new_row["element"] == "dataset":
-                    new_row["predicate"] = "is about"
-                    new_row["predicate_id"] = (
-                        "http://purl.obolibrary.org/obo/IAO_0000136"
-                    )
-                elif new_row["element"] == "attribute":
-                    new_row["predicate"] = "contains measurements of type"
-                    new_row["predicate_id"] = (
-                        "http://ecoinformatics.org/oboe/oboe.1.2/"
-                        "oboe-core.owl#containsMeasurementsOfType"
-                    )
-                new_row["object"] = item["label"]
-                new_row["object_id"] = item["uri"]
-                new_row["author"] = "BioPortal Annotator"
-                new_row["date"] = pd.Timestamp.now()
-                # Append row to additional rows df
-                wb_additional_rows.loc[len(wb_additional_rows)] = new_row
-
-    # Append additional rows to the workbook
-    wb = pd.concat([wb, wb_additional_rows], ignore_index=True)
-
-    # Write the annotated workbook back to the original path
     write_workbook(wb, output_path)
+    return None
 
 
 def annotate_eml(eml_path: str, workbook_path: str, output_path: str) -> None:
