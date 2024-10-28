@@ -11,6 +11,7 @@ from spinneret.annotator import (
     create_annotation_element,
     add_qudt_annotations_to_workbook,
     add_dataset_annotations_to_workbook,
+    add_measurement_type_annotations_to_workbook,
 )
 from spinneret.utilities import load_configuration, load_eml, load_workbook
 from spinneret.datasets import get_example_eml_dir
@@ -382,4 +383,100 @@ def test_add_dataset_annotations_to_workbook_io_options(tmp_path, mocker):
     wb = load_workbook("tests/edi.3.9_annotation_workbook.tsv")
     eml = load_eml(get_example_eml_dir() + "/" + "edi.3.9.xml")
     wb = add_dataset_annotations_to_workbook(workbook=wb, eml=eml)
+    assert has_annotations(wb)
+
+
+@pytest.mark.parametrize("use_mock", [True])  # False makes real HTTP requests
+def test_add_measurement_type_annotations_to_workbook(tmp_path, use_mock, mocker):
+    """Test add_measurement_type_annotations_to_workbook"""
+
+    # Parameterize the test
+    workbook_path = "tests/edi.3.9_annotation_workbook.tsv"
+    output_path = str(tmp_path) + "edi.3.9_annotation_workbook_qudt.tsv"
+
+    # The workbook shouldn't have any annotations yet
+    wb = load_workbook(workbook_path)
+    assert not has_annotations(wb)
+
+    # The workbook has annotations after calling the function
+    if use_mock:
+        mocker.patch(  # a response returned in real requests
+            "spinneret.annotator.get_bioportal_annotation",
+            return_value=[
+                {
+                    "label": "depth",
+                    "uri": "http://purl.dataone.org/odo/ECSO_00000515",
+                }
+            ],
+        )
+        os.environ["BIOPORTAL_API_KEY"] = "mock api key"
+    wb = add_measurement_type_annotations_to_workbook(
+        workbook=workbook_path,
+        eml=get_example_eml_dir() + "/" + "edi.3.9.xml",
+        output_path=output_path,
+    )
+    assert has_annotations(wb)
+
+    # Overwriting changes the annotations. Note, we can't test this with real
+    # requests because we'll expect the same results as the first call.
+    if use_mock:
+        mocker.patch(  # an arbitrary response to check for
+            "spinneret.annotator.get_bioportal_annotation",
+            return_value=[
+                {
+                    "label": "A different measurement type",
+                    "uri": "http://purl.dataone.org/odo/ECSO_XXXXXXXX",
+                }
+            ],
+        )
+        os.environ["BIOPORTAL_API_KEY"] = "mock api key"
+    wb = add_measurement_type_annotations_to_workbook(
+        workbook=output_path,  # the output from the first call
+        eml=get_example_eml_dir() + "/" + "edi.3.9.xml",
+        output_path=output_path,
+        overwrite=True,
+    )
+    assert wb["object"].str.contains("A different measurement type").any()
+    assert (
+        wb["object_id"].str.contains("http://purl.dataone.org/odo/ECSO_XXXXXXXX").any()
+    )
+
+    # Original annotations are gone
+    assert not wb["object"].str.contains("depth").any()
+    assert (
+        not wb["object_id"]
+        .str.contains("http://purl.dataone.org/odo/ECSO_00000515")
+        .any()
+    )
+
+
+def test_add_measurement_type_annotations_to_workbook_io_options(tmp_path, mocker):
+    """Test add_measurement_type_annotations_to_workbook with different input
+    and output options"""
+
+    mocker.patch(
+        "spinneret.annotator.get_bioportal_annotation",
+        return_value=[
+            {
+                "label": "depth",
+                "uri": "http://purl.dataone.org/odo/ECSO_00000515",
+            }
+        ],
+    )
+    os.environ["BIOPORTAL_API_KEY"] = "mock api key"
+
+    # Accepts file path as input
+    output_path = str(tmp_path) + "edi.3.9_annotation_workbook_dataset.tsv"
+    wb = add_measurement_type_annotations_to_workbook(
+        workbook="tests/edi.3.9_annotation_workbook.tsv",
+        eml=get_example_eml_dir() + "/" + "edi.3.9.xml",
+        output_path=output_path,
+    )
+    wb = load_workbook(output_path)
+    assert has_annotations(wb)
+
+    # Accepts dataframes and etree objects as input
+    wb = load_workbook("tests/edi.3.9_annotation_workbook.tsv")
+    eml = load_eml(get_example_eml_dir() + "/" + "edi.3.9.xml")
+    wb = add_measurement_type_annotations_to_workbook(workbook=wb, eml=eml)
     assert has_annotations(wb)
