@@ -409,3 +409,78 @@ def add_qudt_annotations_to_workbook(
     if output_path:
         write_workbook(wb, output_path)
     return wb
+
+
+def add_dataset_annotations_to_workbook(
+    workbook: Union[str, pd.core.frame.DataFrame],
+    eml: Union[str, etree._ElementTree],
+    output_path: str = None,
+    overwrite: bool = False,
+) -> pd.core.frame.DataFrame:
+    """
+    :param workbook: Either the path to the workbook to be annotated, or the
+        workbook itself as a pandas DataFrame.
+    :param eml: Either the path to the EML file corresponding to the workbook,
+        or the EML file itself as an lxml etree.
+    :param output_path: The path to write the annotated workbook.
+    :param overwrite: If True, overwrite existing dataset annotations in the
+        workbook. This enables updating the annotations in the workbook with
+        the latest dataset annotations.
+    :returns: Workbook with dataset annotations."""
+
+    # Load the workbook and EML for processing
+    wb = load_workbook(workbook)
+    eml = load_eml(eml)
+
+    # Set the author identifier for consistent reference below
+    author = "spinneret.annotator.get_bioportal_annotation"
+
+    # Remove existing dataset annotations if overwrite is True, using a set of
+    # criteria that accurately define the annotations to remove.
+    if overwrite:
+        wb = delete_annotations(
+            workbook=wb,
+            criteria={
+                "element": "dataset",
+                "element_xpath": "/eml:eml/dataset",
+                "author": author,
+            },
+        )
+
+    # Get the dataset annotations
+    dataset_element = eml.xpath("//dataset")[0]
+    element_description = get_description(dataset_element)
+    annotations = get_bioportal_annotation(  # expecting a list of annotations
+        text=element_description,
+        api_key=os.environ["BIOPORTAL_API_KEY"],
+        ontologies="ENVO",  # ENVO provides environmental terms
+        exclude_synonyms="true",
+    )
+
+    # Add dataset annotations to the workbook
+    if annotations is not None:
+        for annotation in annotations:
+            row = initialize_workbook_row()
+            row["package_id"] = get_package_id(eml)
+            row["url"] = get_package_url(eml)
+            row["element"] = dataset_element.tag
+            if "id" in dataset_element.attrib:
+                row["element_id"] = dataset_element.attrib["id"]
+            else:
+                row["element_id"] = pd.NA
+            row["element_xpath"] = eml.getpath(dataset_element)
+            row["context"] = get_subject_and_context(dataset_element)["context"]
+            row["description"] = element_description
+            row["subject"] = get_subject_and_context(dataset_element)["subject"]
+            row["predicate"] = "is about"
+            row["predicate_id"] = "http://purl.obolibrary.org/obo/IAO_0000136"
+            row["object"] = annotation["label"]
+            row["object_id"] = annotation["uri"]
+            row["author"] = author
+            row["date"] = pd.Timestamp.now()
+            row = pd.DataFrame([row], dtype=str)
+            wb = pd.concat([wb, row], ignore_index=True)
+
+    if output_path:
+        write_workbook(wb, output_path)
+    return wb
