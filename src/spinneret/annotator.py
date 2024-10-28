@@ -118,11 +118,12 @@ def get_bioportal_annotation(
     return annotations
 
 
-def annotate_workbook(workbook_path: str, output_path: str) -> None:
+def annotate_workbook(workbook_path: str, eml_path: str, output_path: str) -> None:
     """Annotate a workbook with automated annotation
 
     :param workbook_path: The path to the workbook to be annotated
         corresponding to the EML file.
+    :param eml_path: The path to the EML file corresponding to the workbook.
     :param output_path: The path to write the annotated workbook.
     :returns: None
     :notes: The workbook is annotated by annotators best suited for the XPaths
