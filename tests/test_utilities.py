@@ -1,9 +1,16 @@
 """Test utilities module"""
 
+from os.path import exists
 from lxml import etree
 import pandas as pd
 from spinneret import datasets
-from spinneret.utilities import delete_empty_tags, is_url, load_workbook, load_eml
+from spinneret.utilities import (
+    delete_empty_tags,
+    is_url,
+    load_workbook,
+    load_eml,
+    write_workbook,
+)
 from spinneret.datasets import get_example_eml_dir
 
 
@@ -58,3 +65,13 @@ def test_load_eml():
     eml = load_eml(get_example_eml_dir() + "/" + "edi.3.9.xml")
     eml = load_eml(eml)
     assert isinstance(eml, etree._ElementTree)
+
+
+def test_write_workbook(tmp_path):
+    """Test that a workbook DataFrame is written to a file"""
+    wb = load_workbook("tests/edi.3.9_annotation_workbook.tsv")
+    output_path = str(tmp_path) + "/output.tsv"
+    write_workbook(wb, output_path)
+    assert exists(output_path)  # Check that the file exists
+    wb2 = load_workbook(output_path)  # file contents are the same
+    assert wb.equals(wb2)
