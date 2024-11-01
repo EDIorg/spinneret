@@ -522,3 +522,44 @@ def add_measurement_type_annotations_to_workbook(
     if output_path:
         write_workbook(wb, output_path)
     return wb
+
+
+def get_ontogpt_annotation(text: str, predicate: str, return_ungrounded: bool = False) -> Union[list, None]:
+    """
+    :param text: The text to be annotated.
+    :param template: Name of OntoGPT template to use for grounding. Availble
+        templates are in src/data/ontogpt/templates.
+    :param return_ungrounded: If True, return ungrounded annotations. These
+        may be useful in identifying potential concepts to add to an ontology,
+        or to identify concepts that a human curator may be capable of
+        grounding.
+    :returns: A list of dictionaries, each with the annotation keys `label`
+        and `uri`. None if the request fails or no annotations are found.
+
+    :notes: This function is a wrapper for the OntoGPT API. Set up of OntoGPT
+        is required to use this function. For more information, see:
+        https://monarch-initiative.github.io/ontogpt/
+    """
+    # Get annotations
+    try:
+        r = get(url, params=payload, timeout=10)
+        r.raise_for_status()
+    except exceptions.RequestException as e:
+        print(f"Error calling https://data.bioontology.org/annotator: {e}")
+        return None
+
+    # Parse the results
+    annotations = []
+    for item in r.json():
+        self_link = item.get("annotatedClass", {}).get("links").get("self",
+                                                                    None)
+        try:
+            r = get(self_link, params={"apikey": api_key}, timeout=10)
+            r.raise_for_status()
+        except exceptions.RequestException as e:
+            print(f"Error calling {self_link}: {e}")
+            return None
+        uri = r.json().get("@id", None)
+        label = r.json().get("prefLabel", None)
+        annotations.append({"label": label, "uri": uri})
+    return annotations
