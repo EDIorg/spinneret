@@ -143,3 +143,6 @@ dmypy.json
 
 # Configuration file for spinneret
 config.json
+
+# Ontogpt
+.litellm_cache/cache.db
