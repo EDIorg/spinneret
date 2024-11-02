@@ -1,0 +1,54 @@
+id: http://w3id.org/ontogpt/env_local_scale
+name: env-local-scale
+title: Local Environmental Context
+description: >-
+  A template for categorizing the local environmental context described in an 
+  EML (Ecological Metadata Language) document. Local environmental context is 
+  defined as: 
+  https://genomicsstandardsconsortium.github.io/mixs/0000013/
+license: https://creativecommons.org/publicdomain/zero/1.0/
+prefixes:
+  rdf: http://www.w3.org/1999/02/22-rdf-syntax-ns#
+  ENVO: http://purl.obolibrary.org/obo/ENVO_
+  envmd: http://w3id.org/ontogpt/env_local_scale
+  linkml: https://w3id.org/linkml/
+
+default_prefix: envmd
+default_range: string
+
+imports:
+  - linkml:types
+  - core
+
+classes:
+  Dataset:
+    tree_root: true
+    attributes:
+      env_local_scale:
+        description: the local environmental context in which the study was conducted
+        annotations:
+          prompt: semicolon-separated list of local environmental contexts in which the study was conducted
+        range: EnvLocalScale
+        multivalued: true
+
+  EnvLocalScale:
+    is_a: NamedEntity
+    id_prefixes:
+      - ENVO
+    annotations:
+      annotators: sqlite:obo:envo
+    slot_usage:
+      id:
+        values_from:
+          - EnvoMaterialEntity
+
+enums:
+  EnvoMaterialEntity:
+    reachable_from:
+      source_ontology: obo:envo
+      source_nodes:  # a selection of nodes from the ENVO `material entity` branch
+        - ENVO:01000813  # astronomical body part
+        - ENVO:01001813  # construction
+        - ENVO:01000408  # environmental zone
+        - ENVO:01003020  # fiat part of an astronomical object
+        - ENVO:01000281  # layer

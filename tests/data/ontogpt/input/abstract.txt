@@ -1,0 +1,52 @@
+---
+input_text: |
+  Parameters characterizing the nutrient chemistry of the eleven primary lakes (Allequash, Big Muskellunge, Crystal, Sparkling, and Trout lakes, unnamed lakes 27-02 [Crystal Bog] and 12-15 [Trout Bog], Mendota, Monona, Wingra, and Fish) are measured at multiple depths throughout the year. These parameters include total nitrogen, total dissolved nitrogen, nitrite+nitrate-N, ammonium-N, total phosphorus, total dissolved phosphorus, dissolved reactive phosphorus (only in the southern lakes and not in Wingra and Fish after 2003), bicarbonate-reactive filtered and unfiltered silica (both discontinued in 2003), dissolved reactive silica, pH, air equilibrated pH (discontinued in 2014 in the northern lakes and in 2020 in the southern lakes), total alkalinity, total inorganic carbon, dissolved inorganic carbon, total organic carbon, dissolved organic carbon, and total particulate matter (only in the northern lakes in this data set; total particulate matter in southern lakes starting in 2000 is available in a separate dataset). Sampling Frequency: Northern lakes- monthly during ice-free season - every 5 weeks during ice-covered season. Southern lakes- Southern lakes samples are collected every 2-4 weeks during the summer stratified period, at least monthly during the fall, and typically only once during the winter, depending on ice conditions. Number of sites: 11
+
+
+  The lakes are generally representative of the freshwater lake biome. The lakes are all situated within a temperate environment.
+
+  The littoral zone is a local environmental feature of interest. The shoreline is a local environmental feature of interest. A fish hatchery, located in the immediate vicinity, is also a local feature of interest.
+
+  Phosphorous cycling is an environmental process investigated in this study. Pollution monitoring is a planned process related to this study.
+raw_completion_output: 'topic: limnology; aquatic ecology; environmental chemistry;
+  water quality management; hydrology; biogeochemistry'
+prompt: |+
+  From the text below, extract the following entities in the following format:
+
+  topic: <semicolon-separated list of scientific areas of study concerning the sample(s)>
+
+
+  Text:
+  Parameters characterizing the nutrient chemistry of the eleven primary lakes (Allequash, Big Muskellunge, Crystal, Sparkling, and Trout lakes, unnamed lakes 27-02 [Crystal Bog] and 12-15 [Trout Bog], Mendota, Monona, Wingra, and Fish) are measured at multiple depths throughout the year. These parameters include total nitrogen, total dissolved nitrogen, nitrite+nitrate-N, ammonium-N, total phosphorus, total dissolved phosphorus, dissolved reactive phosphorus (only in the southern lakes and not in Wingra and Fish after 2003), bicarbonate-reactive filtered and unfiltered silica (both discontinued in 2003), dissolved reactive silica, pH, air equilibrated pH (discontinued in 2014 in the northern lakes and in 2020 in the southern lakes), total alkalinity, total inorganic carbon, dissolved inorganic carbon, total organic carbon, dissolved organic carbon, and total particulate matter (only in the northern lakes in this data set; total particulate matter in southern lakes starting in 2000 is available in a separate dataset). Sampling Frequency: Northern lakes- monthly during ice-free season - every 5 weeks during ice-covered season. Southern lakes- Southern lakes samples are collected every 2-4 weeks during the summer stratified period, at least monthly during the fall, and typically only once during the winter, depending on ice conditions. Number of sites: 11
+
+
+  The lakes are generally representative of the freshwater lake biome. The lakes are all situated within a temperate environment.
+
+  The littoral zone is a local environmental feature of interest. The shoreline is a local environmental feature of interest. A fish hatchery, located in the immediate vicinity, is also a local feature of interest.
+
+  Phosphorous cycling is an environmental process investigated in this study. Pollution monitoring is a planned process related to this study.
+
+
+  ===
+
+extracted_object:
+  topic:
+    - ENVTHES:21749
+    - ENVTHES:80
+    - ENVTHES:21659
+    - ENVTHES:USLterCV_623
+    - ENVTHES:USLterCV_259
+    - ENVTHES:USLterCV_65
+named_entities:
+  - id: ENVTHES:21749
+    label: limnology
+  - id: ENVTHES:80
+    label: aquatic ecology
+  - id: ENVTHES:21659
+    label: environmental chemistry
+  - id: ENVTHES:USLterCV_623
+    label: water quality management
+  - id: ENVTHES:USLterCV_259
+    label: hydrology
+  - id: ENVTHES:USLterCV_65
+    label: biogeochemistry

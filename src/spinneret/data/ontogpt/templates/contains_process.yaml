@@ -1,0 +1,51 @@
+id: http://w3id.org/ontogpt/contains_process
+name: contains-process
+title: Local Environmental Context
+description: >-
+  A template for categorizing the process(es) described in an EML (Ecological 
+  Metadata Language) document. Typically these are an environmental system 
+  process (ENVO:02500000), planned process (OBI:0000011), or biological_process
+  (GO:0008150).
+license: https://creativecommons.org/publicdomain/zero/1.0/
+prefixes:
+  rdf: http://www.w3.org/1999/02/22-rdf-syntax-ns#
+  ENVO: http://purl.obolibrary.org/obo/ENVO_
+  BFO: http://purl.obolibrary.org/obo/BFO_
+  envmd: http://w3id.org/ontogpt/contains_process
+  linkml: https://w3id.org/linkml/
+
+default_prefix: envmd
+default_range: string
+
+imports:
+  - linkml:types
+  - core
+
+classes:
+  Dataset:
+    tree_root: true
+    attributes:
+      contains_process:
+        description: the environmental process, biological process, or planned process investigated in the study
+        annotations:
+          prompt: semicolon-separated list of the environmental process, biological process, or planned process investigated in the study
+        range: ContainsProcess
+        multivalued: true
+
+  ContainsProcess:
+    is_a: NamedEntity
+    id_prefixes:
+      - ENVO
+    annotations:
+      annotators: sqlite:obo:envo
+    slot_usage:
+      id:
+        values_from:
+          - EnvoProcess
+
+enums:
+  EnvoProcess:
+    reachable_from:
+      source_ontology: obo:envo
+      source_nodes:
+        - BFO:0000015  # process

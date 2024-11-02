@@ -1,0 +1,37 @@
+id: http://w3id.org/ontogpt/research_topic
+name: research-topic
+title: Research Topic
+description: >-
+  A template for categorizing the research topic described in an EML 
+  (Ecological Metadata Language) document.
+license: https://creativecommons.org/publicdomain/zero/1.0/
+prefixes:
+  rdf: http://www.w3.org/1999/02/22-rdf-syntax-ns#
+  ENVTHES: http://vocabs.lter-europe.net/EnvThes/
+  envmd: http://w3id.org/ontogpt/research_topic
+  linkml: https://w3id.org/linkml/
+
+default_prefix: envmd
+default_range: string
+
+imports:
+  - linkml:types
+  - core
+
+classes:
+  Dataset:
+    tree_root: true
+    attributes:
+      topic:
+        description: the general scientific area of study concerning the sample(s)
+        annotations:
+          prompt: semicolon-separated list of scientific areas of study concerning the sample(s)
+        range: Topic
+        multivalued: true
+
+  Topic:
+    is_a: NamedEntity
+    id_prefixes:
+      - ENVTHES
+    annotations:
+      annotators: bioportal:ENVTHES
