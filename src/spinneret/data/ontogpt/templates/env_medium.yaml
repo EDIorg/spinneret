@@ -1,0 +1,49 @@
+id: http://w3id.org/ontogpt/env_medium
+name: env-medium
+title: Environmental Medium
+description: >-
+  A template for categorizing the environmental material(s) immediately 
+  surrounding the sample or specimen at the time of sampling, as described 
+  in an EML (Ecological Metadata Language) document.
+license: https://creativecommons.org/publicdomain/zero/1.0/
+prefixes:
+  rdf: http://www.w3.org/1999/02/22-rdf-syntax-ns#
+  ENVO: http://purl.obolibrary.org/obo/ENVO_
+  envmd: http://w3id.org/ontogpt/env_medium
+  linkml: https://w3id.org/linkml/
+
+default_prefix: envmd
+default_range: string
+
+imports:
+  - linkml:types
+  - core
+
+classes:
+  Dataset:
+    tree_root: true
+    attributes:
+      env_medium:
+        description: the environmental material(s) immediately surrounding the sample or specimen at the time of sampling
+        annotations:
+          prompt: semicolon-separated list of the environmental material(s) immediately surrounding the sample or specimen at the time of sampling
+        range: EnvironmentalMedium
+        multivalued: true
+
+  EnvironmentalMedium:
+    is_a: NamedEntity
+    id_prefixes:
+      - ENVO
+    annotations:
+      annotators: sqlite:obo:envo
+    slot_usage:
+      id:
+        values_from:
+          - EnvoEnvironmentalMaterial
+
+enums:
+  EnvoEnvironmentalMaterial:
+    reachable_from:
+      source_ontology: obo:envo
+      source_nodes:
+        - ENVO:00010483  # environmental material

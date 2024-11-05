@@ -1,0 +1,37 @@
+id: http://w3id.org/ontogpt/contains_measurement_of_type
+name: contains-measurement-of-type
+title: Contains Measurement of Type
+description: >-
+  A template for categorizing the type of measurement(s) described in an EML 
+  (Ecological Metadata Language) document.
+license: https://creativecommons.org/publicdomain/zero/1.0/
+prefixes:
+  rdf: http://www.w3.org/1999/02/22-rdf-syntax-ns#
+  ECSO: http://purl.dataone.org/odo/ECSO_
+  envmd: http://w3id.org/ontogpt/contains_measurement_of_type
+  linkml: https://w3id.org/linkml/
+
+default_prefix: envmd
+default_range: string
+
+imports:
+  - linkml:types
+  - core
+
+classes:
+  Dataset:
+    tree_root: true
+    attributes:
+      measurement_type:
+        description: the type of scientific measurement (or variable) described in the dataset
+        annotations:
+          prompt: semicolon-separated list of the type of scientific measurement (or variable) described in the dataset
+        range: Measurement
+        multivalued: true
+
+  Measurement:
+    is_a: NamedEntity
+    id_prefixes:
+      - ECSO
+    annotations:
+      annotators: bioportal:ECSO

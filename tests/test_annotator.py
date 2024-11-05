@@ -481,3 +481,43 @@ def test_add_measurement_type_annotations_to_workbook_io_options(tmp_path, mocke
     eml = load_eml(get_example_eml_dir() + "/" + "edi.3.9.xml")
     wb = add_measurement_type_annotations_to_workbook(workbook=wb, eml=eml)
     assert has_annotations(wb)
+
+
+@pytest.mark.parametrize("use_mock", [True])  # False tests with real local LLM queries
+def test_get_ontogpt_annotation(mocker, use_mock):
+    """Test get_ontogpt_annotation"""
+
+    if use_mock:
+        mocker.patch(
+            "spinneret.annotator.get_ontogpt_annotation",
+            return_value=[
+                {
+                    "label": "temperate environment",
+                    "uri": "http://purl.obolibrary.org/obo/ENVO_01001705",
+                },
+                {
+                    "label": "freshwater lake biome",
+                    "uri": "http://purl.obolibrary.org/obo/ENVO_01000252",
+                },
+            ],
+        )
+
+    with open("tests/data/ontogpt/input/abstract.txt", "r", encoding="utf-8") as file:
+        res = annotator.get_ontogpt_annotation(
+            text=file.read(),
+            template="env_broad_scale",
+            local_model="llama3.2",
+            return_ungrounded=True,
+        )
+
+    assert res is not None
+    assert len(res) > 0
+    assert isinstance(res, list)
+    for item in res:
+        assert isinstance(item, dict)
+        assert "label" in item
+        assert "uri" in item
+        assert isinstance(item["label"], str)
+        assert isinstance(item["uri"], str)
+        assert item["label"] != ""
+        assert item["uri"] != ""

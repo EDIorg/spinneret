@@ -1,0 +1,50 @@
+id: http://w3id.org/ontogpt/env_broad_scale
+name: env-broad-scale
+title: Broad-scale Environmental Context
+description: >-
+  A template for categorizing the broad-scale environmental context described 
+  in an EML (Ecological Metadata Language) document. Broad-scale environmental 
+  context is defined as: 
+  https://genomicsstandardsconsortium.github.io/mixs/0000012/
+license: https://creativecommons.org/publicdomain/zero/1.0/
+prefixes:
+  rdf: http://www.w3.org/1999/02/22-rdf-syntax-ns#
+  ENVO: http://purl.obolibrary.org/obo/ENVO_
+  envmd: http://w3id.org/ontogpt/env_broad_scale
+  linkml: https://w3id.org/linkml/
+
+default_prefix: envmd
+default_range: string
+
+imports:
+  - linkml:types
+  - core
+
+classes:
+  Dataset:
+    tree_root: true
+    attributes:
+      env_broad_scale:
+        description: the broad environmental context in which the study was conducted
+        annotations:
+          prompt: semicolon-separated list of broad environmental contexts in which the study was conducted
+        range: EnvBroadScale
+        multivalued: true
+
+  EnvBroadScale:
+    is_a: NamedEntity
+    id_prefixes:
+      - ENVO
+    annotations:
+      annotators: sqlite:obo:envo
+    slot_usage:
+      id:
+        values_from:
+          - EnvoEnvironmentalSystem
+
+enums:
+  EnvoEnvironmentalSystem:
+    reachable_from:
+      source_ontology: obo:envo
+      source_nodes:
+        - ENVO:01000254  # environmental system

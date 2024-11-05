@@ -1,0 +1,37 @@
+id: http://w3id.org/ontogpt/use_method
+name: use-method
+title: Uses Method
+description: >-
+  A template for categorizing the type of methods(s) described in an EML 
+  (Ecological Metadata Language) document.
+license: https://creativecommons.org/publicdomain/zero/1.0/
+prefixes:
+  rdf: http://www.w3.org/1999/02/22-rdf-syntax-ns#
+  ENVTHES: http://vocabs.lter-europe.net/EnvThes/
+  envmd: http://w3id.org/ontogpt/use_method
+  linkml: https://w3id.org/linkml/
+
+default_prefix: envmd
+default_range: string
+
+imports:
+  - linkml:types
+  - core
+
+classes:
+  Dataset:
+    tree_root: true
+    attributes:
+      method:
+        description: the type of method or technique used to gather data
+        annotations:
+          prompt: semicolon-separated list of the type of method or technique used to gather data
+        range: Method
+        multivalued: true
+
+  Method:
+    is_a: NamedEntity
+    id_prefixes:
+      - ENVTHES
+    annotations:
+      annotators: bioportal:ENVTHES

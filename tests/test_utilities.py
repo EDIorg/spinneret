@@ -11,6 +11,7 @@ from spinneret.utilities import (
     load_eml,
     write_workbook,
     write_eml,
+    expand_curie,
 )
 from spinneret.datasets import get_example_eml_dir
 
@@ -86,3 +87,15 @@ def test_write_eml(tmp_path):
     assert exists(output_path)  # Check that the file exists
     eml2 = load_eml(output_path)  # file contents are the same
     assert etree.tostring(eml) == etree.tostring(eml2)
+
+
+def test_expand_curie():
+    """Test that a CURIE is expanded to a URL"""
+    assert expand_curie("ECSO:00001203") == "http://purl.dataone.org/odo/ECSO_00001203"
+    assert (
+        expand_curie("ENVO:00001203") == "http://purl.obolibrary.org/obo/ENVO_00001203"
+    )
+    assert (
+        expand_curie("ENVTHES:00001203")
+        == "http://vocabs.lter-europe.net/EnvThes/00001203"
+    )
