@@ -24,6 +24,7 @@ from spinneret.utilities import (
     expand_curie,
 )
 
+# pylint: disable=too-many-lines
 
 # pylint: disable=too-many-locals
 def get_bioportal_annotation(
@@ -975,6 +976,91 @@ def add_env_medium_annotations_to_workbook(
                 row["date"] = pd.Timestamp.now()
                 row = pd.DataFrame([row], dtype=str)
                 wb = pd.concat([wb, row], ignore_index=True)
+
+    if output_path:
+        write_workbook(wb, output_path)
+    return wb
+
+
+def add_research_topic_annotations_to_workbook(
+    workbook: Union[str, pd.core.frame.DataFrame],
+    eml: Union[str, etree._ElementTree],
+    output_path: str = None,
+    overwrite: bool = False,
+    local_model: str = None,
+    return_ungrounded: bool = False,
+) -> pd.core.frame.DataFrame:
+    """
+    :param workbook: Either the path to the workbook to be annotated, or the
+        workbook itself as a pandas DataFrame.
+    :param eml: Either the path to the EML file corresponding to the workbook,
+        or the EML file itself as an lxml etree.
+    :param output_path: The path to write the annotated workbook.
+    :param overwrite: If True, overwrite existing research topic annotations in the
+        workbook. This enables updating the annotations in the workbook with
+        the latest research topic annotations.
+    :param local_model: See `get_ontogpt_annotation` documentation for details.
+    :param return_ungrounded: See `get_ontogpt_annotation` documentation for
+        details.
+    :returns: Workbook with research topic annotations.
+    :notes: This function retrieves research topic annotations using OntoGPT, which
+        requires setup and configuration described in the
+        `get_ontogpt_annotation` function.
+    """
+
+    # Load the workbook and EML for processing
+    wb = load_workbook(workbook)
+    eml = load_eml(eml)
+
+    # Set the author identifier for consistent reference below
+    author = "spinneret.annotator.get_onto_gpt_annotation"
+
+    # Remove existing research topic annotations if overwrite is True, using a set of
+    # criteria that accurately define the annotations to remove.
+    if overwrite:
+        wb = delete_annotations(
+            workbook=wb,
+            criteria={
+                "element": "dataset",
+                "element_xpath": "/eml:eml/dataset",
+                "predicate": "research topic",
+                "author": author,
+            },
+        )
+
+    # Get the research topic annotations
+    dataset_element = eml.xpath("//dataset")[0]
+    element_description = get_description(dataset_element)
+    annotations = get_ontogpt_annotation(
+        text=element_description,
+        template="research_topic",
+        local_model=local_model,
+        return_ungrounded=return_ungrounded,
+    )
+
+    # Add research topic annotations to the workbook
+    if annotations is not None:
+        for annotation in annotations:
+            row = initialize_workbook_row()
+            row["package_id"] = get_package_id(eml)
+            row["url"] = get_package_url(eml)
+            row["element"] = dataset_element.tag
+            if "id" in dataset_element.attrib:
+                row["element_id"] = dataset_element.attrib["id"]
+            else:
+                row["element_id"] = pd.NA
+            row["element_xpath"] = eml.getpath(dataset_element)
+            row["context"] = get_subject_and_context(dataset_element)["context"]
+            row["description"] = element_description
+            row["subject"] = get_subject_and_context(dataset_element)["subject"]
+            row["predicate"] = "research topic"
+            row["predicate_id"] = "http://vocabs.lter-europe.net/EnvThes/21604"
+            row["object"] = annotation["label"]
+            row["object_id"] = annotation["uri"]
+            row["author"] = author
+            row["date"] = pd.Timestamp.now()
+            row = pd.DataFrame([row], dtype=str)
+            wb = pd.concat([wb, row], ignore_index=True)
 
     if output_path:
         write_workbook(wb, output_path)
