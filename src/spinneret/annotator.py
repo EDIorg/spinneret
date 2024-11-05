@@ -1066,3 +1066,91 @@ def add_research_topic_annotations_to_workbook(
     if output_path:
         write_workbook(wb, output_path)
     return wb
+
+
+def add_methods_annotations_to_workbook(
+    workbook: Union[str, pd.core.frame.DataFrame],
+    eml: Union[str, etree._ElementTree],
+    output_path: str = None,
+    overwrite: bool = False,
+    local_model: str = None,
+    return_ungrounded: bool = False,
+) -> pd.core.frame.DataFrame:
+    """
+    :param workbook: Either the path to the workbook to be annotated, or the
+        workbook itself as a pandas DataFrame.
+    :param eml: Either the path to the EML file corresponding to the workbook,
+        or the EML file itself as an lxml etree.
+    :param output_path: The path to write the annotated workbook.
+    :param overwrite: If True, overwrite existing methods annotations in the
+        workbook. This enables updating the annotations in the workbook with
+        the latest methods annotations.
+    :param local_model: See `get_ontogpt_annotation` documentation for details.
+    :param return_ungrounded: See `get_ontogpt_annotation` documentation for
+        details.
+    :returns: Workbook with methods annotations.
+    :notes: This function retrieves methods annotations using OntoGPT, which
+        requires setup and configuration described in the
+        `get_ontogpt_annotation` function.
+    """
+
+    # Load the workbook and EML for processing
+    wb = load_workbook(workbook)
+    eml = load_eml(eml)
+
+    # Set the author identifier for consistent reference below
+    author = "spinneret.annotator.get_onto_gpt_annotation"
+
+    # Remove existing methods annotations if overwrite is True, using a set of
+    # criteria that accurately define the annotations to remove.
+    if overwrite:
+        wb = delete_annotations(
+            workbook=wb,
+            criteria={
+                "element": "dataset",
+                "element_xpath": "/eml:eml/dataset",
+                "predicate": "usesMethod",
+                "author": author,
+            },
+        )
+
+    # Get the methods annotations
+    dataset_element = eml.xpath("//dataset")[0]
+    element_description = get_description(eml.xpath("//dataset/methods")[0])
+    annotations = get_ontogpt_annotation(
+        text=element_description,
+        template="uses_method",
+        local_model=local_model,
+        return_ungrounded=return_ungrounded,
+    )
+
+    # Add methods annotations to the workbook. Note, methods annotations are
+    # at the dataset level.
+    if annotations is not None:
+        for annotation in annotations:
+            row = initialize_workbook_row()
+            row["package_id"] = get_package_id(eml)
+            row["url"] = get_package_url(eml)
+            row["element"] = dataset_element.tag
+            if "id" in dataset_element.attrib:
+                row["element_id"] = dataset_element.attrib["id"]
+            else:
+                row["element_id"] = pd.NA
+            row["element_xpath"] = eml.getpath(dataset_element)
+            row["context"] = get_subject_and_context(dataset_element)["context"]
+            row["description"] = element_description[0:500]  # don't need all of it
+            row["subject"] = get_subject_and_context(dataset_element)["subject"]
+            row["predicate"] = "usesMethod"
+            row["predicate_id"] = (
+                "http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#usesMethod"
+            )
+            row["object"] = annotation["label"]
+            row["object_id"] = annotation["uri"]
+            row["author"] = author
+            row["date"] = pd.Timestamp.now()
+            row = pd.DataFrame([row], dtype=str)
+            wb = pd.concat([wb, row], ignore_index=True)
+
+    if output_path:
+        write_workbook(wb, output_path)
+    return wb
