@@ -26,6 +26,7 @@ from spinneret.utilities import (
 
 # pylint: disable=too-many-lines
 
+
 # pylint: disable=too-many-locals
 def get_bioportal_annotation(
     text: str,
