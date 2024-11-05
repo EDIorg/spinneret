@@ -882,3 +882,100 @@ def add_env_local_scale_annotations_to_workbook(
     if output_path:
         write_workbook(wb, output_path)
     return wb
+
+
+def add_env_medium_annotations_to_workbook(
+    workbook: Union[str, pd.core.frame.DataFrame],
+    eml: Union[str, etree._ElementTree],
+    output_path: str = None,
+    overwrite: bool = False,
+    local_model: str = None,
+    return_ungrounded: bool = False,
+) -> pd.core.frame.DataFrame:
+    """
+    :param workbook: Either the path to the workbook to be annotated, or the
+        workbook itself as a pandas DataFrame.
+    :param eml: Either the path to the EML file corresponding to the workbook,
+        or the EML file itself as an lxml etree.
+    :param output_path: The path to write the annotated workbook.
+    :param overwrite: If True, overwrite existing environmental medium annotations
+        in the workbook. This enables updating the annotations in the workbook
+        with the latest environmental medium annotations.
+    :param annotator: The annotator to use for grounding. Options are "ontogpt"
+        and "bioportal". OntoGPT requires setup and configuration described in
+        the `get_ontogpt_annotation` function. Similarly, BioPortal requires
+        an API key and is described in the `get_bioportal_annotation` function.
+    :param local_model: Required if `annotator` is "ontogpt". See
+        `get_ontogpt_annotation` documentation for details.
+    :param return_ungrounded: An option if `annotator` is "ontogpt". See
+        `get_ontogpt_annotation` documentation for details.
+    :returns: Workbook with environmental medium annotations."""
+
+    # Load the workbook and EML for processing
+    wb = load_workbook(workbook)
+    eml = load_eml(eml)
+
+    # Remove existing environmental medium annotations if overwrite is True,
+    # using a set of criteria that accurately define the annotations to remove.
+    if overwrite:
+        wb = delete_annotations(
+            workbook=wb,
+            criteria={
+                "element": "attribute",
+                "element_xpath": "/attribute",
+                "predicate": "environmental material",
+                "author": "spinneret.annotator.get_ontogpt_annotation",
+            },
+        )
+
+    # Iterate over EML attributes and add environmental medium annotations to
+    # the workbook
+    attributes = eml.xpath("//attribute")
+    for attribute in attributes:
+        attribute_element = attribute
+        attribute_xpath = eml.getpath(attribute_element)
+
+        # Skip if an environmental medium annotation already exists for the
+        # attribute xpath and overwrite is False
+        rows = wb[wb["element_xpath"] == attribute_xpath].index
+        base_uri = "http://purl.obolibrary.org/obo/ENVO_"
+        has_env_medium_annotation = wb.loc[rows, "object_id"].str.contains(base_uri)
+        if has_env_medium_annotation.any() and not overwrite:
+            continue
+
+        # Get the environmental medium annotations
+        element_description = get_description(attribute_element)
+        annotations = get_ontogpt_annotation(
+            text=element_description,
+            template="env_medium",
+            local_model=local_model.lower(),
+            return_ungrounded=return_ungrounded,
+        )
+
+        # And add the environmental medium annotations to the workbook
+        if annotations is not None:
+            for annotation in annotations:
+                row = initialize_workbook_row()
+                row["package_id"] = get_package_id(eml)
+                row["url"] = get_package_url(eml)
+                row["element"] = attribute_element.tag
+                if "id" in attribute_element.attrib:
+                    row["element_id"] = attribute_element.attrib["id"]
+                else:
+                    row["element_id"] = pd.NA
+                row["element_xpath"] = attribute_xpath
+                row["context"] = get_subject_and_context(attribute_element)["context"]
+                row["description"] = get_description(attribute_element)
+                row["subject"] = get_subject_and_context(attribute_element)["subject"]
+                row["predicate"] = "environmental material"
+                row["predicate_id"] = "http://purl.obolibrary.org/obo/ENVO_00010483"
+                row["object"] = annotation["label"]
+                row["object_id"] = annotation["uri"]
+                row["author"] = "spinneret.annotator.get_ontogpt_annotation"
+                row["date"] = pd.Timestamp.now()
+                row = pd.DataFrame([row], dtype=str)
+                wb = pd.concat([wb, row], ignore_index=True)
+
+    if output_path:
+        write_workbook(wb, output_path)
+    return wb
