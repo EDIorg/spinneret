@@ -14,6 +14,7 @@ from spinneret.annotator import (
     add_qudt_annotations_to_workbook,
     add_dataset_annotations_to_workbook,
     add_measurement_type_annotations_to_workbook,
+    add_process_annotations_to_workbook,
 )
 from spinneret.utilities import load_configuration, load_eml, load_workbook
 from spinneret.datasets import get_example_eml_dir
@@ -562,3 +563,53 @@ def test_get_ontogpt_annotation(mocker, use_mock):
         assert isinstance(item["uri"], str)
         assert item["label"] != ""
         assert item["uri"] != ""
+
+
+@pytest.mark.parametrize("use_mock", [True])  # False tests with real local LLM queries
+def test_add_process_annotations_to_workbook(tmp_path, use_mock, mocker):
+    """Test add_process_annotations_to_workbook"""
+
+    # Parameterize the test
+    workbook_path = "tests/edi.3.9_annotation_workbook.tsv"
+    output_path = str(tmp_path) + "edi.3.9_annotation_workbook_qudt.tsv"
+
+    # The workbook shouldn't have any annotations yet
+    wb = load_workbook(workbook_path)
+    assert not has_annotations(wb)
+
+    # The workbook has annotations after calling the function
+    if use_mock:
+        mocker.patch(  # a response returned in real requests
+            "spinneret.annotator.get_ontogpt_annotation",
+            return_value=[{"label": "a label", "uri": "a uri"}],
+        )
+    wb = add_process_annotations_to_workbook(
+        workbook=workbook_path,
+        eml=get_example_eml_dir() + "/" + "edi.3.9.xml",
+        output_path=output_path,
+        local_model="llama3.2",
+        return_ungrounded=True,  # ensures we get at least one annotation back
+    )
+    assert has_annotations(wb)
+
+    # Overwriting changes the annotations. Note, we can't test this with real
+    # requests because we'll expect the same results as the first call.
+    if use_mock:
+        mocker.patch(  # an arbitrary response to check for
+            "spinneret.annotator.get_ontogpt_annotation",
+            return_value=[{"label": "a different label", "uri": "a different uri"}],
+        )
+    wb = add_process_annotations_to_workbook(
+        workbook=output_path,  # the output from the first call
+        eml=get_example_eml_dir() + "/" + "edi.3.9.xml",
+        output_path=output_path,
+        local_model="llama3.2",
+        return_ungrounded=True,  # ensures we get at least one annotation back
+        overwrite=True,
+    )
+    assert wb["object"].str.contains("a different label").any()
+    assert wb["object_id"].str.contains("a different uri").any()
+
+    # Original annotations are gone
+    assert not wb["object"].str.contains("a label").any()
+    assert not wb["object_id"].str.contains("a uri").any()
