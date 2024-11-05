@@ -2,6 +2,8 @@
 
 import os
 from shutil import copyfile
+
+import pandas as pd
 import pytest
 from lxml import etree
 from spinneret import annotator
@@ -481,6 +483,45 @@ def test_add_measurement_type_annotations_to_workbook_io_options(tmp_path, mocke
     eml = load_eml(get_example_eml_dir() + "/" + "edi.3.9.xml")
     wb = add_measurement_type_annotations_to_workbook(workbook=wb, eml=eml)
     assert has_annotations(wb)
+
+
+def test_annotators_are_listed_as_authors(tmp_path, mocker):
+    """Test that the annotators are listed as authors in the workbook. Test
+    this for each workbook annotator with an annotator parameter."""
+
+    # Test for the `add_measurement_type_annotations_to_workbook` function
+    # using the OntoGPT annotator
+    mocker.patch(
+        "spinneret.annotator.get_ontogpt_annotation",
+        return_value=[{"label": "a label", "uri": "a uri"}],
+    )
+    wb = add_measurement_type_annotations_to_workbook(
+        workbook="tests/edi.3.9_annotation_workbook.tsv",
+        eml=get_example_eml_dir() + "/" + "edi.3.9.xml",
+        output_path=str(tmp_path) + "edi.3.9_annotation_workbook_dataset.tsv",
+        annotator="ontogpt",
+        local_model="llama3.2",
+    )
+    authors = wb["author"].unique()
+    authors = [x for x in authors if pd.notna(x)]
+    assert "spinneret.annotator.get_ontogpt_annotation" == authors[0]
+
+    # Test for the `add_measurement_type_annotations_to_workbook` function
+    # using the Bioportal annotator
+    mocker.patch(
+        "spinneret.annotator.get_bioportal_annotation",
+        return_value=[{"label": "a label", "uri": "a uri"}],
+    )
+    os.environ["BIOPORTAL_API_KEY"] = "mock api key"
+    wb = add_measurement_type_annotations_to_workbook(
+        workbook="tests/edi.3.9_annotation_workbook.tsv",
+        eml=get_example_eml_dir() + "/" + "edi.3.9.xml",
+        output_path=str(tmp_path) + "edi.3.9_annotation_workbook_dataset.tsv",
+        annotator="bioportal",
+    )
+    authors = wb["author"].unique()
+    authors = [x for x in authors if pd.notna(x)]
+    assert "spinneret.annotator.get_bioportal_annotation" == authors[0]
 
 
 @pytest.mark.parametrize("use_mock", [True])  # False tests with real local LLM queries
