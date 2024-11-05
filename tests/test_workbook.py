@@ -54,7 +54,7 @@ def test_get_description():
     eml = load_eml(eml_file)
 
     # Elements to test (note dataTable is a general test for data entities)
-    elements = ["dataset", "dataTable", "attribute"]
+    elements = ["dataset", "dataTable", "attribute", "methods"]
 
     # Test each element
     for element in elements:

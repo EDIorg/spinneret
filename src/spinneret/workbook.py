@@ -147,6 +147,9 @@ def get_description(element: etree._Element) -> str:
         description = element.findtext(".//entityName")
     elif element.tag in "attribute":
         description = element.findtext(".//attributeDefinition")
+    elif element.tag in "methods":
+        methods = etree.tostring(element, encoding="utf-8", method="text")
+        description = methods.decode("utf-8").strip()
     else:
         description = None
     return description
