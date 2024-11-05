@@ -446,6 +446,9 @@ def add_measurement_type_annotations_to_workbook(
     eml: Union[str, etree._ElementTree],
     output_path: str = None,
     overwrite: bool = False,
+    annotator: str = "bioportal",
+    local_model: str = None,
+    return_ungrounded: bool = False,
 ) -> pd.core.frame.DataFrame:
     """
     :param workbook: Either the path to the workbook to be annotated, or the
@@ -456,6 +459,14 @@ def add_measurement_type_annotations_to_workbook(
     :param overwrite: If True, overwrite existing measurement type annotations
         in the workbook. This enables updating the annotations in the workbook
         with the latest measurement type annotations.
+    :param annotator: The annotator to use for grounding. Options are "ontogpt"
+        and "bioportal". OntoGPT requires setup and configuration described in
+        the `get_ontogpt_annotation` function. Similarly, BioPortal requires
+        an API key and is described in the `get_bioportal_annotation` function.
+    :param local_model: Required if `annotator` is "ontogpt". See
+        `get_ontogpt_annotation` documentation for details.
+    :param return_ungrounded: An option if `annotator` is "ontogpt". See
+        `get_ontogpt_annotation` documentation for details.
     :returns: Workbook with measurement type annotations."""
 
     # Load the workbook and EML for processing
@@ -470,7 +481,7 @@ def add_measurement_type_annotations_to_workbook(
             criteria={
                 "element": "attribute",
                 "element_xpath": "/attribute",
-                "author": "spinneret.annotator.get_bioportal_annotation",
+                "author": "spinneret.annotator",  # any spinneret annotator
             },
         )
 
@@ -491,14 +502,23 @@ def add_measurement_type_annotations_to_workbook(
         if has_measurement_type_annotation.any() and not overwrite:
             continue
 
-        # Otherwise get the measurement type annotations
+        # Otherwise select an annotator, and get the measurement type
+        # annotations
         element_description = get_description(attribute_element)
-        annotations = get_bioportal_annotation(  # expecting a list of annotations
-            text=element_description,
-            api_key=os.environ["BIOPORTAL_API_KEY"],
-            ontologies="ECSO",  # ECSO provides measurment terms
-            exclude_synonyms="true",
-        )
+        if annotator.lower() == "ontogpt":
+            annotations = get_ontogpt_annotation(
+                text=element_description,
+                template="contains_measurement_of_type",
+                local_model=local_model.lower(),
+                return_ungrounded=return_ungrounded,
+            )
+        else:
+            annotations = get_bioportal_annotation(  # expecting a list of annotations
+                text=element_description,
+                api_key=os.environ["BIOPORTAL_API_KEY"],
+                ontologies="ECSO",  # ECSO provides measurment terms
+                exclude_synonyms="true",
+            )
 
         # And add the measurement type annotations to the workbook
         if annotations is not None:
@@ -522,7 +542,10 @@ def add_measurement_type_annotations_to_workbook(
                 )
                 row["object"] = annotation["label"]
                 row["object_id"] = annotation["uri"]
-                row["author"] = "spinneret.annotator.get_bioportal_annotation"
+                if annotator.lower() == "ontogpt":
+                    row["author"] = "spinneret.annotator.get_ontogpt_annotation"
+                elif annotator.lower() == "bioportal":
+                    row["author"] = "spinneret.annotator.get_bioportal_annotation"
                 row["date"] = pd.Timestamp.now()
                 row = pd.DataFrame([row], dtype=str)
                 wb = pd.concat([wb, row], ignore_index=True)
