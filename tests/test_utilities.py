@@ -99,3 +99,5 @@ def test_expand_curie():
         expand_curie("ENVTHES:00001203")
         == "http://vocabs.lter-europe.net/EnvThes/00001203"
     )
+    # Ungrounded CURIES should return the original CURIE
+    assert expand_curie("AUTO:00001203") == "AUTO:00001203"

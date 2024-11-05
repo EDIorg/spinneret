@@ -107,6 +107,7 @@ def expand_curie(curie: str) -> str:
         "ENVO": "http://purl.obolibrary.org/obo/ENVO_",
         "BFO": "http://purl.obolibrary.org/obo/BFO_",
         "ENVTHES": "http://vocabs.lter-europe.net/EnvThes/",
+        "AUTO": "AUTO:",  # return ungrounded CURIEs as is
     }
     prefix, suffix = curie.split(":")
     return f"{mapping[prefix]}{suffix}"
