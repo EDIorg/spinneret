@@ -1,7 +1,9 @@
 """The annotator module"""
 
 import os
-from json import loads, decoder
+import tempfile
+from importlib import resources
+from json import loads, decoder, load
 from typing import Union
 from requests import get, exceptions
 import pandas as pd
@@ -14,7 +16,13 @@ from spinneret.workbook import (
     get_subject_and_context,
     get_description,
 )
-from spinneret.utilities import load_eml, load_workbook, write_workbook, write_eml
+from spinneret.utilities import (
+    load_eml,
+    load_workbook,
+    write_workbook,
+    write_eml,
+    expand_curie,
+)
 
 
 # pylint: disable=too-many-locals
@@ -524,42 +532,67 @@ def add_measurement_type_annotations_to_workbook(
     return wb
 
 
-def get_ontogpt_annotation(text: str, predicate: str, return_ungrounded: bool = False) -> Union[list, None]:
+def get_ontogpt_annotation(
+    text: str, template: str, local_model: str = None, return_ungrounded: bool = False
+) -> Union[list, None]:
     """
     :param text: The text to be annotated.
-    :param template: Name of OntoGPT template to use for grounding. Availble
-        templates are in src/data/ontogpt/templates.
+    :param template: Name of OntoGPT template to use for grounding. Available
+        templates are in src/data/ontogpt/templates. Omit the file extension.
+    :param local_model: The local language model to use (e.g. `llama3.2`). This
+        should be one of the options available from `ollama` (see
+        https://ollama.com/library) and should be installed locally. If `None`,
+        the configured remote model will be used. See the OntoGPT documentation
+        for more information.
     :param return_ungrounded: If True, return ungrounded annotations. These
-        may be useful in identifying potential concepts to add to an ontology,
+        may be useful in identifying potential concepts to add to a vocabulary,
         or to identify concepts that a human curator may be capable of
         grounding.
     :returns: A list of dictionaries, each with the annotation keys `label`
         and `uri`. None if the request fails or no annotations are found.
-
     :notes: This function is a wrapper for the OntoGPT API. Set up of OntoGPT
         is required to use this function. For more information, see:
-        https://monarch-initiative.github.io/ontogpt/
+        https://monarch-initiative.github.io/ontogpt/.
     """
-    # Get annotations
-    try:
-        r = get(url, params=payload, timeout=10)
-        r.raise_for_status()
-    except exceptions.RequestException as e:
-        print(f"Error calling https://data.bioontology.org/annotator: {e}")
-        return None
+    # OntoGPT transacts in files, so we write the input text to a temporary
+    # file and receive the results as a JSON file. Once the results are parsed
+    # we can discard the files.
+    with tempfile.TemporaryDirectory() as temp_dir:
+        input_file = os.path.join(temp_dir, "input.txt")
+        with open(input_file, "w", encoding="utf-8") as f:
+            f.write(text)
+        template_file = resources.files("spinneret.data.ontogpt.templates").joinpath(
+            f"{template}.yaml"
+        )
+        output_file = os.path.join(temp_dir, "output.txt")
 
-    # Parse the results
-    annotations = []
-    for item in r.json():
-        self_link = item.get("annotatedClass", {}).get("links").get("self",
-                                                                    None)
+        # Call OntoGPT
+        cmd = (
+            f"ontogpt extract -i {input_file} -t {template_file} "
+            f"--output-format json -o {output_file}"
+        )
+        if local_model is not None:
+            cmd += f"  -m ollama/{local_model}"
         try:
-            r = get(self_link, params={"apikey": api_key}, timeout=10)
-            r.raise_for_status()
-        except exceptions.RequestException as e:
-            print(f"Error calling {self_link}: {e}")
+            os.system(cmd)
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            print(f"Error calling OntoGPT: {e}")
             return None
-        uri = r.json().get("@id", None)
-        label = r.json().get("prefLabel", None)
-        annotations.append({"label": label, "uri": uri})
+
+        # Parse the results
+        with open(output_file, "r", encoding="utf-8") as f:
+            r = load(f)
+        named_entities = r.get("named_entities")
+        if named_entities is None:  # OntoGPT couldn't find any annotations
+            return None
+        annotations = []
+        for item in named_entities:
+            uri = item.get("id")
+            label = item.get("label")
+            ungrounded = uri.startswith("AUTO:")
+            if ungrounded and not return_ungrounded:
+                continue
+            uri = expand_curie(uri)
+            annotations.append({"label": label, "uri": uri})
+
     return annotations

@@ -92,3 +92,21 @@ def write_eml(eml: etree._ElementTree, output_path: str) -> None:
     :returns: None
     """
     eml.write(output_path, pretty_print=True, encoding="utf-8", xml_declaration=True)
+
+
+def expand_curie(curie: str) -> str:
+    """
+    :param curie: The CURIE to be expanded.
+    :returns: The expanded CURIE. Returns the original CURIE if the prefix
+        does not have a mapping.
+    """
+    mapping = {
+        "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        "linkml": "https://w3id.org/linkml/",
+        "ECSO": "http://purl.dataone.org/odo/ECSO_",
+        "ENVO": "http://purl.obolibrary.org/obo/ENVO_",
+        "BFO": "http://purl.obolibrary.org/obo/BFO_",
+        "ENVTHES": "http://vocabs.lter-europe.net/EnvThes/",
+    }
+    prefix, suffix = curie.split(":")
+    return f"{mapping[prefix]}{suffix}"
