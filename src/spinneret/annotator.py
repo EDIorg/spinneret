@@ -500,7 +500,7 @@ def add_measurement_type_annotations_to_workbook(
             annotations = get_ontogpt_annotation(
                 text=element_description,
                 template="contains_measurement_of_type",
-                local_model=local_model.lower(),
+                local_model=local_model,
                 return_ungrounded=return_ungrounded,
             )
         else:
@@ -935,7 +935,7 @@ def add_env_medium_annotations_to_workbook(
         annotations = get_ontogpt_annotation(
             text=element_description,
             template="env_medium",
-            local_model=local_model.lower(),
+            local_model=local_model,
             return_ungrounded=return_ungrounded,
         )
 
