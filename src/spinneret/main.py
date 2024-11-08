@@ -46,12 +46,16 @@ def create_workbooks(eml_dir: str, workbook_dir: str) -> None:
 
 
 def annotate_workbooks(
-    workbook_dir: str, eml_dir: str, output_dir: str, config_path: str
+    workbook_dir: str, eml_dir: str, annotator: str, output_dir: str, config_path: str
 ) -> None:
     """Create workbooks for each EML file in a directory
 
     :param workbook_dir: Directory of unannotated workbooks
     :param eml_dir: Directory of EML files corresponding to workbooks
+    :param annotator: The annotator to use for grounding. Options are "ontogpt"
+        and "bioportal". OntoGPT requires setup and configuration described in
+        the `get_ontogpt_annotation` function. Similarly, BioPortal requires
+        an API key and is described in the `get_bioportal_annotation` function.
     :param output_dir: Directory to save annotated workbooks
     :param config_path: Path to configuration file
     :return: None
@@ -89,6 +93,7 @@ def annotate_workbooks(
         annotate_workbook(
             workbook_path=workbook_dir + "/" + workbook_file,
             eml_path=eml_dir + "/" + eml_file,
+            annotator=annotator,
             output_path=output_dir + "/" + workbook_file_annotated,
         )
 
