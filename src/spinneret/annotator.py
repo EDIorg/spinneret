@@ -494,18 +494,7 @@ def add_measurement_type_annotations_to_workbook(
         attribute_element = attribute
         attribute_xpath = eml.getpath(attribute_element)
 
-        # Skip if a measurement type annotation already exists for the
-        # attribute xpath and overwrite is False
-        rows = wb[wb["element_xpath"] == attribute_xpath].index
-        base_uri = "http://purl.dataone.org/odo/ECSO"
-        has_measurement_type_annotation = wb.loc[rows, "object_id"].str.contains(
-            base_uri
-        )
-        if has_measurement_type_annotation.any() and not overwrite:
-            continue
-
-        # Otherwise select an annotator, and get the measurement type
-        # annotations
+        # Select an annotator, and get the measurement type annotations
         element_description = get_description(attribute_element)
         if annotator.lower() == "ontogpt":
             annotations = get_ontogpt_annotation(
@@ -940,14 +929,6 @@ def add_env_medium_annotations_to_workbook(
     for attribute in attributes:
         attribute_element = attribute
         attribute_xpath = eml.getpath(attribute_element)
-
-        # Skip if an environmental medium annotation already exists for the
-        # attribute xpath and overwrite is False
-        rows = wb[wb["element_xpath"] == attribute_xpath].index
-        base_uri = "http://purl.obolibrary.org/obo/ENVO_"
-        has_env_medium_annotation = wb.loc[rows, "object_id"].str.contains(base_uri)
-        if has_env_medium_annotation.any() and not overwrite:
-            continue
 
         # Get the environmental medium annotations
         element_description = get_description(attribute_element)
