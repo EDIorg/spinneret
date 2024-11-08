@@ -3,9 +3,9 @@
 import pytest
 
 
-@pytest.fixture(name="get_bioportal_annotation_fixture")
-def get_bioportal_annotation_fixture():
-    """Create a get_bioportal_annotation return value fixture for tests."""
+@pytest.fixture(name="get_annotation_fixture")
+def get_annotation_fixture():
+    """Return a fixture for annotators."""
     return [
         {"label": "a label", "uri": "a uri"},
         {"label": "another label", "uri": "another uri"},

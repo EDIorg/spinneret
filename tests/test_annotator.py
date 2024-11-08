@@ -26,7 +26,7 @@ from spinneret.datasets import get_example_eml_dir
 
 
 @pytest.mark.parametrize("use_mock", [True])  # False tests with real HTTP requests
-def test_get_bioportal_annotation(mocker, use_mock, get_bioportal_annotation_fixture):
+def test_get_bioportal_annotation(mocker, use_mock, get_annotation_fixture):
     """Test get_bioportal_annotation"""
     text = """
     This dataset contains cover of kelp forest sessile
@@ -40,7 +40,7 @@ def test_get_bioportal_annotation(mocker, use_mock, get_bioportal_annotation_fix
         # Test with mock data
         mocker.patch(
             "spinneret.annotator.get_bioportal_annotation",
-            return_value=get_bioportal_annotation_fixture,
+            return_value=get_annotation_fixture,
         )
         os.environ["BIOPORTAL_API_KEY"] = "mock api key"
     else:
@@ -72,19 +72,23 @@ def test_get_bioportal_annotation(mocker, use_mock, get_bioportal_annotation_fix
 
 # pylint: disable=duplicate-code
 @pytest.mark.parametrize("use_mock", [True])  # False tests with real HTTP requests
-def test_annotate_workbook(
-    tmp_path, mocker, use_mock, get_bioportal_annotation_fixture
+def test_annotate_workbook_with_bioportal(
+    tmp_path, mocker, use_mock, get_annotation_fixture
 ):
-    """Test annotate_workbook"""
+    """Test annotate_workbook using the BioPortal annotator"""
+
+    # Configure the mock responses
     if use_mock:
-        # Test with mock data
         mocker.patch(
             "spinneret.annotator.get_bioportal_annotation",
-            return_value=get_bioportal_annotation_fixture,
+            return_value=get_annotation_fixture,
         )
         os.environ["BIOPORTAL_API_KEY"] = "mock api key"
+        mocker.patch(
+            "spinneret.annotator.get_qudt_annotation",
+            return_value=get_annotation_fixture,
+        )
     else:
-        # Load the API key in the configuration file
         if not os.path.exists("config.json"):
             pytest.skip(
                 "Skipping test due to missing config.json file in package root."
@@ -117,6 +121,7 @@ def test_annotate_workbook(
         workbook_path=wb_path_copy,
         eml_path=get_example_eml_dir() + "/" + "edi.3.9.xml",
         output_path=wb_path_annotated,
+        annotator="bioportal",
     )
 
     # Check the workbook was annotated
@@ -125,6 +130,73 @@ def test_annotate_workbook(
     # The columns to be annotated should be full
     for col in cols_to_annotate:
         assert not wb[col].isnull().all()
+    # The authors are the annotator functions called under this configuration
+    authors = wb["author"].unique()
+    authors = [x for x in authors if pd.notna(x)]
+    assert "spinneret.annotator.get_bioportal_annotation" in authors
+    assert "spinneret.annotator.get_qudt_annotation" in authors
+
+
+# pylint: disable=duplicate-code
+@pytest.mark.parametrize("use_mock", [True])  # False tests with real LLM queries
+def test_annotate_workbook_with_ontogpt(
+    tmp_path, mocker, use_mock, get_annotation_fixture
+):
+    """Test annotate_workbook using the OntoGPT annotator"""
+
+    # Configure the mock responses
+    if use_mock:
+        mocker.patch(
+            "spinneret.annotator.get_ontogpt_annotation",
+            return_value=get_annotation_fixture,
+        )
+        mocker.patch(
+            "spinneret.annotator.get_qudt_annotation",
+            return_value=get_annotation_fixture,
+        )
+
+    # Copy the workbook to tmp_path for editing
+    wb_path = "tests/edi.3.9_annotation_workbook.tsv"
+    wb_path_copy = str(tmp_path) + "/edi.3.9_annotation_workbook.tsv"
+    copyfile(wb_path, wb_path_copy)
+    wb_path_annotated = str(tmp_path) + "/edi.3.9_annotation_workbook_annotated.tsv"
+
+    # Check features of the unannotated workbook
+    assert os.path.exists(wb_path_copy)
+    wb = load_workbook(wb_path_copy)
+    # The columns to be annotated should be empty
+    cols_to_annotate = [
+        "predicate",
+        "predicate_id",
+        "object",
+        "object_id",
+        "author",
+        "date",
+    ]
+    for col in cols_to_annotate:
+        assert wb[col].isnull().all()
+
+    # Annotate the workbook copy
+    annotate_workbook(
+        workbook_path=wb_path_copy,
+        eml_path=get_example_eml_dir() + "/" + "edi.3.9.xml",
+        output_path=wb_path_annotated,
+        annotator="ontogpt",
+        local_model="llama3.2",
+        return_ungrounded=True,  # ensures we get at least one annotation back
+    )
+
+    # Check the workbook was annotated
+    assert os.path.exists(wb_path_annotated)
+    wb = load_workbook(wb_path_annotated)
+    # The columns to be annotated should be full
+    for col in cols_to_annotate:
+        assert not wb[col].isnull().all()
+    # The authors are the annotator functions called under this configuration
+    authors = wb["author"].unique()
+    authors = [x for x in authors if pd.notna(x)]
+    assert "spinneret.annotator.get_ontogpt_annotation" in authors
+    assert "spinneret.annotator.get_qudt_annotation" in authors
 
 
 def test_annotate_eml(tmp_path):
@@ -422,6 +494,7 @@ def test_add_measurement_type_annotations_to_workbook(tmp_path, use_mock, mocker
     wb = add_measurement_type_annotations_to_workbook(
         workbook=workbook_path,
         eml=get_example_eml_dir() + "/" + "edi.3.9.xml",
+        annotator="bioportal",
         output_path=output_path,
     )
     assert has_annotations(wb)
@@ -442,6 +515,7 @@ def test_add_measurement_type_annotations_to_workbook(tmp_path, use_mock, mocker
     wb = add_measurement_type_annotations_to_workbook(
         workbook=output_path,  # the output from the first call
         eml=get_example_eml_dir() + "/" + "edi.3.9.xml",
+        annotator="bioportal",
         output_path=output_path,
         overwrite=True,
     )
@@ -479,6 +553,7 @@ def test_add_measurement_type_annotations_to_workbook_io_options(tmp_path, mocke
     wb = add_measurement_type_annotations_to_workbook(
         workbook="tests/edi.3.9_annotation_workbook.tsv",
         eml=get_example_eml_dir() + "/" + "edi.3.9.xml",
+        annotator="bioportal",
         output_path=output_path,
     )
     wb = load_workbook(output_path)
@@ -487,7 +562,9 @@ def test_add_measurement_type_annotations_to_workbook_io_options(tmp_path, mocke
     # Accepts dataframes and etree objects as input
     wb = load_workbook("tests/edi.3.9_annotation_workbook.tsv")
     eml = load_eml(get_example_eml_dir() + "/" + "edi.3.9.xml")
-    wb = add_measurement_type_annotations_to_workbook(workbook=wb, eml=eml)
+    wb = add_measurement_type_annotations_to_workbook(
+        workbook=wb, eml=eml, annotator="bioportal"
+    )
     assert has_annotations(wb)
 
 

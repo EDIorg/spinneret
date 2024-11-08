@@ -128,13 +128,27 @@ def get_bioportal_annotation(
     return annotations
 
 
-def annotate_workbook(workbook_path: str, eml_path: str, output_path: str) -> None:
+def annotate_workbook(
+    workbook_path: str,
+    eml_path: str,
+    output_path: str,
+    annotator: str,
+    local_model: str = None,
+    return_ungrounded: bool = False,
+) -> None:
     """Annotate a workbook with automated annotation
 
     :param workbook_path: The path to the workbook to be annotated
         corresponding to the EML file.
     :param eml_path: The path to the EML file corresponding to the workbook.
     :param output_path: The path to write the annotated workbook.
+    :param annotator: The annotator to use for grounding. Options are "ontogpt"
+        and "bioportal". OntoGPT requires setup and configuration described in
+        the `get_ontogpt_annotation` function. Similarly, BioPortal requires
+        an API key and is described in the `get_bioportal_annotation` function.
+    :param local_model: See `get_ontogpt_annotation` documentation for details.
+    :param return_ungrounded: See `get_ontogpt_annotation` documentation for
+        details.
     :returns: None
     :notes: The workbook is annotated by annotators best suited for the XPaths
         in the EML file. The annotated workbook is written back to the same
@@ -154,9 +168,36 @@ def annotate_workbook(workbook_path: str, eml_path: str, output_path: str) -> No
     eml = load_eml(eml_path)
 
     # Run workbook annotators, results of one are used as input for the next
-    wb = add_dataset_annotations_to_workbook(wb, eml)
-    wb = add_measurement_type_annotations_to_workbook(wb, eml)
-    wb = add_qudt_annotations_to_workbook(wb, eml)
+    if annotator == "bioportal":
+        wb = add_dataset_annotations_to_workbook(wb, eml)
+        wb = add_measurement_type_annotations_to_workbook(wb, eml, annotator=annotator)
+    elif annotator == "ontogpt":
+        wb = add_env_broad_scale_annotations_to_workbook(
+            wb, eml, local_model=local_model, return_ungrounded=return_ungrounded
+        )
+        wb = add_env_local_scale_annotations_to_workbook(
+            wb, eml, local_model=local_model, return_ungrounded=return_ungrounded
+        )
+        wb = add_process_annotations_to_workbook(
+            wb, eml, local_model=local_model, return_ungrounded=return_ungrounded
+        )
+        wb = add_methods_annotations_to_workbook(
+            wb, eml, local_model=local_model, return_ungrounded=return_ungrounded
+        )
+        wb = add_research_topic_annotations_to_workbook(
+            wb, eml, local_model=local_model, return_ungrounded=return_ungrounded
+        )
+        wb = add_measurement_type_annotations_to_workbook(
+            wb,
+            eml,
+            annotator="ontogpt",
+            local_model=local_model,
+            return_ungrounded=return_ungrounded,
+        )
+        wb = add_env_medium_annotations_to_workbook(
+            wb, eml, local_model=local_model, return_ungrounded=return_ungrounded
+        )
+    wb = add_qudt_annotations_to_workbook(wb, eml)  # irrespective of annotator
 
     write_workbook(wb, output_path)
     return None
@@ -446,9 +487,9 @@ def add_dataset_annotations_to_workbook(
 def add_measurement_type_annotations_to_workbook(
     workbook: Union[str, pd.core.frame.DataFrame],
     eml: Union[str, etree._ElementTree],
+    annotator: str,
     output_path: str = None,
     overwrite: bool = False,
-    annotator: str = "bioportal",
     local_model: str = None,
     return_ungrounded: bool = False,
 ) -> pd.core.frame.DataFrame:
@@ -457,14 +498,14 @@ def add_measurement_type_annotations_to_workbook(
         workbook itself as a pandas DataFrame.
     :param eml: Either the path to the EML file corresponding to the workbook,
         or the EML file itself as an lxml etree.
-    :param output_path: The path to write the annotated workbook.
-    :param overwrite: If True, overwrite existing measurement type annotations
-        in the workbook. This enables updating the annotations in the workbook
-        with the latest measurement type annotations.
     :param annotator: The annotator to use for grounding. Options are "ontogpt"
         and "bioportal". OntoGPT requires setup and configuration described in
         the `get_ontogpt_annotation` function. Similarly, BioPortal requires
         an API key and is described in the `get_bioportal_annotation` function.
+    :param output_path: The path to write the annotated workbook.
+    :param overwrite: If True, overwrite existing measurement type annotations
+        in the workbook. This enables updating the annotations in the workbook
+        with the latest measurement type annotations.
     :param local_model: Required if `annotator` is "ontogpt". See
         `get_ontogpt_annotation` documentation for details.
     :param return_ungrounded: An option if `annotator` is "ontogpt". See
