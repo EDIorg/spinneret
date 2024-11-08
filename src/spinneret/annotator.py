@@ -1114,9 +1114,12 @@ def add_methods_annotations_to_workbook(
             },
         )
 
-    # Get the methods annotations
+    # Get the methods annotations, if the methods element exists in the EML
     dataset_element = eml.xpath("//dataset")[0]
-    element_description = get_description(eml.xpath("//dataset/methods")[0])
+    methods_element = eml.xpath("//dataset/methods")
+    if not methods_element:
+        return wb
+    element_description = get_description(methods_element[0])
     annotations = get_ontogpt_annotation(
         text=element_description,
         template="uses_method",
