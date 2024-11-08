@@ -205,7 +205,7 @@ def test_add_qudt_annotations_to_workbook(tmp_path, use_mock, mocker):
 
     # The workbook has annotations after calling the function
     if use_mock:
-        mocker.patch(  # a response returned in real requests
+        mocker.patch(
             "spinneret.annotator.get_qudt_annotation",
             return_value=[
                 {"label": "latitude", "uri": "http://qudt.org/vocab/unit/DEG"}
@@ -311,7 +311,7 @@ def test_add_dataset_annotations_to_workbook(tmp_path, use_mock, mocker):
 
     # The workbook has annotations after calling the function
     if use_mock:
-        mocker.patch(  # a response returned in real requests
+        mocker.patch(
             "spinneret.annotator.get_bioportal_annotation",
             return_value=[
                 {
@@ -409,7 +409,7 @@ def test_add_measurement_type_annotations_to_workbook(tmp_path, use_mock, mocker
 
     # The workbook has annotations after calling the function
     if use_mock:
-        mocker.patch(  # a response returned in real requests
+        mocker.patch(
             "spinneret.annotator.get_bioportal_annotation",
             return_value=[
                 {
@@ -584,7 +584,7 @@ def test_add_process_annotations_to_workbook(tmp_path, use_mock, mocker):
 
     # The workbook has annotations after calling the function
     if use_mock:
-        mocker.patch(  # a response returned in real requests
+        mocker.patch(
             "spinneret.annotator.get_ontogpt_annotation",
             return_value=[{"label": "a label", "uri": "a uri"}],
         )
@@ -634,7 +634,7 @@ def test_add_env_broad_scale_annotations_to_workbook(tmp_path, use_mock, mocker)
 
     # The workbook has annotations after calling the function
     if use_mock:
-        mocker.patch(  # a response returned in real requests
+        mocker.patch(
             "spinneret.annotator.get_ontogpt_annotation",
             return_value=[{"label": "a label", "uri": "a uri"}],
         )
@@ -684,7 +684,7 @@ def test_add_env_local_scale_annotations_to_workbook(tmp_path, use_mock, mocker)
 
     # The workbook has annotations after calling the function
     if use_mock:
-        mocker.patch(  # a response returned in real requests
+        mocker.patch(
             "spinneret.annotator.get_ontogpt_annotation",
             return_value=[{"label": "a label", "uri": "a uri"}],
         )
