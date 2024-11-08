@@ -605,8 +605,12 @@ def get_ontogpt_annotation(
             return None
 
         # Parse the results
-        with open(output_file, "r", encoding="utf-8") as f:
-            r = load(f)
+        try:  # Occasionally, no file is returned. This is a bug in OntoGPT.
+            with open(output_file, "r", encoding="utf-8") as f:
+                r = load(f)
+        except FileNotFoundError as e:
+            print(f"Error reading OntoGPT output file: {e}")
+            return None
         named_entities = r.get("named_entities")
         if named_entities is None:  # OntoGPT couldn't find any annotations
             return None
