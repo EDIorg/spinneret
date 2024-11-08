@@ -589,7 +589,7 @@ def get_ontogpt_annotation(
         template_file = resources.files("spinneret.data.ontogpt.templates").joinpath(
             f"{template}.yaml"
         )
-        output_file = os.path.join(temp_dir, "output.txt")
+        output_file = os.path.join(temp_dir, "output.json")
 
         # Call OntoGPT
         cmd = (
