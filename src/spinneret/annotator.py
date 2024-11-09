@@ -952,6 +952,9 @@ def add_env_medium_annotations_to_workbook(
         `get_ontogpt_annotation` documentation for details.
     :returns: Workbook with environmental medium annotations."""
 
+    # Parameters for the function
+    predicate = "environmental material"
+
     # Load the workbook and EML for processing
     wb = load_workbook(workbook)
     eml = load_eml(eml)
@@ -975,15 +978,24 @@ def add_env_medium_annotations_to_workbook(
     for attribute in attributes:
         attribute_element = attribute
         attribute_xpath = eml.getpath(attribute_element)
+        attribute_description = get_description(attribute_element)
 
-        # Get the environmental medium annotations
-        element_description = get_description(attribute_element)
-        annotations = get_ontogpt_annotation(
-            text=element_description,
-            template="env_medium",
-            local_model=local_model,
-            return_ungrounded=return_ungrounded,
+        # Reuse annotations if they already exist for sake of efficiency
+        annotations = get_annotation_from_workbook(
+            workbook=wb,
+            element=attribute_element.tag,
+            description=attribute_description,
+            predicate=predicate,
         )
+
+        # Get the environmental medium annotations from the annotator
+        if annotations is None:
+            annotations = get_ontogpt_annotation(
+                text=attribute_description,
+                template="env_medium",
+                local_model=local_model,
+                return_ungrounded=return_ungrounded,
+            )
 
         # And add the environmental medium annotations to the workbook
         if annotations is not None:
@@ -998,9 +1010,9 @@ def add_env_medium_annotations_to_workbook(
                     row["element_id"] = pd.NA
                 row["element_xpath"] = attribute_xpath
                 row["context"] = get_subject_and_context(attribute_element)["context"]
-                row["description"] = get_description(attribute_element)
+                row["description"] = attribute_description
                 row["subject"] = get_subject_and_context(attribute_element)["subject"]
-                row["predicate"] = "environmental material"
+                row["predicate"] = predicate
                 row["predicate_id"] = "http://purl.obolibrary.org/obo/ENVO_00010483"
                 row["object"] = annotation["label"]
                 row["object_id"] = annotation["uri"]
@@ -1188,3 +1200,48 @@ def add_methods_annotations_to_workbook(
     if output_path:
         write_workbook(wb, output_path)
     return wb
+
+
+def get_annotation_from_workbook(
+    workbook: Union[str, pd.core.frame.DataFrame],
+    element: str,
+    description: str,
+    predicate: str,
+) -> Union[list, None]:
+    """
+    :param workbook: Either the path to the workbook to be annotated, or the
+        workbook itself as a pandas DataFrame.
+    :param element: The element to retrieve annotations for.
+    :param description: The description of the element to retrieve annotations
+        for.
+    :param predicate: The predicate to retrieve annotations for.
+    :returns: A list of dictionaries, each with the annotation keys
+        `label` (same as `object` column in workbook), `uri` (same as
+        `object_id` column in workbook). None if no annotations are found for
+        the given element name.
+    :notes: This function returns existing annotations from the workbook if
+        the `element`, `description`, and `predicate` match, and the `object`
+        and `object_id` are not empty. This is useful when one or more data
+        entities have several attributes of different names but the same
+        meaning.
+    """
+    wb = load_workbook(workbook)
+    matching_rows = (
+        (wb["element"] == element)
+        & (wb["description"] == description)
+        & (wb["predicate"] == predicate)
+        & (wb["object"].notna())
+        & (wb["object_id"].notna())
+    )
+    rows = wb[matching_rows].to_dict(orient="records")
+    res = []
+    if rows:
+        for row in rows:
+            row = {k: row[k] for k in ["object", "object_id"]}
+            # Currently, workbook annotators reference the object as "label"
+            # and the object_id as "uri", so we rename them here.
+            row["label"] = row.pop("object")
+            row["uri"] = row.pop("object_id")
+            res.append(row)
+        return res
+    return None
