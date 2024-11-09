@@ -229,6 +229,11 @@ def annotate_eml(eml_path: str, workbook_path: str, output_path: str) -> None:
             and not pd.isnull(row["object"])
             and not pd.isnull(row["object_id"])
         ):
+            # Skip if the object_id is an ungrounded concept from OntoGPT.
+            # These are not valid annotations.
+            if row["object_id"].startswith("AUTO:"):
+                continue
+
             # Create the annotation element
             annotation = create_annotation_element(
                 predicate_label=row["predicate"],

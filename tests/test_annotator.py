@@ -6,6 +6,7 @@ from shutil import copyfile
 import pandas as pd
 import pytest
 from lxml import etree
+
 from spinneret import annotator
 from spinneret.annotator import (
     annotate_workbook,
@@ -21,7 +22,12 @@ from spinneret.annotator import (
     add_research_topic_annotations_to_workbook,
     add_methods_annotations_to_workbook,
 )
-from spinneret.utilities import load_configuration, load_eml, load_workbook
+from spinneret.utilities import (
+    load_configuration,
+    load_eml,
+    load_workbook,
+    write_workbook,
+)
 from spinneret.datasets import get_example_eml_dir
 
 
@@ -224,6 +230,35 @@ def test_annotate_eml(tmp_path):
         wb.dropna(subset=["predicate", "predicate_id", "object", "object_id"])
     )
     assert len(annotations) == num_rows
+
+
+def test_annotate_eml_ignores_ungrounded_terms(tmp_path):
+    """Test annotate_eml ignores ungrounded terms in the workbook from
+    OntoGPT"""
+
+    # Create a workbook filled entirely with ungrounded terms. These should not
+    # be added to the EML file as annotations.
+    wb = load_workbook("tests/edi.3.9_annotation_workbook.tsv")
+    wb["predicate"] = "some label"
+    wb["predicate_id"] = "some uri"
+    wb["object"] = "some label"
+    wb["object_id"] = "AUTO:some%ontogpt%text"  # ungrounded term
+    wb_file = str(tmp_path) + "/edi.3.9_annotation_workbook_ungrounded.tsv"
+    write_workbook(wb, wb_file)
+
+    # Check that there are no annotations in the EML file to begin with
+    eml_file = get_example_eml_dir() + "/" + "edi.3.9.xml"
+    eml = load_eml(eml_file)
+    assert eml.xpath(".//annotation") == []
+
+    # No EML Annotations should exist since all the workbook annotations are
+    # ungrounded terms.
+    output_file = str(tmp_path) + "/edi.3.9_annotated.xml"
+    annotate_eml(eml_path=eml_file, workbook_path=wb_file, output_path=output_file)
+    assert os.path.exists(output_file)
+    eml_annotated = load_eml(output_file)
+    annotations = eml_annotated.xpath(".//annotation")
+    assert annotations == []
 
 
 # pylint: disable=line-too-long
