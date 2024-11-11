@@ -379,7 +379,10 @@ def add_qudt_annotations_to_workbook(
         attribute_xpath = eml.getpath(attribute_element)
         attribute_description = get_description(attribute_element)
 
-        # Reuse annotations if they already exist for sake of efficiency
+        # Reuse existing annotations for elements with identical tag names,
+        # descriptions, and predicate labels, to reduce redundant processing.
+        # Note this assumes semantic equivalence between elements with matching
+        # tags and descriptions.
         annotations = get_annotation_from_workbook(
             workbook=wb,
             element=attribute_element.tag,
@@ -551,7 +554,10 @@ def add_measurement_type_annotations_to_workbook(
         attribute_xpath = eml.getpath(attribute_element)
         attribute_description = get_description(attribute_element)
 
-        # Reuse annotations if they already exist for sake of efficiency
+        # Reuse existing annotations for elements with identical tag names,
+        # descriptions, and predicate labels, to reduce redundant processing.
+        # Note this assumes semantic equivalence between elements with matching
+        # tags and descriptions.
         annotations = get_annotation_from_workbook(
             workbook=wb,
             element=attribute_element.tag,
@@ -1001,7 +1007,10 @@ def add_env_medium_annotations_to_workbook(
         attribute_xpath = eml.getpath(attribute_element)
         attribute_description = get_description(attribute_element)
 
-        # Reuse annotations if they already exist for sake of efficiency
+        # Reuse existing annotations for elements with identical tag names,
+        # descriptions, and predicate labels, to reduce redundant processing.
+        # Note this assumes semantic equivalence between elements with matching
+        # tags and descriptions.
         annotations = get_annotation_from_workbook(
             workbook=wb,
             element=attribute_element.tag,
