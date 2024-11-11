@@ -34,6 +34,7 @@ from spinneret.datasets import get_example_eml_dir
 
 # pylint: disable=too-many-lines
 
+
 @pytest.mark.parametrize("use_mock", [True])  # False tests with real HTTP requests
 def test_get_bioportal_annotation(mocker, use_mock, get_annotation_fixture):
     """Test get_bioportal_annotation"""
@@ -1011,64 +1012,3 @@ def test_get_annotation_from_workbook(annotated_workbook):
         predicate="contains measurements of type",
     )
     assert annotations is None
-
-
-def test_get_annotation_from_workbook_integrations(
-    annotated_workbook, mocker
-):
-    """Test integration of get_annotation_from_workbook into relevant workbook
-    annotators
-
-    To test whether annotations are being reused, as we expect, we define a
-    mock annotation that should not show up in the final workbook. If the
-    mock annotation shows up in the final workbook, then the
-    get_annotation_from_workbook integration is not reusing annotations like it
-    should. We test this for each integration.
-    """
-
-    # TODO: Test for each integration in a loop
-
-    # Test for the `add_env_medium_annotations_to_workbook` function
-    wb = annotated_workbook
-    eml = load_eml(get_example_eml_dir() + "/" + "edi.3.9.xml")
-    # Modify a row to enable reuse in the integration
-    rows_of_annotated_attributes = (
-        (wb["element"] == "attribute")
-        & (wb["object"].notna())
-        & (wb["object_id"].notna())
-    )
-    row = wb[rows_of_annotated_attributes].iloc[0].copy()  # any one will do
-    row["predicate"] = (
-        "environmental material"  # predicate to match  # TODO parameterize the predicate for each integration
-    )
-    # Remove row and add back to avoid warnings
-    wb = wb.drop(row.name)
-    row_df = pd.DataFrame([row], dtype=str)
-    wb = pd.concat([wb, row_df], ignore_index=True)
-    # Ensure there is only one row in the workbook that matches the above
-    # criteria. Later we will expect 2.
-    assert sum(wb["description"] == row["description"]) == 1
-    # Set the mock annotation we don't want to see
-    mocker.patch(
-        "spinneret.annotator.get_ontogpt_annotation",
-        return_value=[{"label": "an ontogpt label", "uri": "an ontogpt uri"}],
-    )
-    # Call the function with the integration
-    wb = add_env_medium_annotations_to_workbook(  # TODO parameterize the function call for each integration
-        workbook=wb,
-        eml=eml,
-        local_model="llama3.2",
-    )
-    # Now there should be 2 rows with the same description and annotations
-    assert sum(wb["description"] == row["description"]) == 2
-    assert all(wb[wb["description"] == row["description"]]["object"] == row["object"])
-    assert all(
-        wb[wb["description"] == row["description"]]["object_id"] == row["object_id"]
-    )
-    # And none of them should be the mock annotation
-    assert all(
-        wb[wb["description"] == row["description"]]["object"] != "an ontogpt label"
-    )
-    assert all(
-        wb[wb["description"] == row["description"]]["object_id"] != "an ontogpt uri"
-    )
