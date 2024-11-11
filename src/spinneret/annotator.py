@@ -1032,10 +1032,6 @@ def add_env_medium_annotations_to_workbook(
     :param output_path: The path to write the annotated workbook.
     :param overwrite: If True, overwrite existing `environmental medium`
         annotations in the workbook, so a fresh set may be created.
-    :param annotator: The annotator to use for grounding. Options are "ontogpt"
-        and "bioportal". OntoGPT requires setup and configuration described in
-        the `get_ontogpt_annotation` function. Similarly, BioPortal requires
-        an API key and is described in the `get_bioportal_annotation` function.
     :param local_model: Required if `annotator` is "ontogpt". See
         `get_ontogpt_annotation` documentation for details.
     :param return_ungrounded: An option if `annotator` is "ontogpt". See
