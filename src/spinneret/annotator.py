@@ -503,6 +503,7 @@ def add_dataset_annotations_to_workbook(
         write_workbook(wb, output_path)
     return wb
 
+
 # pylint: disable=too-many-branches
 def add_measurement_type_annotations_to_workbook(
     workbook: Union[str, pd.core.frame.DataFrame],
