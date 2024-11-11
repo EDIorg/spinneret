@@ -719,6 +719,11 @@ def add_process_annotations_to_workbook(
     wb = load_workbook(workbook)
     eml = load_eml(eml)
 
+    # Parameters for the function
+    dataset_element = eml.xpath("//dataset")[0]
+    element_description = get_description(dataset_element)
+    predicate = "contains process"
+
     # Set the author identifier for consistent reference below
     author = "spinneret.annotator.get_onto_gpt_annotation"
 
@@ -730,20 +735,30 @@ def add_process_annotations_to_workbook(
             criteria={
                 "element": "dataset",
                 "element_xpath": "/eml:eml/dataset",
-                "predicate": "contains process",
+                "predicate": predicate,
                 "author": author,
             },
         )
 
-    # Get the process annotations
-    dataset_element = eml.xpath("//dataset")[0]
-    element_description = get_description(dataset_element)
-    annotations = get_ontogpt_annotation(
-        text=element_description,
-        template="contains_process",
-        local_model=local_model,
-        return_ungrounded=return_ungrounded,
+    # Reuse existing annotations for elements with identical tag names,
+    # descriptions, and predicate labels, to reduce redundant processing.
+    # Note this assumes semantic equivalence between elements with matching
+    # tags and descriptions.
+    annotations = get_annotation_from_workbook(
+        workbook=wb,
+        element=dataset_element.tag,
+        description=element_description,
+        predicate=predicate,
     )
+
+    if annotations is None:
+        # Get the process annotations
+        annotations = get_ontogpt_annotation(
+            text=element_description,
+            template="contains_process",
+            local_model=local_model,
+            return_ungrounded=return_ungrounded,
+        )
 
     # Add process annotations to the workbook
     if annotations is not None:
@@ -760,7 +775,7 @@ def add_process_annotations_to_workbook(
             row["context"] = get_subject_and_context(dataset_element)["context"]
             row["description"] = element_description
             row["subject"] = get_subject_and_context(dataset_element)["subject"]
-            row["predicate"] = "contains process"
+            row["predicate"] = predicate
             row["predicate_id"] = "http://purl.obolibrary.org/obo/BFO_0000067"
             row["object"] = annotation["label"]
             row["object_id"] = annotation["uri"]
@@ -805,8 +820,11 @@ def add_env_broad_scale_annotations_to_workbook(
     wb = load_workbook(workbook)
     eml = load_eml(eml)
 
-    # Set the author identifier for consistent reference below
+    # Parameters for the function
     author = "spinneret.annotator.get_onto_gpt_annotation"
+    dataset_element = eml.xpath("//dataset")[0]
+    element_description = get_description(dataset_element)
+    predicate = "env_broad_scale"
 
     # Remove existing broad scale environmental context annotations if
     # overwrite is True, using a set of criteria that accurately define the
@@ -817,20 +835,30 @@ def add_env_broad_scale_annotations_to_workbook(
             criteria={
                 "element": "dataset",
                 "element_xpath": "/eml:eml/dataset",
-                "predicate": "env_broad_scale",
+                "predicate": predicate,
                 "author": author,
             },
         )
 
-    # Get the broad scale environmental context annotations
-    dataset_element = eml.xpath("//dataset")[0]
-    element_description = get_description(dataset_element)
-    annotations = get_ontogpt_annotation(
-        text=element_description,
-        template="env_broad_scale",
-        local_model=local_model,
-        return_ungrounded=return_ungrounded,
+    # Reuse existing annotations for elements with identical tag names,
+    # descriptions, and predicate labels, to reduce redundant processing.
+    # Note this assumes semantic equivalence between elements with matching
+    # tags and descriptions.
+    annotations = get_annotation_from_workbook(
+        workbook=wb,
+        element=dataset_element.tag,
+        description=element_description,
+        predicate=predicate,
     )
+
+    if annotations is None:
+        # Get the broad scale environmental context annotations
+        annotations = get_ontogpt_annotation(
+            text=element_description,
+            template=predicate,
+            local_model=local_model,
+            return_ungrounded=return_ungrounded,
+        )
 
     # Add broad scale environmental context annotations to the workbook
     if annotations is not None:
@@ -847,7 +875,7 @@ def add_env_broad_scale_annotations_to_workbook(
             row["context"] = get_subject_and_context(dataset_element)["context"]
             row["description"] = element_description
             row["subject"] = get_subject_and_context(dataset_element)["subject"]
-            row["predicate"] = "env_broad_scale"
+            row["predicate"] = predicate
             row["predicate_id"] = (
                 "https://genomicsstandardsconsortium.github.io/mixs/0000012/"
             )
@@ -894,6 +922,11 @@ def add_env_local_scale_annotations_to_workbook(
     wb = load_workbook(workbook)
     eml = load_eml(eml)
 
+    # Parameters for the function
+    dataset_element = eml.xpath("//dataset")[0]
+    element_description = get_description(dataset_element)
+    predicate = "env_local_scale"
+
     # Set the author identifier for consistent reference below
     author = "spinneret.annotator.get_onto_gpt_annotation"
 
@@ -906,20 +939,30 @@ def add_env_local_scale_annotations_to_workbook(
             criteria={
                 "element": "dataset",
                 "element_xpath": "/eml:eml/dataset",
-                "predicate": "env_local_scale",
+                "predicate": predicate,
                 "author": author,
             },
         )
 
-    # Get the local scale environmental context annotations
-    dataset_element = eml.xpath("//dataset")[0]
-    element_description = get_description(dataset_element)
-    annotations = get_ontogpt_annotation(
-        text=element_description,
-        template="env_local_scale",
-        local_model=local_model,
-        return_ungrounded=return_ungrounded,
+    # Reuse existing annotations for elements with identical tag names,
+    # descriptions, and predicate labels, to reduce redundant processing.
+    # Note this assumes semantic equivalence between elements with matching
+    # tags and descriptions.
+    annotations = get_annotation_from_workbook(
+        workbook=wb,
+        element=dataset_element.tag,
+        description=element_description,
+        predicate=predicate,
     )
+
+    if annotations is None:
+        # Get the local scale environmental context annotations
+        annotations = get_ontogpt_annotation(
+            text=element_description,
+            template=predicate,
+            local_model=local_model,
+            return_ungrounded=return_ungrounded,
+        )
 
     # Add local scale environmental context annotations to the workbook
     if annotations is not None:
@@ -936,7 +979,7 @@ def add_env_local_scale_annotations_to_workbook(
             row["context"] = get_subject_and_context(dataset_element)["context"]
             row["description"] = element_description
             row["subject"] = get_subject_and_context(dataset_element)["subject"]
-            row["predicate"] = "env_local_scale"
+            row["predicate"] = predicate
             row["predicate_id"] = (
                 "https://genomicsstandardsconsortium.github.io/mixs/0000013/"
             )
@@ -1086,6 +1129,11 @@ def add_research_topic_annotations_to_workbook(
     wb = load_workbook(workbook)
     eml = load_eml(eml)
 
+    # Parameters for the function
+    dataset_element = eml.xpath("//dataset")[0]
+    element_description = get_description(dataset_element)
+    predicate = "research topic"
+
     # Set the author identifier for consistent reference below
     author = "spinneret.annotator.get_onto_gpt_annotation"
 
@@ -1102,15 +1150,25 @@ def add_research_topic_annotations_to_workbook(
             },
         )
 
-    # Get the research topic annotations
-    dataset_element = eml.xpath("//dataset")[0]
-    element_description = get_description(dataset_element)
-    annotations = get_ontogpt_annotation(
-        text=element_description,
-        template="research_topic",
-        local_model=local_model,
-        return_ungrounded=return_ungrounded,
+    # Reuse existing annotations for elements with identical tag names,
+    # descriptions, and predicate labels, to reduce redundant processing.
+    # Note this assumes semantic equivalence between elements with matching
+    # tags and descriptions.
+    annotations = get_annotation_from_workbook(
+        workbook=wb,
+        element=dataset_element.tag,
+        description=element_description,
+        predicate=predicate,
     )
+
+    if annotations is None:
+        # Get the research topic annotations
+        annotations = get_ontogpt_annotation(
+            text=element_description,
+            template="research_topic",
+            local_model=local_model,
+            return_ungrounded=return_ungrounded,
+        )
 
     # Add research topic annotations to the workbook
     if annotations is not None:
@@ -1127,7 +1185,7 @@ def add_research_topic_annotations_to_workbook(
             row["context"] = get_subject_and_context(dataset_element)["context"]
             row["description"] = element_description
             row["subject"] = get_subject_and_context(dataset_element)["subject"]
-            row["predicate"] = "research topic"
+            row["predicate"] = predicate
             row["predicate_id"] = "http://vocabs.lter-europe.net/EnvThes/21604"
             row["object"] = annotation["label"]
             row["object_id"] = annotation["uri"]
@@ -1171,6 +1229,15 @@ def add_methods_annotations_to_workbook(
     wb = load_workbook(workbook)
     eml = load_eml(eml)
 
+    # Parameters for the function
+    # Get the methods annotations, if the methods element exists in the EML
+    dataset_element = eml.xpath("//dataset")[0]
+    methods_element = eml.xpath("//dataset/methods")
+    if not methods_element:
+        return wb
+    element_description = get_description(methods_element[0])
+    predicate = "usesMethod"
+
     # Set the author identifier for consistent reference below
     author = "spinneret.annotator.get_onto_gpt_annotation"
 
@@ -1182,23 +1249,29 @@ def add_methods_annotations_to_workbook(
             criteria={
                 "element": "dataset",
                 "element_xpath": "/eml:eml/dataset",
-                "predicate": "usesMethod",
+                "predicate": predicate,
                 "author": author,
             },
         )
 
-    # Get the methods annotations, if the methods element exists in the EML
-    dataset_element = eml.xpath("//dataset")[0]
-    methods_element = eml.xpath("//dataset/methods")
-    if not methods_element:
-        return wb
-    element_description = get_description(methods_element[0])
-    annotations = get_ontogpt_annotation(
-        text=element_description,
-        template="uses_method",
-        local_model=local_model,
-        return_ungrounded=return_ungrounded,
+    # Reuse existing annotations for elements with identical tag names,
+    # descriptions, and predicate labels, to reduce redundant processing.
+    # Note this assumes semantic equivalence between elements with matching
+    # tags and descriptions.
+    annotations = get_annotation_from_workbook(
+        workbook=wb,
+        element=dataset_element.tag,
+        description=element_description,
+        predicate=predicate,
     )
+
+    if annotations is None:
+        annotations = get_ontogpt_annotation(
+            text=element_description,
+            template="uses_method",
+            local_model=local_model,
+            return_ungrounded=return_ungrounded,
+        )
 
     # Add methods annotations to the workbook. Note, methods annotations are
     # at the dataset level.
@@ -1216,7 +1289,7 @@ def add_methods_annotations_to_workbook(
             row["context"] = get_subject_and_context(dataset_element)["context"]
             row["description"] = element_description[0:500]  # don't need all of it
             row["subject"] = get_subject_and_context(dataset_element)["subject"]
-            row["predicate"] = "usesMethod"
+            row["predicate"] = predicate
             row["predicate_id"] = (
                 "http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#usesMethod"
             )
