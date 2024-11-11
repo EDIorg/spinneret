@@ -353,6 +353,9 @@ def add_qudt_annotations_to_workbook(
         the latest QUDT annotations.
     :returns: Workbook with QUDT annotations."""
 
+    # Parameters for the function
+    predicate = "uses standard"
+
     # Load the workbook and EML for processing
     wb = load_workbook(workbook)
     eml = load_eml(eml)
@@ -374,40 +377,52 @@ def add_qudt_annotations_to_workbook(
     for unit in units:
         attribute_element = unit.xpath("ancestor::attribute[1]")[0]
         attribute_xpath = eml.getpath(attribute_element)
+        attribute_description = get_description(attribute_element)
 
-        # Skip if a QUDT annotation already exists for the attribute xpath and
-        # overwrite is False
-        rows = wb[wb["element_xpath"] == attribute_xpath].index
-        base_uri = "http://qudt.org/vocab/unit/"
-        has_qudt_annotation = wb.loc[rows, "object_id"].str.contains(base_uri)
-        if has_qudt_annotation.any() and not overwrite:
-            continue
+        # # Skip if a QUDT annotation already exists for the attribute xpath and
+        # # overwrite is False
+        # rows = wb[wb["element_xpath"] == attribute_xpath].index
+        # base_uri = "http://qudt.org/vocab/unit/"
+        # has_qudt_annotation = wb.loc[rows, "object_id"].str.contains(base_uri)
+        # if has_qudt_annotation.any() and not overwrite:
+        #     continue
 
-        # Otherwise add the QUDT annotation
-        annotation = get_qudt_annotation(unit.text)
-        if annotation is not None:
-            row = initialize_workbook_row()
-            row["package_id"] = get_package_id(eml)
-            row["url"] = get_package_url(eml)
-            row["element"] = attribute_element.tag
-            if "id" in attribute_element.attrib:
-                row["element_id"] = attribute_element.attrib["id"]
-            else:
-                row["element_id"] = pd.NA
-            row["element_xpath"] = attribute_xpath
-            row["context"] = get_subject_and_context(attribute_element)["context"]
-            row["description"] = get_description(attribute_element)
-            row["subject"] = get_subject_and_context(attribute_element)["subject"]
-            row["predicate"] = "uses standard"
-            row["predicate_id"] = (
-                "http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#usesStandard"
-            )
-            row["object"] = annotation[0]["label"]
-            row["object_id"] = annotation[0]["uri"]
-            row["author"] = "spinneret.annotator.get_qudt_annotation"
-            row["date"] = pd.Timestamp.now()
-            row = pd.DataFrame([row], dtype=str)
-            wb = pd.concat([wb, row], ignore_index=True)
+        # Reuse annotations if they already exist for sake of efficiency
+        annotations = get_annotation_from_workbook(
+            workbook=wb,
+            element=attribute_element.tag,
+            description=attribute_description,
+            predicate=predicate,
+        )
+
+        if annotations is None:
+            # Get the QUDT annotation
+            annotations = get_qudt_annotation(unit.text)
+
+        if annotations is not None:
+            for annotation in annotations:
+                row = initialize_workbook_row()
+                row["package_id"] = get_package_id(eml)
+                row["url"] = get_package_url(eml)
+                row["element"] = attribute_element.tag
+                if "id" in attribute_element.attrib:
+                    row["element_id"] = attribute_element.attrib["id"]
+                else:
+                    row["element_id"] = pd.NA
+                row["element_xpath"] = attribute_xpath
+                row["context"] = get_subject_and_context(attribute_element)["context"]
+                row["description"] = attribute_description
+                row["subject"] = get_subject_and_context(attribute_element)["subject"]
+                row["predicate"] = predicate
+                row["predicate_id"] = (
+                    "http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#usesStandard"
+                )
+                row["object"] = annotation["label"]
+                row["object_id"] = annotation["uri"]
+                row["author"] = "spinneret.annotator.get_qudt_annotation"
+                row["date"] = pd.Timestamp.now()
+                row = pd.DataFrame([row], dtype=str)
+                wb = pd.concat([wb, row], ignore_index=True)
 
     if output_path:
         write_workbook(wb, output_path)
@@ -517,6 +532,9 @@ def add_measurement_type_annotations_to_workbook(
         `get_ontogpt_annotation` documentation for details.
     :returns: Workbook with measurement type annotations."""
 
+    # Parameters for the function
+    predicate = "contains measurements of type"
+
     # Load the workbook and EML for processing
     wb = load_workbook(workbook)
     eml = load_eml(eml)
@@ -539,25 +557,36 @@ def add_measurement_type_annotations_to_workbook(
     for attribute in attributes:
         attribute_element = attribute
         attribute_xpath = eml.getpath(attribute_element)
+        attribute_description = get_description(attribute_element)
 
-        # Select an annotator, and get the measurement type annotations
-        element_description = get_description(attribute_element)
-        if annotator.lower() == "ontogpt":
-            annotations = get_ontogpt_annotation(
-                text=element_description,
-                template="contains_measurement_of_type",
-                local_model=local_model,
-                return_ungrounded=return_ungrounded,
-            )
-        else:
-            annotations = get_bioportal_annotation(  # expecting a list of annotations
-                text=element_description,
-                api_key=os.environ["BIOPORTAL_API_KEY"],
-                ontologies="ECSO",  # ECSO provides measurment terms
-                exclude_synonyms="true",
-            )
+        # Reuse annotations if they already exist for sake of efficiency
+        annotations = get_annotation_from_workbook(
+            workbook=wb,
+            element=attribute_element.tag,
+            description=attribute_description,
+            predicate=predicate,
+        )
 
-        # And add the measurement type annotations to the workbook
+        if annotations is None:
+            # Select an annotator, and get the measurement type annotations
+            if annotator.lower() == "ontogpt":
+                annotations = get_ontogpt_annotation(
+                    text=attribute_description,
+                    template="contains_measurement_of_type",
+                    local_model=local_model,
+                    return_ungrounded=return_ungrounded,
+                )
+            else:
+                annotations = (
+                    get_bioportal_annotation(  # expecting a list of annotations
+                        text=attribute_description,
+                        api_key=os.environ["BIOPORTAL_API_KEY"],
+                        ontologies="ECSO",  # ECSO provides measurment terms
+                        exclude_synonyms="true",
+                    )
+                )
+
+        # Add the measurement type annotations to the workbook
         if annotations is not None:
             for annotation in annotations:
                 row = initialize_workbook_row()
@@ -572,7 +601,7 @@ def add_measurement_type_annotations_to_workbook(
                 row["context"] = get_subject_and_context(attribute_element)["context"]
                 row["description"] = get_description(attribute_element)
                 row["subject"] = get_subject_and_context(attribute_element)["subject"]
-                row["predicate"] = "contains measurements of type"
+                row["predicate"] = predicate
                 row["predicate_id"] = (
                     "http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#"
                     "containsMeasurementsOfType"
@@ -952,6 +981,9 @@ def add_env_medium_annotations_to_workbook(
         `get_ontogpt_annotation` documentation for details.
     :returns: Workbook with environmental medium annotations."""
 
+    # Parameters for the function
+    predicate = "environmental material"
+
     # Load the workbook and EML for processing
     wb = load_workbook(workbook)
     eml = load_eml(eml)
@@ -975,15 +1007,24 @@ def add_env_medium_annotations_to_workbook(
     for attribute in attributes:
         attribute_element = attribute
         attribute_xpath = eml.getpath(attribute_element)
+        attribute_description = get_description(attribute_element)
 
-        # Get the environmental medium annotations
-        element_description = get_description(attribute_element)
-        annotations = get_ontogpt_annotation(
-            text=element_description,
-            template="env_medium",
-            local_model=local_model,
-            return_ungrounded=return_ungrounded,
+        # Reuse annotations if they already exist for sake of efficiency
+        annotations = get_annotation_from_workbook(
+            workbook=wb,
+            element=attribute_element.tag,
+            description=attribute_description,
+            predicate=predicate,
         )
+
+        if annotations is None:
+            # Get the environmental medium annotations from the annotator
+            annotations = get_ontogpt_annotation(
+                text=attribute_description,
+                template="env_medium",
+                local_model=local_model,
+                return_ungrounded=return_ungrounded,
+            )
 
         # And add the environmental medium annotations to the workbook
         if annotations is not None:
@@ -998,9 +1039,9 @@ def add_env_medium_annotations_to_workbook(
                     row["element_id"] = pd.NA
                 row["element_xpath"] = attribute_xpath
                 row["context"] = get_subject_and_context(attribute_element)["context"]
-                row["description"] = get_description(attribute_element)
+                row["description"] = attribute_description
                 row["subject"] = get_subject_and_context(attribute_element)["subject"]
-                row["predicate"] = "environmental material"
+                row["predicate"] = predicate
                 row["predicate_id"] = "http://purl.obolibrary.org/obo/ENVO_00010483"
                 row["object"] = annotation["label"]
                 row["object_id"] = annotation["uri"]
@@ -1188,3 +1229,48 @@ def add_methods_annotations_to_workbook(
     if output_path:
         write_workbook(wb, output_path)
     return wb
+
+
+def get_annotation_from_workbook(
+    workbook: Union[str, pd.core.frame.DataFrame],
+    element: str,
+    description: str,
+    predicate: str,
+) -> Union[list, None]:
+    """
+    :param workbook: Either the path to the workbook to be annotated, or the
+        workbook itself as a pandas DataFrame.
+    :param element: The element to retrieve annotations for.
+    :param description: The description of the element to retrieve annotations
+        for.
+    :param predicate: The predicate to retrieve annotations for.
+    :returns: A list of dictionaries, each with the annotation keys
+        `label` (same as `object` column in workbook), `uri` (same as
+        `object_id` column in workbook). None if no annotations are found for
+        the given element name.
+    :notes: This function returns existing annotations from the workbook if
+        the `element`, `description`, and `predicate` match, and the `object`
+        and `object_id` are not empty. This is useful when one or more data
+        entities have several attributes of different names but the same
+        meaning.
+    """
+    wb = load_workbook(workbook)
+    matching_rows = (
+        (wb["element"] == element)
+        & (wb["description"] == description)
+        & (wb["predicate"] == predicate)
+        & (wb["object"].notna())
+        & (wb["object_id"].notna())
+    )
+    rows = wb[matching_rows].to_dict(orient="records")
+    res = []
+    if rows:
+        for row in rows:
+            row = {k: row[k] for k in ["object", "object_id"]}
+            # Currently, workbook annotators reference the object as "label"
+            # and the object_id as "uri", so we rename them here.
+            row["label"] = row.pop("object")
+            row["uri"] = row.pop("object_id")
+            res.append(row)
+        return res
+    return None

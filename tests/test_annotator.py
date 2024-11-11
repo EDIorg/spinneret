@@ -21,6 +21,7 @@ from spinneret.annotator import (
     add_env_medium_annotations_to_workbook,
     add_research_topic_annotations_to_workbook,
     add_methods_annotations_to_workbook,
+    get_annotation_from_workbook,
 )
 from spinneret.utilities import (
     load_configuration,
@@ -29,6 +30,9 @@ from spinneret.utilities import (
     write_workbook,
 )
 from spinneret.datasets import get_example_eml_dir
+
+
+# pylint: disable=too-many-lines
 
 
 @pytest.mark.parametrize("use_mock", [True])  # False tests with real HTTP requests
@@ -980,3 +984,31 @@ def test_add_methods_annotations_to_workbook(tmp_path, use_mock, mocker):
     # Original annotations are gone
     assert not wb["object"].str.contains("a label").any()
     assert not wb["object_id"].str.contains("a uri").any()
+
+
+def test_get_annotation_from_workbook(annotated_workbook):
+    """Test get_annotation_from_workbook"""
+
+    # Return annotations when they exist for a given element, subject, and
+    # predicate
+    annotations = get_annotation_from_workbook(
+        workbook=annotated_workbook,
+        element="attribute",
+        description="Taxon name, usually species binomial or other taxon name",
+        predicate="contains measurements of type",
+    )
+    assert isinstance(annotations, list)
+    assert len(annotations) == 2
+    for annotation in annotations:
+        for key in ["label", "uri"]:
+            assert annotation[key] is not None
+
+    # Return None when annotations do not exist for a given element, subject,
+    # and predicate
+    annotations = get_annotation_from_workbook(
+        workbook=annotated_workbook,
+        element="attribute",
+        description="a description that does not exist in the workbook",
+        predicate="contains measurements of type",
+    )
+    assert annotations is None
