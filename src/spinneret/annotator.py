@@ -379,14 +379,6 @@ def add_qudt_annotations_to_workbook(
         attribute_xpath = eml.getpath(attribute_element)
         attribute_description = get_description(attribute_element)
 
-        # # Skip if a QUDT annotation already exists for the attribute xpath and
-        # # overwrite is False
-        # rows = wb[wb["element_xpath"] == attribute_xpath].index
-        # base_uri = "http://qudt.org/vocab/unit/"
-        # has_qudt_annotation = wb.loc[rows, "object_id"].str.contains(base_uri)
-        # if has_qudt_annotation.any() and not overwrite:
-        #     continue
-
         # Reuse annotations if they already exist for sake of efficiency
         annotations = get_annotation_from_workbook(
             workbook=wb,
