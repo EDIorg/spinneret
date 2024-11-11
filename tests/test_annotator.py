@@ -22,6 +22,7 @@ from spinneret.annotator import (
     add_research_topic_annotations_to_workbook,
     add_methods_annotations_to_workbook,
     get_annotation_from_workbook,
+    has_annotation,
 )
 from spinneret.utilities import (
     load_configuration,
@@ -1012,3 +1013,30 @@ def test_get_annotation_from_workbook(annotated_workbook):
         predicate="contains measurements of type",
     )
     assert annotations is None
+
+
+def test_has_annotation(annotated_workbook):
+    """Test the has_annotation helper function"""
+
+    # Case where the annotation exists in the workbook
+    wb = annotated_workbook
+    i = (
+        wb["element_xpath"].notna()
+        & wb["predicate"].notna()
+        & wb["object"].notna()
+        & wb["object_id"].notna()
+    )
+    row_with_annotation = wb[i].iloc[0]
+    assert has_annotation(
+        workbook=annotated_workbook,
+        element_xpath=row_with_annotation["element_xpath"],
+        predicate=row_with_annotation["predicate"],
+    )
+
+    # Case where the annotation does not exist in the workbook
+    wb = annotated_workbook
+    assert not has_annotation(
+        workbook=annotated_workbook,
+        element_xpath="a non-existent xpath",
+        predicate="a non-existent predicate",
+    )

@@ -379,6 +379,11 @@ def add_qudt_annotations_to_workbook(
         attribute_xpath = eml.getpath(attribute_element)
         attribute_description = get_description(attribute_element)
 
+        # Skip if this element already has an annotation in the workbook, to
+        # prevent duplicate annotations from being added.
+        if has_annotation(wb, attribute_xpath, predicate):
+            return wb
+
         # Reuse existing annotations for elements with identical tag names,
         # descriptions, and predicate labels, to reduce redundant processing.
         # Note this assumes semantic equivalence between elements with matching
@@ -498,7 +503,7 @@ def add_dataset_annotations_to_workbook(
         write_workbook(wb, output_path)
     return wb
 
-
+# pylint: disable=too-many-branches
 def add_measurement_type_annotations_to_workbook(
     workbook: Union[str, pd.core.frame.DataFrame],
     eml: Union[str, etree._ElementTree],
@@ -553,6 +558,11 @@ def add_measurement_type_annotations_to_workbook(
         attribute_element = attribute
         attribute_xpath = eml.getpath(attribute_element)
         attribute_description = get_description(attribute_element)
+
+        # Skip if this element already has an annotation in the workbook, to
+        # prevent duplicate annotations from being added.
+        if has_annotation(wb, attribute_xpath, predicate):
+            return wb
 
         # Reuse existing annotations for elements with identical tag names,
         # descriptions, and predicate labels, to reduce redundant processing.
@@ -722,6 +732,7 @@ def add_process_annotations_to_workbook(
     # Parameters for the function
     dataset_element = eml.xpath("//dataset")[0]
     element_description = get_description(dataset_element)
+    element_xpath = eml.getpath(dataset_element)
     predicate = "contains process"
 
     # Set the author identifier for consistent reference below
@@ -739,6 +750,11 @@ def add_process_annotations_to_workbook(
                 "author": author,
             },
         )
+
+    # Skip if this element already has an annotation in the workbook, to
+    # prevent duplicate annotations from being added.
+    if has_annotation(wb, element_xpath, predicate):
+        return wb
 
     # Reuse existing annotations for elements with identical tag names,
     # descriptions, and predicate labels, to reduce redundant processing.
@@ -824,6 +840,7 @@ def add_env_broad_scale_annotations_to_workbook(
     author = "spinneret.annotator.get_onto_gpt_annotation"
     dataset_element = eml.xpath("//dataset")[0]
     element_description = get_description(dataset_element)
+    element_xpath = eml.getpath(dataset_element)
     predicate = "env_broad_scale"
 
     # Remove existing broad scale environmental context annotations if
@@ -839,6 +856,11 @@ def add_env_broad_scale_annotations_to_workbook(
                 "author": author,
             },
         )
+
+    # Skip if this element already has an annotation in the workbook, to
+    # prevent duplicate annotations from being added.
+    if has_annotation(wb, element_xpath, predicate):
+        return wb
 
     # Reuse existing annotations for elements with identical tag names,
     # descriptions, and predicate labels, to reduce redundant processing.
@@ -925,6 +947,7 @@ def add_env_local_scale_annotations_to_workbook(
     # Parameters for the function
     dataset_element = eml.xpath("//dataset")[0]
     element_description = get_description(dataset_element)
+    element_xpath = eml.getpath(dataset_element)
     predicate = "env_local_scale"
 
     # Set the author identifier for consistent reference below
@@ -943,6 +966,11 @@ def add_env_local_scale_annotations_to_workbook(
                 "author": author,
             },
         )
+
+    # Skip if this element already has an annotation in the workbook, to
+    # prevent duplicate annotations from being added.
+    if has_annotation(wb, element_xpath, predicate):
+        return wb
 
     # Reuse existing annotations for elements with identical tag names,
     # descriptions, and predicate labels, to reduce redundant processing.
@@ -1050,6 +1078,11 @@ def add_env_medium_annotations_to_workbook(
         attribute_xpath = eml.getpath(attribute_element)
         attribute_description = get_description(attribute_element)
 
+        # Skip if this element already has an annotation in the workbook, to
+        # prevent duplicate annotations from being added.
+        if has_annotation(wb, attribute_xpath, predicate):
+            return wb
+
         # Reuse existing annotations for elements with identical tag names,
         # descriptions, and predicate labels, to reduce redundant processing.
         # Note this assumes semantic equivalence between elements with matching
@@ -1132,6 +1165,7 @@ def add_research_topic_annotations_to_workbook(
     # Parameters for the function
     dataset_element = eml.xpath("//dataset")[0]
     element_description = get_description(dataset_element)
+    element_xpath = eml.getpath(dataset_element)
     predicate = "research topic"
 
     # Set the author identifier for consistent reference below
@@ -1149,6 +1183,11 @@ def add_research_topic_annotations_to_workbook(
                 "author": author,
             },
         )
+
+    # Skip if this element already has an annotation in the workbook, to
+    # prevent duplicate annotations from being added.
+    if has_annotation(wb, element_xpath, predicate):
+        return wb
 
     # Reuse existing annotations for elements with identical tag names,
     # descriptions, and predicate labels, to reduce redundant processing.
@@ -1236,6 +1275,7 @@ def add_methods_annotations_to_workbook(
     if not methods_element:
         return wb
     element_description = get_description(methods_element[0])
+    element_xpath = eml.getpath(dataset_element)
     predicate = "usesMethod"
 
     # Set the author identifier for consistent reference below
@@ -1253,6 +1293,11 @@ def add_methods_annotations_to_workbook(
                 "author": author,
             },
         )
+
+    # Skip if this element already has an annotation in the workbook, to
+    # prevent duplicate annotations from being added.
+    if has_annotation(wb, element_xpath, predicate):
+        return wb
 
     # Reuse existing annotations for elements with identical tag names,
     # descriptions, and predicate labels, to reduce redundant processing.
@@ -1348,3 +1393,25 @@ def get_annotation_from_workbook(
             res.append(row)
         return res
     return None
+
+
+def has_annotation(
+    workbook: Union[str, pd.core.frame.DataFrame], element_xpath: str, predicate: str
+) -> bool:
+    """
+    :param workbook: Either the path to the workbook to be annotated, or the
+        workbook itself as a pandas DataFrame.
+    :param element_xpath: The XPath of the element to check for annotations.
+    :param predicate: The predicate to check for annotations.
+    :returns: True if the `workbook` contains an `element_xpath` that has an
+        annotation for the given `predicate`. False otherwise.
+    """
+    wb = load_workbook(workbook)
+    matching_rows = (
+        (wb["element_xpath"] == element_xpath)
+        & (wb["predicate"] == predicate)
+        & wb["predicate_id"].notna()
+        & wb["object"].notna()
+        & wb["object_id"].notna()
+    )
+    return bool(matching_rows.any())
