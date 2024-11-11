@@ -348,9 +348,8 @@ def add_qudt_annotations_to_workbook(
     :param eml: Either the path to the EML file corresponding to the workbook,
         or the EML file itself as an lxml etree.
     :param output_path: The path to write the annotated workbook.
-    :param overwrite: If True, overwrite existing QUDT annotations in the
-        workbook. This enables updating the annotations in the workbook with
-        the latest QUDT annotations.
+    :param overwrite: If True, overwrite existing `QUDT` annotations in the
+        `workbook, so a fresh set may be created.
     :returns: Workbook with QUDT annotations."""
 
     # Parameters for the function
@@ -441,9 +440,8 @@ def add_dataset_annotations_to_workbook(
     :param eml: Either the path to the EML file corresponding to the workbook,
         or the EML file itself as an lxml etree.
     :param output_path: The path to write the annotated workbook.
-    :param overwrite: If True, overwrite existing dataset annotations in the
-        workbook. This enables updating the annotations in the workbook with
-        the latest dataset annotations.
+    :param overwrite: If True, overwrite existing `dataset` annotations in the
+        workbook, so a fresh set may be created.
     :returns: Workbook with dataset annotations."""
 
     # Load the workbook and EML for processing
@@ -524,9 +522,8 @@ def add_measurement_type_annotations_to_workbook(
         the `get_ontogpt_annotation` function. Similarly, BioPortal requires
         an API key and is described in the `get_bioportal_annotation` function.
     :param output_path: The path to write the annotated workbook.
-    :param overwrite: If True, overwrite existing measurement type annotations
-        in the workbook. This enables updating the annotations in the workbook
-        with the latest measurement type annotations.
+    :param overwrite: If True, overwrite existing `measurement type`
+        annotations in the workbook, so a fresh set may be created.
     :param local_model: Required if `annotator` is "ontogpt". See
         `get_ontogpt_annotation` documentation for details.
     :param return_ungrounded: An option if `annotator` is "ontogpt". See
@@ -714,9 +711,8 @@ def add_process_annotations_to_workbook(
     :param eml: Either the path to the EML file corresponding to the workbook,
         or the EML file itself as an lxml etree.
     :param output_path: The path to write the annotated workbook.
-    :param overwrite: If True, overwrite existing process annotations in the
-        workbook. This enables updating the annotations in the workbook with
-        the latest process annotations.
+    :param overwrite: If True, overwrite existing `process` annotations in the
+        workbook, so a fresh set may be created.
     :param local_model: See `get_ontogpt_annotation` documentation for details.
     :param return_ungrounded: See `get_ontogpt_annotation` documentation for
         details.
@@ -820,10 +816,8 @@ def add_env_broad_scale_annotations_to_workbook(
     :param eml: Either the path to the EML file corresponding to the workbook,
         or the EML file itself as an lxml etree.
     :param output_path: The path to write the annotated workbook.
-    :param overwrite: If True, overwrite existing broad scale environmental
-        context annotations in the workbook. This enables updating the
-        annotations in the workbook with the latest broad scale environmental
-        context annotations.
+    :param overwrite: If True, overwrite existing `broad scale environmental
+        context` annotations in the workbook, so a fresh set may be created.
     :param local_model: See `get_ontogpt_annotation` documentation for details.
     :param return_ungrounded: See `get_ontogpt_annotation` documentation for
         details.
@@ -928,10 +922,8 @@ def add_env_local_scale_annotations_to_workbook(
     :param eml: Either the path to the EML file corresponding to the workbook,
         or the EML file itself as an lxml etree.
     :param output_path: The path to write the annotated workbook.
-    :param overwrite: If True, overwrite existing local scale environmental
-        context annotations in the workbook. This enables updating the
-        annotations in the workbook with the latest local scale environmental
-        context annotations.
+    :param overwrite: If True, overwrite existing `local scale environmental
+        context` annotations in the workbook, so a fresh set may be created.
     :param local_model: See `get_ontogpt_annotation` documentation for details.
     :param return_ungrounded: See `get_ontogpt_annotation` documentation for
         details.
@@ -1038,9 +1030,8 @@ def add_env_medium_annotations_to_workbook(
     :param eml: Either the path to the EML file corresponding to the workbook,
         or the EML file itself as an lxml etree.
     :param output_path: The path to write the annotated workbook.
-    :param overwrite: If True, overwrite existing environmental medium annotations
-        in the workbook. This enables updating the annotations in the workbook
-        with the latest environmental medium annotations.
+    :param overwrite: If True, overwrite existing `environmental medium`
+        annotations in the workbook, so a fresh set may be created.
     :param annotator: The annotator to use for grounding. Options are "ontogpt"
         and "bioportal". OntoGPT requires setup and configuration described in
         the `get_ontogpt_annotation` function. Similarly, BioPortal requires
@@ -1147,9 +1138,8 @@ def add_research_topic_annotations_to_workbook(
     :param eml: Either the path to the EML file corresponding to the workbook,
         or the EML file itself as an lxml etree.
     :param output_path: The path to write the annotated workbook.
-    :param overwrite: If True, overwrite existing research topic annotations in the
-        workbook. This enables updating the annotations in the workbook with
-        the latest research topic annotations.
+    :param overwrite: If True, overwrite existing `research topic` annotations
+        in the workbook, so a fresh set may be created.
     :param local_model: See `get_ontogpt_annotation` documentation for details.
     :param return_ungrounded: See `get_ontogpt_annotation` documentation for
         details.
@@ -1253,9 +1243,8 @@ def add_methods_annotations_to_workbook(
     :param eml: Either the path to the EML file corresponding to the workbook,
         or the EML file itself as an lxml etree.
     :param output_path: The path to write the annotated workbook.
-    :param overwrite: If True, overwrite existing methods annotations in the
-        workbook. This enables updating the annotations in the workbook with
-        the latest methods annotations.
+    :param overwrite: If True, overwrite existing `methods` annotations in the
+        workbook, so a fresh set may be created.
     :param local_model: See `get_ontogpt_annotation` documentation for details.
     :param return_ungrounded: See `get_ontogpt_annotation` documentation for
         details.
