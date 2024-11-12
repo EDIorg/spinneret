@@ -15,6 +15,7 @@ from spinneret.workbook import (
     get_package_url,
     get_subject_and_context,
     get_description,
+    delete_duplicate_annotations,
 )
 from spinneret.utilities import (
     load_eml,
@@ -422,6 +423,7 @@ def add_qudt_annotations_to_workbook(
                 row["date"] = pd.Timestamp.now()
                 row = pd.DataFrame([row], dtype=str)
                 wb = pd.concat([wb, row], ignore_index=True)
+            wb = delete_duplicate_annotations(wb)
 
     if output_path:
         write_workbook(wb, output_path)
@@ -496,6 +498,7 @@ def add_dataset_annotations_to_workbook(
             row["date"] = pd.Timestamp.now()
             row = pd.DataFrame([row], dtype=str)
             wb = pd.concat([wb, row], ignore_index=True)
+        wb = delete_duplicate_annotations(wb)
 
     if output_path:
         write_workbook(wb, output_path)
@@ -621,6 +624,7 @@ def add_measurement_type_annotations_to_workbook(
                 row["date"] = pd.Timestamp.now()
                 row = pd.DataFrame([row], dtype=str)
                 wb = pd.concat([wb, row], ignore_index=True)
+            wb = delete_duplicate_annotations(wb)
 
     if output_path:
         write_workbook(wb, output_path)
@@ -796,6 +800,7 @@ def add_process_annotations_to_workbook(
             row["date"] = pd.Timestamp.now()
             row = pd.DataFrame([row], dtype=str)
             wb = pd.concat([wb, row], ignore_index=True)
+        wb = delete_duplicate_annotations(wb)
 
     if output_path:
         write_workbook(wb, output_path)
@@ -902,6 +907,7 @@ def add_env_broad_scale_annotations_to_workbook(
             row["date"] = pd.Timestamp.now()
             row = pd.DataFrame([row], dtype=str)
             wb = pd.concat([wb, row], ignore_index=True)
+        wb = delete_duplicate_annotations(wb)
 
     if output_path:
         write_workbook(wb, output_path)
@@ -1010,6 +1016,7 @@ def add_env_local_scale_annotations_to_workbook(
             row["date"] = pd.Timestamp.now()
             row = pd.DataFrame([row], dtype=str)
             wb = pd.concat([wb, row], ignore_index=True)
+        wb = delete_duplicate_annotations(wb)
 
     if output_path:
         write_workbook(wb, output_path)
@@ -1114,6 +1121,7 @@ def add_env_medium_annotations_to_workbook(
                 row["date"] = pd.Timestamp.now()
                 row = pd.DataFrame([row], dtype=str)
                 wb = pd.concat([wb, row], ignore_index=True)
+            wb = delete_duplicate_annotations(wb)
 
     if output_path:
         write_workbook(wb, output_path)
@@ -1219,6 +1227,7 @@ def add_research_topic_annotations_to_workbook(
             row["date"] = pd.Timestamp.now()
             row = pd.DataFrame([row], dtype=str)
             wb = pd.concat([wb, row], ignore_index=True)
+        wb = delete_duplicate_annotations(wb)
 
     if output_path:
         write_workbook(wb, output_path)
@@ -1330,6 +1339,7 @@ def add_methods_annotations_to_workbook(
             row["date"] = pd.Timestamp.now()
             row = pd.DataFrame([row], dtype=str)
             wb = pd.concat([wb, row], ignore_index=True)
+        wb = delete_duplicate_annotations(wb)
 
     if output_path:
         write_workbook(wb, output_path)
