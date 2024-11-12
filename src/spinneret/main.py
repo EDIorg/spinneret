@@ -127,8 +127,8 @@ def annotate_eml_files(workbook_dir: str, eml_dir: str, output_dir: str) -> None
         # Create annotated EML file
         print(f"Creating annotated EML file for {eml_path}")
         annotate_eml(
-            eml_path=eml_path,
-            workbook_path=workbook_dir + "/" + workbook_file,
+            eml=eml_path,
+            workbook=workbook_dir + "/" + workbook_file,
             output_path=eml_path_annotated,
         )
 

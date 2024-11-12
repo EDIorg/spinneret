@@ -204,21 +204,27 @@ def annotate_workbook(
     return None
 
 
-def annotate_eml(eml_path: str, workbook_path: str, output_path: str) -> None:
+def annotate_eml(
+    eml: Union[str, etree._ElementTree],
+    workbook: Union[str, pd.core.frame.DataFrame],
+    output_path: str = None,
+) -> etree._ElementTree:
     """Annotate an EML file with terms from the corresponding workbook
 
-    :param eml_path: The path to the EML file to be annotated.
-    :param workbook_path: The path to the workbook corresponding to the EML file.
+    :param eml: Either the path to the EML file corresponding to the
+        `workbook`, or the EML file itself as an lxml etree.
+    :param workbook: Either the path to the workbook corresponding to the
+        `eml`, or the workbook itself as a pandas DataFrame.
     :param output_path: The path to write the annotated EML file.
-    :returns: None
+    :returns: The annotated EML file as an lxml etree.
 
-    :notes: The EML file is annotated with terms from the corresponding workbook.
-        Terms from the workbook are added even if they are already present in
-        the EML file.
+    :notes: The EML file is annotated with terms from the corresponding
+        workbook. Terms from the workbook are added even if they are already
+        present in the EML file.
     """
     # Load the EML and workbook for processing
-    eml = load_eml(eml_path)
-    wb = load_workbook(workbook_path)
+    eml = load_eml(eml)
+    wb = load_workbook(workbook)
 
     # Iterate over workbook rows and annotate the EML
     for _, row in wb.iterrows():
@@ -276,8 +282,9 @@ def annotate_eml(eml_path: str, workbook_path: str, output_path: str) -> None:
                 attribute = root.find(attribute_xpath)
                 attribute.insert(len(attribute) + 1, annotation)
 
-    # Write eml to file
-    write_eml(eml, output_path)
+    if output_path:
+        write_eml(eml, output_path)
+    return eml
 
 
 def create_annotation_element(predicate_label, predicate_id, object_label, object_id):
