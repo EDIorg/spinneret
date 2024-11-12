@@ -221,7 +221,7 @@ def test_annotate_eml(tmp_path):
     assert eml.xpath(".//annotation") == []
 
     # Annotate the EML file
-    annotate_eml(eml_path=eml_file, workbook_path=wb_file, output_path=output_file)
+    annotate_eml(eml=eml_file, workbook=wb_file, output_path=output_file)
 
     # Check that the EML file was annotated
     assert os.path.exists(output_file)
@@ -259,7 +259,7 @@ def test_annotate_eml_ignores_ungrounded_terms(tmp_path):
     # No EML Annotations should exist since all the workbook annotations are
     # ungrounded terms.
     output_file = str(tmp_path) + "/edi.3.9_annotated.xml"
-    annotate_eml(eml_path=eml_file, workbook_path=wb_file, output_path=output_file)
+    annotate_eml(eml=eml_file, workbook=wb_file, output_path=output_file)
     assert os.path.exists(output_file)
     eml_annotated = load_eml(output_file)
     annotations = eml_annotated.xpath(".//annotation")
