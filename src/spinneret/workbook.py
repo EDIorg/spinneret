@@ -225,15 +225,17 @@ def delete_duplicate_annotations(
     :param workbook: The annotation workbook
     :returns: The workbook with duplicate annotations removed
     :notes: The function removes duplicate annotations based on the
-        following columns: `element_xpath`, `object`, `object_id`, `date`. The
-        most recent annotation is preferred to allow improvements to other
-        fields set by the annotator.
-
+        following columns: `element_xpath`, `predicate`, `predicate_id`,
+        `object`, and `object_id`. The most recent annotation, based on `date`,
+        is preferred to allow improvements to other fields set by the
+        annotator.
     """
     wb = workbook.sort_values("date", ascending=False)
     wb = wb.drop_duplicates(
         subset=[
             "element_xpath",
+            "predicate",
+            "predicate_id",
             "object",
             "object_id",
         ],

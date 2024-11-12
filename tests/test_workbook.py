@@ -135,18 +135,14 @@ def test_delete_duplicate_annotations():
         elements=["dataset"],
     )
     # Row 1
-    wb.loc[0, "predicate"] = "predicate_1"
-    wb.loc[0, "predicate_id"] = "predicate_id_1"
-    wb.loc[0, "object"] = "object_1"
-    wb.loc[0, "object_id"] = "object_id_1"
+    wb.loc[0, "predicate"] = "predicate"
+    wb.loc[0, "predicate_id"] = "predicate_id"
+    wb.loc[0, "object"] = "object"
+    wb.loc[0, "object_id"] = "object_id"
     wb.loc[0, "date"] = pd.Timestamp.now()
     # Row 2 is a duplicate annotation of row 1
     row = wb.iloc[0].copy()
     wb.loc[len(wb)] = row
-    wb.loc[1, "predicate"] = "predicate_2"
-    wb.loc[1, "predicate_id"] = "predicate_id_2"
-    wb.loc[1, "object"] = "object_1"
-    wb.loc[1, "object_id"] = "object_id_1"
     sleep(1)  # pause for 1 second to ensure the datetime is different
     wb.loc[1, "date"] = pd.Timestamp.now()
 
