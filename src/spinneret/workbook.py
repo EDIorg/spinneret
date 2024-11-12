@@ -2,7 +2,11 @@
 
 from lxml import etree
 import pandas as pd
-from spinneret.utilities import delete_empty_tags, load_eml, write_workbook
+from spinneret.utilities import (
+    delete_empty_tags,
+    load_eml,
+    write_workbook,
+)
 
 
 def create(
@@ -259,3 +263,36 @@ def delete_annotations(
         .all(axis=1)
     ]
     return filtered_wb
+
+
+def delete_unannotated_rows(
+    workbook: pd.core.frame.DataFrame,
+) -> pd.core.frame.DataFrame:
+    """
+    :param workbook: The workbook to remove unannotated rows from.
+    :returns: The workbook with rows that do not have an annotation deleted.
+    :notes: This function may remove potential human annotation opportunities,
+        i.e. rows that have not been annotated by an automated annotator but
+        may be annotated by a human annotator. It is recommended that this
+        function is not applied within existing workbook annotators or the
+        `annotate_workbook` wrapper due to this limitation.
+    """
+    wb = workbook
+    unannotated_rows = [is_unannotated_row(row) for index, row in wb.iterrows()]
+    wb = wb[~pd.Series(unannotated_rows, index=wb.index)]
+    return wb
+
+
+def is_unannotated_row(row: pd.core.series.Series) -> bool:
+    """
+    :param row: A row from the workbook
+    :returns: True if the row is unannotated, i.e. one or more of `predicate`,
+        `predicate_id`, `object`, `object_id` are missing. Otherwise, False.
+    """
+    unannotated_row = (
+        (row["predicate"] is pd.NA)
+        | (row["predicate_id"] is pd.NA)
+        | (row["object"] is pd.NA)
+        | (row["object_id"] is pd.NA)
+    )
+    return unannotated_row

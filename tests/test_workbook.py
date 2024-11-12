@@ -15,6 +15,8 @@ from spinneret.workbook import (
     create,
     delete_duplicate_annotations,
     delete_annotations,
+    delete_unannotated_rows,
+    is_unannotated_row,
 )
 from spinneret.utilities import load_eml, load_workbook
 
@@ -188,3 +190,51 @@ def test_delete_annotations():
     assert any("ENVO" in str(x) for x in wb["object_id"])
     assert not any("BioPortal Annotator" in str(x) for x in new_wb["object_id"])
     assert len(new_wb) == 1  # not all rows met these criteria
+
+
+def test_delete_unannotated_rows(annotated_workbook):
+    """Test delete_unannotated_rows function"""
+
+    # Workbook fixture has unannotated rows
+    wb = annotated_workbook
+    # Use list comprehension to check for unannotated rows
+    unannotated_rows = [is_unannotated_row(row) for index, row in wb.iterrows()]
+    assert any(unannotated_rows)
+
+    # Unannotated rows are removed by calling delete_unannotated_rows
+    wb = delete_unannotated_rows(wb)
+    unannotated_rows = [is_unannotated_row(row) for index, row in wb.iterrows()]
+    assert not any(unannotated_rows)
+
+    # Workbooks with no unannotated rows are unchanged
+    wb2 = delete_unannotated_rows(wb)
+    assert wb.equals(wb2)
+
+    # Completely unannotated workbooks will have all rows removed
+    wb = pd.DataFrame([initialize_workbook_row()])
+    assert len(wb) == 1
+
+
+def test_is_unannotated():
+    """Test is_unannotated_row function"""
+
+    # A row with no annotation components is unannotated
+    wb = pd.DataFrame([initialize_workbook_row()])
+    row = wb.iloc[0]
+    assert is_unannotated_row(row)
+
+    # A row with incomplete annotation components is unannotated
+    wb = pd.DataFrame([initialize_workbook_row()])
+    row = wb.iloc[0]
+    wb.loc[0, "predicate"] = "predicate"
+    wb.loc[0, "predicate_id"] = "predicate_id"
+    assert is_unannotated_row(row)
+
+    # A row with all annotation components is not unannotated
+    wb = pd.DataFrame([initialize_workbook_row()])
+    wb.loc[0, "predicate"] = "predicate"
+    wb.loc[0, "predicate_id"] = "predicate_id"
+    wb.loc[0, "object"] = "object"
+    wb.loc[0, "object_id"] = "object_id"
+    row = wb.iloc[0]
+    assert not is_unannotated_row(row)
