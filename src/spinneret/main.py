@@ -46,7 +46,13 @@ def create_workbooks(eml_dir: str, workbook_dir: str) -> None:
 
 
 def annotate_workbooks(
-    workbook_dir: str, eml_dir: str, annotator: str, output_dir: str, config_path: str
+    workbook_dir: str,
+    eml_dir: str,
+    annotator: str,
+    output_dir: str,
+    config_path: str,
+    local_model: str = None,
+    return_ungrounded: bool = False,
 ) -> None:
     """Create workbooks for each EML file in a directory
 
@@ -58,6 +64,9 @@ def annotate_workbooks(
         an API key and is described in the `get_bioportal_annotation` function.
     :param output_dir: Directory to save annotated workbooks
     :param config_path: Path to configuration file
+    :param local_model: See `get_ontogpt_annotation` documentation for details.
+    :param return_ungrounded: See `get_ontogpt_annotation` documentation for
+        details.
     :return: None
     :notes: Annotated workbooks will not be created if they already exist.
     """
@@ -95,6 +104,8 @@ def annotate_workbooks(
             eml_path=eml_dir + "/" + eml_file,
             annotator=annotator,
             output_path=output_dir + "/" + workbook_file_annotated,
+            local_model=local_model,
+            return_ungrounded=return_ungrounded,
         )
 
 
