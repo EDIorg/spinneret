@@ -680,6 +680,9 @@ def get_ontogpt_annotation(
         if local_model is not None:
             cmd += f"  -m ollama/{local_model}"
         try:
+            # Clear the cache so that the model can derive new annotations
+            cache_path = os.getcwd() + "/.litellm_cache"
+            os.system(f"rm -rf {cache_path}")
             os.system(cmd)
         except Exception as e:  # pylint: disable=broad-exception-caught
             print(f"Error calling OntoGPT: {e}")
