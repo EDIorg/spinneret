@@ -53,6 +53,7 @@ def annotate_workbooks(
     config_path: str,
     local_model: str = None,
     return_ungrounded: bool = False,
+    sample_size: int = 1,
 ) -> None:
     """Create workbooks for each EML file in a directory
 
@@ -67,6 +68,8 @@ def annotate_workbooks(
     :param local_model: See `get_ontogpt_annotation` documentation for details.
     :param return_ungrounded: See `get_ontogpt_annotation` documentation for
         details.
+    :param sample_size: Executes multiple replicates of the annotation request
+        to reduce variability of outputs. Variability is inherent in OntoGPT.
     :return: None
     :notes: Annotated workbooks will not be created if they already exist.
     """
@@ -106,6 +109,7 @@ def annotate_workbooks(
             output_path=output_dir + "/" + workbook_file_annotated,
             local_model=local_model,
             return_ungrounded=return_ungrounded,
+            sample_size=sample_size,
         )
 
 

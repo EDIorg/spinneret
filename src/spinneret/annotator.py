@@ -136,6 +136,7 @@ def annotate_workbook(
     annotator: str,
     local_model: str = None,
     return_ungrounded: bool = False,
+    sample_size: int = 1,
 ) -> None:
     """Annotate a workbook with automated annotation
 
@@ -150,6 +151,8 @@ def annotate_workbook(
     :param local_model: See `get_ontogpt_annotation` documentation for details.
     :param return_ungrounded: See `get_ontogpt_annotation` documentation for
         details.
+    :param sample_size: Executes multiple replicates of the annotation request
+        to reduce variability of outputs. Variability is inherent in OntoGPT.
     :returns: None
     :notes: The workbook is annotated by annotators best suited for the XPaths
         in the EML file. The annotated workbook is written back to the same
@@ -170,23 +173,45 @@ def annotate_workbook(
 
     # Run workbook annotators, results of one are used as input for the next
     if annotator == "bioportal":
-        wb = add_dataset_annotations_to_workbook(wb, eml)
-        wb = add_measurement_type_annotations_to_workbook(wb, eml, annotator=annotator)
+        wb = add_dataset_annotations_to_workbook(wb, eml, sample_size=sample_size)
+        wb = add_measurement_type_annotations_to_workbook(
+            wb, eml, annotator=annotator, sample_size=sample_size
+        )
     elif annotator == "ontogpt":
         wb = add_env_broad_scale_annotations_to_workbook(
-            wb, eml, local_model=local_model, return_ungrounded=return_ungrounded
+            wb,
+            eml,
+            local_model=local_model,
+            return_ungrounded=return_ungrounded,
+            sample_size=sample_size,
         )
         wb = add_env_local_scale_annotations_to_workbook(
-            wb, eml, local_model=local_model, return_ungrounded=return_ungrounded
+            wb,
+            eml,
+            local_model=local_model,
+            return_ungrounded=return_ungrounded,
+            sample_size=sample_size,
         )
         wb = add_process_annotations_to_workbook(
-            wb, eml, local_model=local_model, return_ungrounded=return_ungrounded
+            wb,
+            eml,
+            local_model=local_model,
+            return_ungrounded=return_ungrounded,
+            sample_size=sample_size,
         )
         wb = add_methods_annotations_to_workbook(
-            wb, eml, local_model=local_model, return_ungrounded=return_ungrounded
+            wb,
+            eml,
+            local_model=local_model,
+            return_ungrounded=return_ungrounded,
+            sample_size=sample_size,
         )
         wb = add_research_topic_annotations_to_workbook(
-            wb, eml, local_model=local_model, return_ungrounded=return_ungrounded
+            wb,
+            eml,
+            local_model=local_model,
+            return_ungrounded=return_ungrounded,
+            sample_size=sample_size,
         )
         wb = add_measurement_type_annotations_to_workbook(
             wb,
@@ -194,9 +219,14 @@ def annotate_workbook(
             annotator="ontogpt",
             local_model=local_model,
             return_ungrounded=return_ungrounded,
+            sample_size=sample_size,
         )
         wb = add_env_medium_annotations_to_workbook(
-            wb, eml, local_model=local_model, return_ungrounded=return_ungrounded
+            wb,
+            eml,
+            local_model=local_model,
+            return_ungrounded=return_ungrounded,
+            sample_size=sample_size,
         )
     wb = add_qudt_annotations_to_workbook(wb, eml)  # irrespective of annotator
 
@@ -442,6 +472,7 @@ def add_dataset_annotations_to_workbook(
     eml: Union[str, etree._ElementTree],
     output_path: str = None,
     overwrite: bool = False,
+    sample_size: int = 1,
 ) -> pd.core.frame.DataFrame:
     """
     :param workbook: Either the path to the workbook to be annotated, or the
@@ -451,6 +482,8 @@ def add_dataset_annotations_to_workbook(
     :param output_path: The path to write the annotated workbook.
     :param overwrite: If True, overwrite existing `dataset` annotations in the
         workbook, so a fresh set may be created.
+    :param sample_size: Executes multiple replicates of the annotation request
+        to reduce variability of outputs. Variability is inherent in OntoGPT.
     :returns: Workbook with dataset annotations."""
 
     # Load the workbook and EML for processing
@@ -475,12 +508,18 @@ def add_dataset_annotations_to_workbook(
     # Get the dataset annotations
     dataset_element = eml.xpath("//dataset")[0]
     element_description = get_description(dataset_element)
-    annotations = get_bioportal_annotation(  # expecting a list of annotations
-        text=element_description,
-        api_key=os.environ["BIOPORTAL_API_KEY"],
-        ontologies="ENVO",  # ENVO provides environmental terms
-        exclude_synonyms="true",
-    )
+    annotations = []
+    for _ in range(sample_size):
+        res = get_bioportal_annotation(  # expecting a list of annotations
+            text=element_description,
+            api_key=os.environ["BIOPORTAL_API_KEY"],
+            ontologies="ENVO",  # ENVO provides environmental terms
+            exclude_synonyms="true",
+        )
+        if res is not None:
+            annotations.extend(res)
+    if len(annotations) == 0:
+        annotations = None
 
     # Add dataset annotations to the workbook
     if annotations is not None:
@@ -513,6 +552,7 @@ def add_dataset_annotations_to_workbook(
 
 
 # pylint: disable=too-many-branches
+# pylint: disable=too-many-statements
 def add_measurement_type_annotations_to_workbook(
     workbook: Union[str, pd.core.frame.DataFrame],
     eml: Union[str, etree._ElementTree],
@@ -521,6 +561,7 @@ def add_measurement_type_annotations_to_workbook(
     overwrite: bool = False,
     local_model: str = None,
     return_ungrounded: bool = False,
+    sample_size: int = 1,
 ) -> pd.core.frame.DataFrame:
     """
     :param workbook: Either the path to the workbook to be annotated, or the
@@ -538,6 +579,8 @@ def add_measurement_type_annotations_to_workbook(
         `get_ontogpt_annotation` documentation for details.
     :param return_ungrounded: An option if `annotator` is "ontogpt". See
         `get_ontogpt_annotation` documentation for details.
+    :param sample_size: Executes multiple replicates of the annotation request
+        to reduce variability of outputs. Variability is inherent in OntoGPT.
     :returns: Workbook with measurement type annotations."""
 
     # Parameters for the function
@@ -586,21 +629,32 @@ def add_measurement_type_annotations_to_workbook(
         if annotations is None:
             # Select an annotator, and get the measurement type annotations
             if annotator.lower() == "ontogpt":
-                annotations = get_ontogpt_annotation(
-                    text=attribute_description,
-                    template="contains_measurement_of_type",
-                    local_model=local_model,
-                    return_ungrounded=return_ungrounded,
-                )
+                annotations = []
+                for _ in range(sample_size):
+                    res = get_ontogpt_annotation(
+                        text=attribute_description,
+                        template="contains_measurement_of_type",
+                        local_model=local_model,
+                        return_ungrounded=return_ungrounded,
+                    )
+                    if res is not None:
+                        annotations.extend(res)
+                if len(annotations) == 0:
+                    annotations = None
             else:
-                annotations = (
-                    get_bioportal_annotation(  # expecting a list of annotations
+                annotations = []
+                for _ in range(sample_size):
+                    res = get_bioportal_annotation(
+                        # expecting a list of annotations
                         text=attribute_description,
                         api_key=os.environ["BIOPORTAL_API_KEY"],
                         ontologies="ECSO",  # ECSO provides measurment terms
                         exclude_synonyms="true",
                     )
-                )
+                    if res is not None:
+                        annotations.extend(res)
+                if len(annotations) == 0:
+                    annotations = None
 
         # Add the measurement type annotations to the workbook
         if annotations is not None:
@@ -718,6 +772,7 @@ def add_process_annotations_to_workbook(
     overwrite: bool = False,
     local_model: str = None,
     return_ungrounded: bool = False,
+    sample_size: int = 1,
 ) -> pd.core.frame.DataFrame:
     """
     :param workbook: Either the path to the workbook to be annotated, or the
@@ -730,6 +785,8 @@ def add_process_annotations_to_workbook(
     :param local_model: See `get_ontogpt_annotation` documentation for details.
     :param return_ungrounded: See `get_ontogpt_annotation` documentation for
         details.
+    :param sample_size: Executes multiple replicates of the annotation request
+        to reduce variability of outputs. Variability is inherent in OntoGPT.
     :returns: Workbook with process annotations.
     :notes: This function retrieves process annotations using OntoGPT, which
         requires setup and configuration described in the
@@ -780,12 +837,18 @@ def add_process_annotations_to_workbook(
 
     if annotations is None:
         # Get the process annotations
-        annotations = get_ontogpt_annotation(
-            text=element_description,
-            template="contains_process",
-            local_model=local_model,
-            return_ungrounded=return_ungrounded,
-        )
+        annotations = []
+        for _ in range(sample_size):
+            res = get_ontogpt_annotation(
+                text=element_description,
+                template="contains_process",
+                local_model=local_model,
+                return_ungrounded=return_ungrounded,
+            )
+            if res is not None:
+                annotations.extend(res)
+        if len(annotations) == 0:
+            annotations = None
 
     # Add process annotations to the workbook
     if annotations is not None:
@@ -824,6 +887,7 @@ def add_env_broad_scale_annotations_to_workbook(
     overwrite: bool = False,
     local_model: str = None,
     return_ungrounded: bool = False,
+    sample_size: int = 1,
 ) -> pd.core.frame.DataFrame:
     """
     :param workbook: Either the path to the workbook to be annotated, or the
@@ -836,6 +900,8 @@ def add_env_broad_scale_annotations_to_workbook(
     :param local_model: See `get_ontogpt_annotation` documentation for details.
     :param return_ungrounded: See `get_ontogpt_annotation` documentation for
         details.
+    :param sample_size: Executes multiple replicates of the annotation request
+        to reduce variability of outputs. Variability is inherent in OntoGPT.
     :returns: Workbook with broad scale environmental context annotations.
     :notes: This function retrieves broad scale environmental context
         annotations using OntoGPT, which requires setup and configuration
@@ -885,12 +951,18 @@ def add_env_broad_scale_annotations_to_workbook(
 
     if annotations is None:
         # Get the broad scale environmental context annotations
-        annotations = get_ontogpt_annotation(
-            text=element_description,
-            template=predicate,
-            local_model=local_model,
-            return_ungrounded=return_ungrounded,
-        )
+        annotations = []
+        for _ in range(sample_size):
+            res = get_ontogpt_annotation(
+                text=element_description,
+                template=predicate,
+                local_model=local_model,
+                return_ungrounded=return_ungrounded,
+            )
+            if res is not None:
+                annotations.extend(res)
+        if len(annotations) == 0:
+            annotations = None
 
     # Add broad scale environmental context annotations to the workbook
     if annotations is not None:
@@ -931,6 +1003,7 @@ def add_env_local_scale_annotations_to_workbook(
     overwrite: bool = False,
     local_model: str = None,
     return_ungrounded: bool = False,
+    sample_size: int = 1,
 ) -> pd.core.frame.DataFrame:
     """
     :param workbook: Either the path to the workbook to be annotated, or the
@@ -943,6 +1016,8 @@ def add_env_local_scale_annotations_to_workbook(
     :param local_model: See `get_ontogpt_annotation` documentation for details.
     :param return_ungrounded: See `get_ontogpt_annotation` documentation for
         details.
+    :param sample_size: Executes multiple replicates of the annotation request
+        to reduce variability of outputs. Variability is inherent in OntoGPT.
     :returns: Workbook with local scale environmental context annotations.
     :notes: This function retrieves local scale environmental context
         annotations using OntoGPT, which requires setup and configuration
@@ -994,12 +1069,18 @@ def add_env_local_scale_annotations_to_workbook(
 
     if annotations is None:
         # Get the local scale environmental context annotations
-        annotations = get_ontogpt_annotation(
-            text=element_description,
-            template=predicate,
-            local_model=local_model,
-            return_ungrounded=return_ungrounded,
-        )
+        annotations = []
+        for _ in range(sample_size):
+            res = get_ontogpt_annotation(
+                text=element_description,
+                template=predicate,
+                local_model=local_model,
+                return_ungrounded=return_ungrounded,
+            )
+            if res is not None:
+                annotations.extend(res)
+        if len(annotations) == 0:
+            annotations = None
 
     # Add local scale environmental context annotations to the workbook
     if annotations is not None:
@@ -1040,6 +1121,7 @@ def add_env_medium_annotations_to_workbook(
     overwrite: bool = False,
     local_model: str = None,
     return_ungrounded: bool = False,
+    sample_size: int = 1,
 ) -> pd.core.frame.DataFrame:
     """
     :param workbook: Either the path to the workbook to be annotated, or the
@@ -1053,6 +1135,8 @@ def add_env_medium_annotations_to_workbook(
         `get_ontogpt_annotation` documentation for details.
     :param return_ungrounded: An option if `annotator` is "ontogpt". See
         `get_ontogpt_annotation` documentation for details.
+    :param sample_size: Executes multiple replicates of the annotation request
+        to reduce variability of outputs. Variability is inherent in OntoGPT.
     :returns: Workbook with environmental medium annotations."""
 
     # Parameters for the function
@@ -1101,12 +1185,18 @@ def add_env_medium_annotations_to_workbook(
 
         if annotations is None:
             # Get the environmental medium annotations from the annotator
-            annotations = get_ontogpt_annotation(
-                text=attribute_description,
-                template="env_medium",
-                local_model=local_model,
-                return_ungrounded=return_ungrounded,
-            )
+            annotations = []
+            for _ in range(sample_size):
+                res = get_ontogpt_annotation(
+                    text=attribute_description,
+                    template="env_medium",
+                    local_model=local_model,
+                    return_ungrounded=return_ungrounded,
+                )
+                if res is not None:
+                    annotations.extend(res)
+            if len(annotations) == 0:
+                annotations = None
 
         # And add the environmental medium annotations to the workbook
         if annotations is not None:
@@ -1145,6 +1235,7 @@ def add_research_topic_annotations_to_workbook(
     overwrite: bool = False,
     local_model: str = None,
     return_ungrounded: bool = False,
+    sample_size: int = 1,
 ) -> pd.core.frame.DataFrame:
     """
     :param workbook: Either the path to the workbook to be annotated, or the
@@ -1157,6 +1248,8 @@ def add_research_topic_annotations_to_workbook(
     :param local_model: See `get_ontogpt_annotation` documentation for details.
     :param return_ungrounded: See `get_ontogpt_annotation` documentation for
         details.
+    :param sample_size: Executes multiple replicates of the annotation request
+        to reduce variability of outputs. Variability is inherent in OntoGPT.
     :returns: Workbook with research topic annotations.
     :notes: This function retrieves research topic annotations using OntoGPT, which
         requires setup and configuration described in the
@@ -1207,12 +1300,18 @@ def add_research_topic_annotations_to_workbook(
 
     if annotations is None:
         # Get the research topic annotations
-        annotations = get_ontogpt_annotation(
-            text=element_description,
-            template="research_topic",
-            local_model=local_model,
-            return_ungrounded=return_ungrounded,
-        )
+        annotations = []
+        for _ in range(sample_size):
+            res = get_ontogpt_annotation(
+                text=element_description,
+                template="research_topic",
+                local_model=local_model,
+                return_ungrounded=return_ungrounded,
+            )
+            if res is not None:
+                annotations.extend(res)
+        if len(annotations) == 0:
+            annotations = None
 
     # Add research topic annotations to the workbook
     if annotations is not None:
@@ -1251,6 +1350,7 @@ def add_methods_annotations_to_workbook(
     overwrite: bool = False,
     local_model: str = None,
     return_ungrounded: bool = False,
+    sample_size: int = 1,
 ) -> pd.core.frame.DataFrame:
     """
     :param workbook: Either the path to the workbook to be annotated, or the
@@ -1263,6 +1363,8 @@ def add_methods_annotations_to_workbook(
     :param local_model: See `get_ontogpt_annotation` documentation for details.
     :param return_ungrounded: See `get_ontogpt_annotation` documentation for
         details.
+    :param sample_size: Executes multiple replicates of the annotation request
+        to reduce variability of outputs. Variability is inherent in OntoGPT.
     :returns: Workbook with methods annotations.
     :notes: This function retrieves methods annotations using OntoGPT, which
         requires setup and configuration described in the
@@ -1316,12 +1418,18 @@ def add_methods_annotations_to_workbook(
     )
 
     if annotations is None:
-        annotations = get_ontogpt_annotation(
-            text=element_description,
-            template="uses_method",
-            local_model=local_model,
-            return_ungrounded=return_ungrounded,
-        )
+        annotations = []
+        for _ in range(sample_size):
+            res = get_ontogpt_annotation(
+                text=element_description,
+                template="uses_method",
+                local_model=local_model,
+                return_ungrounded=return_ungrounded,
+            )
+            if res is not None:
+                annotations.extend(res)
+        if len(annotations) == 0:
+            annotations = None
 
     # Add methods annotations to the workbook. Note, methods annotations are
     # at the dataset level.
