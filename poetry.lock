@@ -813,6 +813,24 @@ rdflib = ["rdflib"]
 tests = ["coverage", "pytest", "requests"]
 
 [[package]]
+name = "daiquiri"
+version = "3.2.5.1"
+description = "Library to configure Python logging easily"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "daiquiri-3.2.5.1-py3-none-any.whl", hash = "sha256:4a3457f54fc077e12796b258dfdc7f16572177e41c95d84c54bf010a9fd371d3"},
+    {file = "daiquiri-3.2.5.1.tar.gz", hash = "sha256:5f2e86d6fca8bc38d1e9adfa605184df6fdea3702e07ca02d16aa3d0043b2eec"},
+]
+
+[package.dependencies]
+python-json-logger = "*"
+
+[package.extras]
+systemd = ["systemd-python (>=234)"]
+test = ["pytest"]
+
+[[package]]
 name = "defusedxml"
 version = "0.7.1"
 description = "XML bomb protection for Python stdlib modules"
@@ -3847,6 +3865,17 @@ graphql = ["gql[httpx] (>=3.5.0,<4)"]
 yaml = ["PyYaml (>=6.0.1)"]
 
 [[package]]
+name = "python-json-logger"
+version = "2.0.7"
+description = "A python library adding a json log formatter"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "python-json-logger-2.0.7.tar.gz", hash = "sha256:23e7ec02d34237c5aa1e29a070193a4ea87583bb4e7f8fd06d3de8264c4b2e1c"},
+    {file = "python_json_logger-2.0.7-py3-none-any.whl", hash = "sha256:f380b826a991ebbe3de4d897aeec42760035ac760345e57b812938dc8b35e2bd"},
+]
+
+[[package]]
 name = "python-semantic-release"
 version = "9.8.8"
 description = "Automatic Semantic Versioning for Python projects"
@@ -5778,4 +5807,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "504cee6f72fc1b325a1c41af49eabb86803369006287185a9f1db856e18e7dc8"
+content-hash = "c615df7205bca842a4fd1edb0ea32df5fa2ff3d72506cc28285f4d4a300e708f"
