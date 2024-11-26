@@ -9,6 +9,12 @@ Annotator Module
 .. automodule:: spinneret.annotator
    :members:
 
+Benchmark Module
+----------------
+
+.. automodule:: spinneret.benchmark
+   :members:
+
 Datasets Module
 ---------------
 
