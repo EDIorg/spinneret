@@ -8,6 +8,7 @@ from typing import Union
 from requests import get, exceptions
 import pandas as pd
 from lxml import etree
+from daiquiri import getLogger
 from spinneret.workbook import (
     delete_annotations,
     initialize_workbook_row,
@@ -24,6 +25,8 @@ from spinneret.utilities import (
     write_eml,
     expand_curie,
 )
+
+logger = getLogger(__name__)
 
 # pylint: disable=too-many-lines
 
@@ -85,6 +88,8 @@ def get_bioportal_annotation(
         key can be loaded as an environment variable from the configuration
         file (see `utilities.load_configuration`).
     """
+    logger.info(f"Text contains {len(text.split())} words")
+
     # Construct the query
     url = "https://data.bioontology.org/annotator"
     payload = {
@@ -159,6 +164,7 @@ def annotate_workbook(
         path as the original workbook.
     """
     print(f"Annotating workbook {workbook_path}")
+    logger.info(f"Annotating with {annotator}")
 
     # Ensure the workbook and eml file match to avoid errors
     pid = os.path.basename(workbook_path).split("_")[0]
@@ -388,7 +394,9 @@ def add_qudt_annotations_to_workbook(
     :param output_path: The path to write the annotated workbook.
     :param overwrite: If True, overwrite existing `QUDT` annotations in the
         `workbook, so a fresh set may be created.
-    :returns: Workbook with QUDT annotations."""
+    :returns: Workbook with QUDT annotations.
+    """
+    logger.info("Annotating units")
 
     # Parameters for the function
     predicate = "uses standard"
@@ -484,7 +492,9 @@ def add_dataset_annotations_to_workbook(
         workbook, so a fresh set may be created.
     :param sample_size: Executes multiple replicates of the annotation request
         to reduce variability of outputs. Variability is inherent in OntoGPT.
-    :returns: Workbook with dataset annotations."""
+    :returns: Workbook with dataset annotations.
+    """
+    logger.info("Annotating dataset")
 
     # Load the workbook and EML for processing
     wb = load_workbook(workbook)
@@ -581,7 +591,9 @@ def add_measurement_type_annotations_to_workbook(
         `get_ontogpt_annotation` documentation for details.
     :param sample_size: Executes multiple replicates of the annotation request
         to reduce variability of outputs. Variability is inherent in OntoGPT.
-    :returns: Workbook with measurement type annotations."""
+    :returns: Workbook with measurement type annotations.
+    """
+    logger.info("Annotating measurement type")
 
     # Parameters for the function
     predicate = "contains measurements of type"
@@ -714,6 +726,8 @@ def get_ontogpt_annotation(
         is required to use this function. For more information, see:
         https://monarch-initiative.github.io/ontogpt/.
     """
+    logger.info(f"Text contains {len(text.split())} words")
+
     # OntoGPT transacts in files, so we write the input text to a temporary
     # file and receive the results as a JSON file. Once the results are parsed
     # we can discard the files.
@@ -792,6 +806,7 @@ def add_process_annotations_to_workbook(
         requires setup and configuration described in the
         `get_ontogpt_annotation` function.
     """
+    logger.info("Annotating process")
 
     # Load the workbook and EML for processing
     wb = load_workbook(workbook)
@@ -907,6 +922,7 @@ def add_env_broad_scale_annotations_to_workbook(
         annotations using OntoGPT, which requires setup and configuration
         described in the `get_ontogpt_annotation` function.
     """
+    logger.info("Annotating broad scale environmental context")
 
     # Load the workbook and EML for processing
     wb = load_workbook(workbook)
@@ -1023,6 +1039,7 @@ def add_env_local_scale_annotations_to_workbook(
         annotations using OntoGPT, which requires setup and configuration
         described in the `get_ontogpt_annotation` function.
     """
+    logger.info("Annotating local scale environmental context")
 
     # Load the workbook and EML for processing
     wb = load_workbook(workbook)
@@ -1137,7 +1154,9 @@ def add_env_medium_annotations_to_workbook(
         `get_ontogpt_annotation` documentation for details.
     :param sample_size: Executes multiple replicates of the annotation request
         to reduce variability of outputs. Variability is inherent in OntoGPT.
-    :returns: Workbook with environmental medium annotations."""
+    :returns: Workbook with environmental medium annotations.
+    """
+    logger.info("Annotating environmental medium")
 
     # Parameters for the function
     predicate = "environmental material"
@@ -1255,6 +1274,7 @@ def add_research_topic_annotations_to_workbook(
         requires setup and configuration described in the
         `get_ontogpt_annotation` function.
     """
+    logger.info("Annotating research topic")
 
     # Load the workbook and EML for processing
     wb = load_workbook(workbook)
@@ -1370,6 +1390,7 @@ def add_methods_annotations_to_workbook(
         requires setup and configuration described in the
         `get_ontogpt_annotation` function.
     """
+    logger.info("Annotating methods")
 
     # Load the workbook and EML for processing
     wb = load_workbook(workbook)
