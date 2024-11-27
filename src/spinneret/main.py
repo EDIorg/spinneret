@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 from requests import get, codes
 from rdflib import Graph
+import daiquiri
 from soso.main import convert
 from soso.strategies.eml import EML, get_encoding_format
 from soso.utilities import delete_null_values, generate_citation_from_doi
@@ -12,6 +13,9 @@ from spinneret.annotator import annotate_workbook, annotate_eml
 from spinneret.utilities import load_configuration
 from spinneret.graph import create_graph
 from spinneret.shadow import create_shadow_eml
+
+
+logger = daiquiri.getLogger(__name__)
 
 
 def create_workbooks(eml_dir: str, workbook_dir: str) -> None:
@@ -101,6 +105,7 @@ def annotate_workbooks(
             continue
 
         # Create annotated workbook
+        logger.info(f"Creating annotated workbook for {workbook_file}")
         print(f"Creating annotated workbook for {workbook_file}")
         annotate_workbook(
             workbook_path=workbook_dir + "/" + workbook_file,
