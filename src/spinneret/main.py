@@ -41,7 +41,7 @@ def create_workbooks(eml_dir: str, workbook_dir: str) -> None:
             continue
 
         # Create workbook
-        print(f"Creating workbook for {eml_file}")
+        logger.info(f"Creating workbook for {eml_file}")
         wb = workbook.create(
             eml_file=eml_dir + "/" + eml_file,
             elements=["dataset", "attribute"],
@@ -101,12 +101,11 @@ def annotate_workbooks(
         eml_pid = workbook_file.split("_")[0]
         eml_file = eml_pid + ".xml"
         if not os.path.exists(eml_dir + "/" + eml_file):
-            print(f"Could not find EML file for {workbook_file}")
+            logger.warning(f"Could not find EML file for {workbook_file}")
             continue
 
         # Create annotated workbook
         logger.info(f"Creating annotated workbook for {workbook_file}")
-        print(f"Creating annotated workbook for {workbook_file}")
         annotate_workbook(
             workbook_path=workbook_dir + "/" + workbook_file,
             eml_path=eml_dir + "/" + eml_file,
@@ -145,7 +144,7 @@ def annotate_eml_files(workbook_dir: str, eml_dir: str, output_dir: str) -> None
             continue
 
         # Create annotated EML file
-        print(f"Creating annotated EML file for {eml_path}")
+        logger.info(f"Creating annotated EML file for {eml_path}")
         annotate_eml(
             eml=eml_path,
             workbook=workbook_dir + "/" + workbook_file,
@@ -176,7 +175,7 @@ def create_soso_files(eml_dir: str, output_dir: str) -> None:
         soso_file = eml_pid + ".json"
         if soso_file in soso_files:
             continue
-        print(f"Creating SOSO file for {eml_file}")
+        logger.info(f"Creating SOSO file for {eml_file}")
 
         # Add properties that can't be derived from the EML record
         scope, identifier, revision = eml_pid.split(".")
@@ -292,7 +291,7 @@ def create_shadow_eml_files(eml_dir: str, output_dir: str) -> None:
             continue
 
         # Create shadow EML file
-        print(f"Creating shadow EML file for {eml_file}")
+        logger.info(f"Creating shadow EML file for {eml_file}")
         create_shadow_eml(
             eml_path=eml_dir + "/" + eml_file,
             output_path=output_dir + "/" + shadow_file,
