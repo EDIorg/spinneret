@@ -2,11 +2,16 @@
 
 import logging
 import daiquiri
+import pandas as pd
 from spinneret.benchmark import (
     monitor,
     benchmark_against_standard,
     get_termset_similarity,
+    default_similarity_scores,
+    clean_workbook,
+    group_object_ids,
 )
+from spinneret.utilities import is_url
 
 
 def test_monitor(tmp_path):
@@ -37,50 +42,22 @@ def test_monitor(tmp_path):
 def test_benchmark_against_standard():
     """Test the benchmark_against_standard function"""
 
-    def comparison_function(standard, test):
-        return 1
-
-    result = benchmark_against_standard(
+    res = benchmark_against_standard(
         standard_dir="tests/data/benchmark/standard",
-        test_dirs=["tests/data/benchmark/test_a", "tests/data/benchmark/test_b"],
-        comparison_function=comparison_function,
-        predicate_column="predicate",
-        element_xpath_column="element_xpath",
+        test_dirs=["tests/data/benchmark/test_a",
+                   "tests/data/benchmark/test_b"],
     )
 
-    # TODO remove me
-    from spinneret.utilities import write_workbook
-
-    write_workbook(
-        result,
-        "/Users/csmith/Code/spinneret_EDIorg/spinneret/tests/data/benchmark/standard/benchmark_results.tsv",
-    )
-
-    assert result.shape == (2, 8)
-    assert result.columns.tolist() == [
-        "standard_dir",
-        "test_dir",
-        "standard_file",
-        "predicate_value",
-        "element_xpath_value",
-        "standard_set",
-        "test_set",
-        "score",
-    ]
-    assert result["score"].tolist() == [1, 1]
-    assert result["standard_dir"].tolist() == [
-        "tests/data/standard",
-        "tests/data/standard",
-    ]
-    assert result["test_dir"].tolist() == ["tests/data/test", "tests/data/test"]
-    assert result["standard_file"].tolist() == ["standard.xml", "standard.xml"]
-    assert result["predicate_value"].tolist() == ["predicate1", "predicate2"]
-    assert result["element_xpath_value"].tolist() == [
-        "element_xpath1",
-        "element_xpath2",
-    ]
-    assert result["standard_set"].tolist() == ["standard_set1", "standard_set2"]
-    assert result["test_set"].tolist() == ["test_set1", "test_set2"]
+    assert res.shape == (8, 13)
+    assert res.columns.tolist() == ['standard_dir', 'test_dir',
+                                    'standard_file', 'predicate_value',
+                                    'element_xpath_value', 'standard_set',
+                                    'test_set', 'average_termset_similarity',
+                                    'best_termset_similarity',
+                                    'max_standard_information_content',
+                                    'average_standard_information_content',
+                                    'max_test_information_content',
+                                    'average_test_information_content']
 
 
 def test_get_termset_similarity():
@@ -94,9 +71,13 @@ def test_get_termset_similarity():
         set2={"ENVO:01000253"},  # freshwater river biome
     )
     assert isinstance(r, dict)
-    assert set(r.keys()) == {"average_score", "best_score"}
-    assert isinstance(r["average_score"], float)
-    assert isinstance(r["best_score"], float)
+    assert set(r.keys()) == {"average_score", "best_score",
+                             "max_subject_information_content",
+                             "max_object_information_content",
+                             "average_subject_information_content",
+                             "average_object_information_content"}
+    for _, v in r.items():
+        assert isinstance(v, float)
 
     # We expect lower similarity scores when we change one of the term sets to
     # a less related set of terms.
@@ -106,3 +87,72 @@ def test_get_termset_similarity():
     )
     assert r2["average_score"] < r["average_score"]
     assert r2["best_score"] < r["best_score"]
+
+
+def test_get_termset_similarity_with_empty_input_sets():
+    """Test the get_termset_similarity function with empty input sets. The
+    function should return default score values."""
+
+    # Set 1 is empty
+    r = get_termset_similarity(set1=[], set2=["ENVO:01000253"])
+    assert r == default_similarity_scores()
+
+    # Set 2 is empty
+    r = get_termset_similarity(set1=["ENVO:01000252"], set2=[])
+    assert r == default_similarity_scores()
+
+    # Both sets are empty
+    r = get_termset_similarity(set1=[], set2=[])
+    assert r == default_similarity_scores()
+
+
+def test_default_similarity_scores():
+    """Test the default similarity scores return expected fields and values"""
+
+    r = default_similarity_scores()
+    assert isinstance(r, dict)
+    assert set(r.keys()) == {"average_score", "best_score",
+                             "max_subject_information_content",
+                             "max_object_information_content",
+                             "average_subject_information_content",
+                             "average_object_information_content"}
+    for k, v in r.items():
+        if k in ["average_score", "best_score"]:
+            assert v == 0.0
+        else:
+            assert isinstance(v, type(pd.NA))
+
+
+def test_clean_workbook(annotated_workbook):
+    """Test the clean_workbook function"""
+    wb = annotated_workbook
+
+    # Dirty-up the workbook by adding NA values and ungrounded terms in the
+    # "object_id" column
+    wb.loc[0, "object_id"] = pd.NA
+    assert wb["object_id"].isna().any()
+    wb.loc[1, "object_id"] = "AUTO:1234"
+    assert wb["object_id"].str.startswith("AUTO:").any()
+
+    # After cleaning, the NA values and ungrounded terms will be gone
+    wb_cleaned = clean_workbook(wb)
+    assert not wb_cleaned["object_id"].isna().any()
+    assert not wb_cleaned["object_id"].str.startswith("AUTO:").any()
+
+
+def test_group_object_ids(annotated_workbook):
+    """Test the group_object_ids function"""
+    wb = annotated_workbook
+
+    # Group the workbook by predicate and element_xpath
+    grouped = group_object_ids(wb)
+    assert isinstance(grouped, dict)
+
+    # The keys are tuples composed of the predicate and element_xpath values
+    assert isinstance(list(grouped.keys())[0], tuple)
+
+    # Each value is a list of object_ids corresponding to the predicate and
+    # element_xpath grouping
+    assert isinstance(list(grouped.values())[0], list)
+    assert isinstance(list(grouped.values())[1][0], str)
+    assert is_url(list(grouped.values())[1][0])
