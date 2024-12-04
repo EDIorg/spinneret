@@ -2,11 +2,10 @@
 
 from os import environ
 from typing import Union
+import importlib
 from urllib.parse import urlparse
 from json import load
 
-from prefixmaps import load_converter
-from curies import Converter
 import pandas as pd
 from lxml import etree
 
@@ -126,6 +125,22 @@ def compress_uri(uri: str) -> str:
     :notes: This is a wrapper function around the `prefixmaps` and `curies`
         libraries.
     """
-    converter: Converter = load_converter(["obo", "bioportal"])
-    res = converter.compress(uri, passthrough=True)
-    return res
+    prefixmaps = load_prefixmaps()
+    match = prefixmaps[prefixmaps["namespace"].apply(lambda x: x in uri)]
+    if not match.empty:
+        prefix = match["prefix"].values[0]
+        suffix = uri.replace(match["namespace"].values[0], "")
+        return f"{prefix}:{suffix}"
+    return uri
+
+
+def load_prefixmaps() -> dict:
+    """
+    Load ontology prefix maps. To be used with `expand_curie` and
+    `compress_uri`.
+
+    :returns: The ontology prefix maps
+    """
+    file = str(importlib.resources.files("spinneret.data")) + "/prefixmaps.csv"
+    prefixmaps = pd.read_csv(file)
+    return prefixmaps

@@ -13,6 +13,7 @@ from spinneret.utilities import (
     write_eml,
     expand_curie,
     compress_uri,
+    load_prefixmaps,
 )
 from spinneret.datasets import get_example_eml_dir
 
@@ -92,22 +93,20 @@ def test_write_eml(tmp_path):
 
 def test_expand_curie():
     """Test that a CURIE is expanded to a URL"""
-    assert expand_curie(
-        "ECSO:00001203") == "http://purl.dataone.org/odo/ECSO_00001203"
+    assert expand_curie("ECSO:00001203") == "http://purl.dataone.org/odo/ECSO_00001203"
     assert (
-            expand_curie(
-                "ENVO:00001203") == "http://purl.obolibrary.org/obo/ENVO_00001203"
+        expand_curie("ENVO:00001203") == "http://purl.obolibrary.org/obo/ENVO_00001203"
     )
     assert (
-            expand_curie("ENVTHES:00001203")
-            == "http://vocabs.lter-europe.net/EnvThes/00001203"
+        expand_curie("ENVTHES:00001203")
+        == "http://vocabs.lter-europe.net/EnvThes/00001203"
     )
     # Ungrounded CURIES should return the original CURIE
     assert expand_curie("AUTO:00001203") == "AUTO:00001203"
 
 
-def test_compress_curie():
-    """Test that a URL is compressed to a CURIE"""
+def test_compress_uri():
+    """Test that a URI is compressed to a CURIE"""
 
     # Return a CURIE if the URI is in the mapping
     r = compress_uri("http://purl.obolibrary.org/obo/ENVO_00001203")
@@ -116,3 +115,9 @@ def test_compress_curie():
     # Return the original URI if the URI is not in the mapping
     r = compress_uri("http://example.com/00001203")
     assert r == "http://example.com/00001203"
+
+
+def test_load_prefixmaps():
+    """Test that the prefixmaps are loaded"""
+    prefixmaps = load_prefixmaps()
+    assert isinstance(prefixmaps, pd.DataFrame)

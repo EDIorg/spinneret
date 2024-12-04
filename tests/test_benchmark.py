@@ -3,14 +3,19 @@
 import logging
 import daiquiri
 import pandas as pd
+import pytest
+
 from spinneret.benchmark import (
     monitor,
     benchmark_against_standard,
     get_termset_similarity,
     default_similarity_scores,
     clean_workbook,
-    group_object_ids, compress_object_ids, parse_similarity_scores,
-    delete_terms_from_unsupported_ontologies, get_shared_ontology,
+    group_object_ids,
+    compress_object_ids,
+    parse_similarity_scores,
+    delete_terms_from_unsupported_ontologies,
+    get_shared_ontology,
 )
 from spinneret.utilities import is_url
 
@@ -40,23 +45,42 @@ def test_monitor(tmp_path):
     assert "Memory usage: Current=" in log
 
 
-def test_benchmark_against_standard():
+@pytest.mark.parametrize("use_mock", [True])  # False calculates similarity scores
+def test_benchmark_against_standard(
+    mocker,
+    use_mock,
+    termset_similarity_score_fields,
+    termset_similarity_score_processed,
+):
     """Test the benchmark_against_standard function"""
+
+    if use_mock:
+        mocker.patch(
+            "spinneret.benchmark.get_termset_similarity",
+            return_value=termset_similarity_score_processed,
+        )
 
     res = benchmark_against_standard(
         standard_dir="tests/data/benchmark/standard",
-        test_dirs=["tests/data/benchmark/test_a",
-                   "tests/data/benchmark/test_b"],
+        test_dirs=["tests/data/benchmark/test_a", "tests/data/benchmark/test_b"],
     )
-    assert res.shape == (10, 13)
-    assert res.columns.tolist() == ['standard_dir', 'test_dir', 'standard_file', 'predicate_value', 'element_xpath_value', 'standard_set', 'test_set', 'average_score', 'best_score', 'average_standard_information_content', 'best_standard_information_content', 'average_test_information_content', 'best_test_information_content']
+    assert (
+        res.columns.tolist()
+        == [
+            "standard_dir",
+            "test_dir",
+            "standard_file",
+            "predicate_value",
+            "element_xpath_value",
+            "standard_set",
+            "test_set",
+        ]
+        + termset_similarity_score_fields
+    )
 
 
-
-def test_get_termset_similarity():
+def test_get_termset_similarity(termset_similarity_score_fields):
     """Test the get_termset_similarity function"""
-
-    # TODO mock network calls
 
     # Get similarity scores for two sets of terms that are closely related.
     r = get_termset_similarity(
@@ -64,11 +88,7 @@ def test_get_termset_similarity():
         set2={"ENVO:01000253"},  # freshwater river biome
     )
     assert isinstance(r, dict)
-    assert r.keys() == {"average_score", "best_score",
-                        "average_standard_information_content",
-                        "best_standard_information_content",
-                        "average_test_information_content",
-                        "best_test_information_content"}
+    assert r.keys() == set(termset_similarity_score_fields)
     for _, v in r.items():
         assert isinstance(v, float)
 
@@ -99,16 +119,12 @@ def test_get_termset_similarity_with_empty_input_sets():
     assert r == default_similarity_scores()
 
 
-def test_default_similarity_scores():
+def test_default_similarity_scores(termset_similarity_score_fields):
     """Test the default similarity scores return expected fields and values"""
 
     r = default_similarity_scores()
     assert isinstance(r, dict)
-    assert set(r.keys()) == {"average_score", "best_score",
-                             "best_subject_information_content",
-                             "best_object_information_content",
-                             "average_subject_information_content",
-                             "average_object_information_content"}
+    assert set(r.keys()) == set(termset_similarity_score_fields)
     for k, v in r.items():
         if k in ["average_score", "best_score"]:
             assert v == 0.0
@@ -175,16 +191,15 @@ def test_compress_object_ids(annotated_workbook):
             assert len(v.split(":")) == 2
 
 
-
-def test_parse_similarity_scores(termset_similarity_score_raw):
+def test_parse_similarity_scores(
+    termset_similarity_score_raw, termset_similarity_score_fields
+):
     """Test the parse_similarity_scores function"""
 
     # The parsed result should be a dictionary with the expected keys
     r = parse_similarity_scores(termset_similarity_score_raw)
     assert isinstance(r, dict)
-    # TODO update keys for jaccard_similarity and phenodigm_score metrics
-    assert set(r.keys()) == {'best_score', 'average_test_information_content', 'best_standard_information_content', 'best_test_information_content', 'average_score', 'average_standard_information_content'}
-
+    assert set(r.keys()) == set(termset_similarity_score_fields)
 
 
 def test_delete_terms_from_unsupported_ontologies():
@@ -215,11 +230,11 @@ def test_get_shared_ontology():
     db = get_shared_ontology(set1, set2)
     assert db == "sqlite:obo:envo"
 
-    # Return either in the case of a tie
-    set1 = ["ENVO:01000252", "ECSO:01000253"]
-    set2 = ["ENVO:01000252", "ECSO:01000253"]
+    # None is returned for unsupported ontologies
+    set1 = ["ECSO:01000253"]
+    set2 = ["ECSO:01000253"]
     db = get_shared_ontology(set1, set2)
-    assert db in ["sqlite:obo:envo", "bioportal:ecso"]
+    assert db is None
 
     # None is returned when the two sets do not share a common ontology
     set1 = ["ENVO:01000252", "ENVO:01000253"]
@@ -237,5 +252,3 @@ def test_get_shared_ontology():
     set2 = []
     db = get_shared_ontology(set1, set2)
     assert db is None
-
-

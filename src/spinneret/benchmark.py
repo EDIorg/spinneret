@@ -46,7 +46,8 @@ def monitor(name: str) -> None:
 
 def benchmark_against_standard(standard_dir: str, test_dirs: list) -> pd.DataFrame:
     """
-    Benchmarks the performance of test data against a standard.
+    Benchmarks the performance of test data against a standard. Currently
+    supports select ontologies from the OBO Foundry.
 
     :param standard_dir: Directory containing the standard annotated workbook
         files.
@@ -54,7 +55,8 @@ def benchmark_against_standard(standard_dir: str, test_dirs: list) -> pd.DataFra
         workbook files. Each directory represents a different test condition.
     :return: A pandas DataFrame containing the benchmark results. Comparisons
         are made between the standard and test data for each predicate and
-        element_xpath combination. The DataFrame contains the following columns:
+        element_xpath combination. The DataFrame contains the following
+        columns:
 
         - standard_dir: The directory containing the standard annotated
           workbook files.
@@ -64,17 +66,25 @@ def benchmark_against_standard(standard_dir: str, test_dirs: list) -> pd.DataFra
         - element_xpath_value: The value of the element_xpath column.
         - standard_set: The set of object_ids from the standard data.
         - test_set: The set of object_ids from the test data.
-        - average_termset_similarity: The average similarity score between the
+        - average_score: The average termset similarity score between the
           standard and test sets.
-        - best_termset_similarity: The best similarity score between the
+        - best_score: The best termset similarity score between the standard
+          and test sets.
+        - average_jaccard_similarity: The average Jaccard similarity score
+          between the standard and test sets.
+        - best_jaccard_similarity: The best Jaccard similarity score between
+          the standard and test sets.
+        - average_phenodigm_score: The average Phenodigm score between the
           standard and test sets.
-        - max_standard_information_content: The maximum information content of
-          the standard set.
+        - best_phenodigm_score: The best Phenodigm score between the standard
+          and test sets.
         - average_standard_information_content: The average information content
-          of the standard set.
-        - max_test_information_content: The maximum information content of the
-          test set.
-        - average_test_information_content: The average information content of
+          score of the standard set.
+        - best_standard_information_content: The best information content
+          score of the standard set.
+        - average_test_information_content: The average information content
+          score of the test set.
+        - best_test_information_content: The best information content score of
           the test set.
     """
     res = []
@@ -134,9 +144,8 @@ def get_termset_similarity(set1: list, set2: list) -> dict:
         scores. Default values, defined in
         `benchmark.default_similarity_scores` are returned if the similarity
         scores cannot be calculated or if an error occurs. For more information
-        on scoring, see the `oaklib` documentation: https://incatools.github.io/ontology-access-kit/guide/similarity.html.
-    :notes: This is a simple wrapper around the `oaklib` termset-similarity
-        function (https://incatools.github.io/ontology-access-kit/cli.html#runoak-termset-similarity).
+        on scoring, see the `oaklib` documentation:
+        https://incatools.github.io/ontology-access-kit/guide/similarity.html.
     """
     res = default_similarity_scores()  # a default ensures consistent returns
 
@@ -160,7 +169,10 @@ def get_termset_similarity(set1: list, set2: list) -> dict:
         output_file = os.path.join(temp_dir, "output.json")
 
         # Construct and run the termset-similarity command
-        cmd = f"runoak -i {db} termset-similarity -o {output_file} -O json {' '.join(set1)} @ {' '.join(set2)}"
+        cmd = (
+            f"runoak -i {db} termset-similarity -o {output_file} -O json "
+            f"{' '.join(set1)} @ {' '.join(set2)}"
+        )
         try:
             os.system(cmd)
         except Exception as e:  # pylint: disable=broad-exception-caught
@@ -186,6 +198,10 @@ def default_similarity_scores() -> dict:
     res = OrderedDict()
     res["average_score"] = 0.0
     res["best_score"] = 0.0
+    res["average_jaccard_similarity"] = pd.NA
+    res["best_jaccard_similarity"] = pd.NA
+    res["average_phenodigm_score"] = pd.NA
+    res["best_phenodigm_score"] = pd.NA
     res["average_standard_information_content"] = pd.NA
     res["best_standard_information_content"] = pd.NA
     res["average_test_information_content"] = pd.NA
@@ -227,15 +243,12 @@ def group_object_ids(workbook: pd.DataFrame) -> dict:
     """
     # list_object_id_for_predicate_and_element_xpath
     # Group data by predicate and element_xpath columns
-    series = workbook.groupby(
-        ["predicate", "element_xpath"]
-    ).apply(lambda x: x.to_dict("records"), include_groups=False)
+    series = workbook.groupby(["predicate", "element_xpath"]).apply(
+        lambda x: x.to_dict("records"), include_groups=False
+    )
 
     # Only include the "object_id" values, these are what we want to compare
-    res = {
-        key: [d["object_id"] for d in data]
-        for key, data in series.items()
-    }
+    res = {key: [d["object_id"] for d in data] for key, data in series.items()}
     return res
 
 
@@ -261,69 +274,78 @@ def parse_similarity_scores(scores: list) -> dict:
     :return: A dictionary containing the parsed similarity scores.
     """
     res = default_similarity_scores()
+
+    # Get the "termset similarity" scores
     res["average_score"] = scores[0].get("average_score")
     res["best_score"] = scores[0].get("best_score")
 
-    # Calculate the average and best information content scores
+    # Get other similarity scores (i.e. information content, jaccard
+    # similarity, phenodigm score)
     for key in scores[0].keys():
 
-        # Calculate for the subject (i.e. the "standard")
+        # Information content scores
+        if key == "subject_best_matches":  # for the subject (i.e. "standard")
+            r = []
+            for item in scores[0][key]:
+                s = scores[0][key][item]["similarity"]["subject_information_content"]
+                r.append(s)
+            res["average_standard_information_content"] = sum(r) / len(r)
+            res["best_standard_information_content"] = max(r)
+        if key == "object_best_matches":  # for the object (i.e. the "test")
+            r = []
+            for item in scores[0][key]:
+                s = scores[0][key][item]["similarity"]["object_information_content"]
+                r.append(s)
+            res["average_test_information_content"] = sum(r) / len(r)
+            res["best_test_information_content"] = max(r)
+
+        # Jaccard similarity scores. Note, we can get this information from
+        # either the subject_best_matches or object_best_matches keys. Doing
+        # both is redundant.
         if key == "subject_best_matches":
-            ic_res = []
+            r = []
             for item in scores[0][key]:
-                ic = scores[0][key][item]["similarity"][
-                    "subject_information_content"]
-                ic_res.append(ic)
-            res["average_standard_information_content"] = sum(ic_res) / len(
-                ic_res)
-            res["best_standard_information_content"] = max(ic_res)
+                s = scores[0][key][item]["similarity"]["jaccard_similarity"]
+                r.append(s)
+            res["average_jaccard_similarity"] = sum(r) / len(r)
+            res["best_jaccard_similarity"] = max(r)
 
-        # Calculate for the object (i.e. the "test")
-        if key == "object_best_matches":
-            ic_res = []
+        # Phenodigm scores. Note, we can get this information from either the
+        # subject_best_matches or object_best_matches keys. Doing both is
+        # redundant.
+        if key == "subject_best_matches":
+            r = []
             for item in scores[0][key]:
-                ic = scores[0][key][item]["similarity"][
-                    "object_information_content"]
-                ic_res.append(ic)
-            res["average_test_information_content"] = sum(ic_res) / len(
-                ic_res)
-            res["best_test_information_content"] = max(ic_res)
-
-        # TODO add jaccard_similarity average and best scores. Only need to do
-        # this to the subject_best_matches because the object_best_matches
-        # will be the same
-
-        # TODO add phenodigm_score average and best scores. Only need to do
-        # this to the subject_best_matches because the object_best_matches
-        # will be the same
+                s = scores[0][key][item]["similarity"]["phenodigm_score"]
+                r.append(s)
+            res["average_phenodigm_score"] = sum(r) / len(r)
+            res["best_phenodigm_score"] = max(r)
 
     return res
 
 
-def delete_terms_from_unsupported_ontologies(set: list) -> list:
+def delete_terms_from_unsupported_ontologies(curies: list) -> list:
     """
     Similarity scoring works for some ontologies and not others, so remove
     terms that are not from supported ontologies. Supported ontologies are
     hard-coded in this function.
 
-    :param set: List of CURIEs.
+    :param curies: List of CURIEs.
     :return: List of CURIEs from supported ontologies.
     """
     supported_ontologies = ["ENVO", "ECSO", "ENVTHES"]
     res = [
         term
-        for term in set
-        if any([term.startswith(ontology + ":") for ontology in
-                supported_ontologies])
+        for term in curies
+        if any(term.startswith(ontology + ":") for ontology in supported_ontologies)
     ]
     return res
 
 
 def get_shared_ontology(set1: list, set2: list) -> Union[str, None]:
     """
-    Get the ontology shared between sets based on the most frequently occurring
-    CURIE prefix in the input sets. Ontology support is hard-coded in this
-    function.
+    Get the most shared ontology of two sets based on the most frequently
+    occurring CURIE prefix.
 
     :param set1: List of CURIEs for the first set of terms.
     :param set2: List of CURIEs for the second set of terms.
@@ -347,10 +369,6 @@ def get_shared_ontology(set1: list, set2: list) -> Union[str, None]:
     # Map the prefix to the ontology database
     if prefix == "ENVO":
         db = "sqlite:obo:envo"
-    elif prefix == "ECSO":
-        db = "bioportal:ecso"
-    elif prefix == "ENVTHES":
-        db = "bioportal:envthes"
     else:
         logger.info(f"Ontology not supported: {prefix}")
         return None

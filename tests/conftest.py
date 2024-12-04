@@ -26,7 +26,7 @@ def termset_similarity_score_raw():
     """Return a fixture for raw termset similarity scores returned by the
     `runoak -i {db} termset-similarity` command."""
     score_file = "tests/data/benchmark/termset_similarity_score_raw.json"
-    with open(score_file, "r") as file:
+    with open(score_file, "r", encoding="utf-8") as file:
         return load(file)
 
 
@@ -34,7 +34,24 @@ def termset_similarity_score_raw():
 def termset_similarity_score_processed():
     """Return a fixture for processed termset similarity scores returned by
     the get_termset_similarity function."""
-    # TODO update this file with phenodigm_score and jaccard_similarity
     score_file = "tests/data/benchmark/termset_similarity_score_processed.json"
-    with open(score_file, "r") as file:
+    with open(score_file, "r", encoding="utf-8") as file:
         return load(file)
+
+
+@pytest.fixture(name="termset_similarity_score_fields")
+def termset_similarity_score_fields():
+    """Return a fixture for the fields expected in the termset similarity
+    scores"""
+    return [
+        "average_score",
+        "best_score",
+        "average_jaccard_similarity",
+        "best_jaccard_similarity",
+        "average_phenodigm_score",
+        "best_phenodigm_score",
+        "average_standard_information_content",
+        "best_standard_information_content",
+        "average_test_information_content",
+        "best_test_information_content",
+    ]
