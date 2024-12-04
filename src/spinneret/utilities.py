@@ -5,6 +5,8 @@ from typing import Union
 from urllib.parse import urlparse
 from json import load
 
+from prefixmaps import load_converter
+from curies import Converter
 import pandas as pd
 from lxml import etree
 
@@ -111,3 +113,19 @@ def expand_curie(curie: str) -> str:
     }
     prefix, suffix = curie.split(":")
     return f"{mapping[prefix]}{suffix}"
+
+
+def compress_uri(uri: str) -> str:
+    """
+    Compress a URI into a CURIE based on the prefix mappings in the OBO and
+    BioPortal converters.
+
+    :param uri: The URI to be compressed into a CURIE.
+    :returns: The compressed CURIE. Returns the original URI if the prefix
+        does not have a mapping.
+    :notes: This is a wrapper function around the `prefixmaps` and `curies`
+        libraries.
+    """
+    converter: Converter = load_converter(["obo", "bioportal"])
+    res = converter.compress(uri, passthrough=True)
+    return res

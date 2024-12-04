@@ -9,7 +9,8 @@ from spinneret.benchmark import (
     get_termset_similarity,
     default_similarity_scores,
     clean_workbook,
-    group_object_ids,
+    group_object_ids, compress_object_ids, parse_similarity_scores,
+    delete_terms_from_unsupported_ontologies, get_shared_ontology,
 )
 from spinneret.utilities import is_url
 
@@ -47,17 +48,9 @@ def test_benchmark_against_standard():
         test_dirs=["tests/data/benchmark/test_a",
                    "tests/data/benchmark/test_b"],
     )
+    assert res.shape == (10, 13)
+    assert res.columns.tolist() == ['standard_dir', 'test_dir', 'standard_file', 'predicate_value', 'element_xpath_value', 'standard_set', 'test_set', 'average_score', 'best_score', 'average_standard_information_content', 'best_standard_information_content', 'average_test_information_content', 'best_test_information_content']
 
-    assert res.shape == (8, 13)
-    assert res.columns.tolist() == ['standard_dir', 'test_dir',
-                                    'standard_file', 'predicate_value',
-                                    'element_xpath_value', 'standard_set',
-                                    'test_set', 'average_termset_similarity',
-                                    'best_termset_similarity',
-                                    'max_standard_information_content',
-                                    'average_standard_information_content',
-                                    'max_test_information_content',
-                                    'average_test_information_content']
 
 
 def test_get_termset_similarity():
@@ -71,11 +64,11 @@ def test_get_termset_similarity():
         set2={"ENVO:01000253"},  # freshwater river biome
     )
     assert isinstance(r, dict)
-    assert set(r.keys()) == {"average_score", "best_score",
-                             "max_subject_information_content",
-                             "max_object_information_content",
-                             "average_subject_information_content",
-                             "average_object_information_content"}
+    assert r.keys() == {"average_score", "best_score",
+                        "average_standard_information_content",
+                        "best_standard_information_content",
+                        "average_test_information_content",
+                        "best_test_information_content"}
     for _, v in r.items():
         assert isinstance(v, float)
 
@@ -112,8 +105,8 @@ def test_default_similarity_scores():
     r = default_similarity_scores()
     assert isinstance(r, dict)
     assert set(r.keys()) == {"average_score", "best_score",
-                             "max_subject_information_content",
-                             "max_object_information_content",
+                             "best_subject_information_content",
+                             "best_object_information_content",
                              "average_subject_information_content",
                              "average_object_information_content"}
     for k, v in r.items():
@@ -156,3 +149,93 @@ def test_group_object_ids(annotated_workbook):
     assert isinstance(list(grouped.values())[0], list)
     assert isinstance(list(grouped.values())[1][0], str)
     assert is_url(list(grouped.values())[1][0])
+
+
+def test_compress_object_ids(annotated_workbook):
+    """The test_compress_object_ids function"""
+
+    # Create grouped dictionary for testing
+    wb = annotated_workbook
+    grouped = group_object_ids(wb)
+
+    # Grouped dictionary values are URI strings before compression
+    for _, values in grouped.items():
+        for v in values:
+            if not v:  # skip empty lists
+                continue
+            assert is_url(v)
+
+    # After compression, the values are lists of CURIES
+    compressed = compress_object_ids(grouped)
+    for _, values in compressed.items():
+        for v in values:
+            if not v:  # skip empty lists
+                continue
+            assert not is_url(v)
+            assert len(v.split(":")) == 2
+
+
+
+def test_parse_similarity_scores(termset_similarity_score_raw):
+    """Test the parse_similarity_scores function"""
+
+    # The parsed result should be a dictionary with the expected keys
+    r = parse_similarity_scores(termset_similarity_score_raw)
+    assert isinstance(r, dict)
+    # TODO update keys for jaccard_similarity and phenodigm_score metrics
+    assert set(r.keys()) == {'best_score', 'average_test_information_content', 'best_standard_information_content', 'best_test_information_content', 'average_score', 'average_standard_information_content'}
+
+
+
+def test_delete_terms_from_unsupported_ontologies():
+    """Test the delete_terms_from_unsupported_ontologies function"""
+
+    # Terms (CURIES) from supported ontologies are retained
+    supported_terms = ["ENVO:01000252", "ECSO:01000253", "ENVTHES:0000002"]
+    r = delete_terms_from_unsupported_ontologies(supported_terms)
+    assert r == supported_terms
+
+    # Terms from unsupported ontologies are removed
+    mixed_term_list = supported_terms + ["AUTO:1234", "FOO:5678"]
+    r = delete_terms_from_unsupported_ontologies(mixed_term_list)
+    assert r == supported_terms
+
+
+def test_get_shared_ontology():
+    """Test the get_shared_ontology function"""
+
+    # An ontology is returned when the two sets share the same ontology
+    set1 = ["ENVO:01000252", "ENVO:01000253"]
+    set2 = ["ENVO:01000252"]
+    db = get_shared_ontology(set1, set2)
+    assert db == "sqlite:obo:envo"
+
+    set1 = ["ENVO:01000252", "ECSO:01000253"]
+    set2 = ["ENVO:01000252"]
+    db = get_shared_ontology(set1, set2)
+    assert db == "sqlite:obo:envo"
+
+    # Return either in the case of a tie
+    set1 = ["ENVO:01000252", "ECSO:01000253"]
+    set2 = ["ENVO:01000252", "ECSO:01000253"]
+    db = get_shared_ontology(set1, set2)
+    assert db in ["sqlite:obo:envo", "bioportal:ecso"]
+
+    # None is returned when the two sets do not share a common ontology
+    set1 = ["ENVO:01000252", "ENVO:01000253"]
+    set2 = ["ECSO:01000252"]
+    db = get_shared_ontology(set1, set2)
+    assert db is None
+
+    # None is returned when one or both sets are empty
+    set1 = []
+    set2 = ["ENVO:01000252"]
+    db = get_shared_ontology(set1, set2)
+    assert db is None
+
+    set1 = []
+    set2 = []
+    db = get_shared_ontology(set1, set2)
+    assert db is None
+
+
