@@ -2,6 +2,7 @@
 
 from os import environ
 from typing import Union
+import importlib
 from urllib.parse import urlparse
 from json import load
 
@@ -111,3 +112,35 @@ def expand_curie(curie: str) -> str:
     }
     prefix, suffix = curie.split(":")
     return f"{mapping[prefix]}{suffix}"
+
+
+def compress_uri(uri: str) -> str:
+    """
+    Compress a URI into a CURIE based on the prefix mappings in the OBO and
+    BioPortal converters.
+
+    :param uri: The URI to be compressed into a CURIE.
+    :returns: The compressed CURIE. Returns the original URI if the prefix
+        does not have a mapping.
+    :notes: This is a wrapper function around the `prefixmaps` and `curies`
+        libraries.
+    """
+    prefixmaps = load_prefixmaps()
+    match = prefixmaps[prefixmaps["namespace"].apply(lambda x: x in uri)]
+    if not match.empty:
+        prefix = match["prefix"].values[0]
+        suffix = uri.replace(match["namespace"].values[0], "")
+        return f"{prefix}:{suffix}"
+    return uri
+
+
+def load_prefixmaps() -> dict:
+    """
+    Load ontology prefix maps. To be used with `expand_curie` and
+    `compress_uri`.
+
+    :returns: The ontology prefix maps
+    """
+    file = str(importlib.resources.files("spinneret.data")) + "/prefixmaps.csv"
+    prefixmaps = pd.read_csv(file)
+    return prefixmaps

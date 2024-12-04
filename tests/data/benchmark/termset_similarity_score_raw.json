@@ -1,0 +1,59 @@
+[
+    {
+        "subject_termset": {
+            "ENVO:01000252": {
+                "id": "ENVO:01000252",
+                "label": "freshwater lake biome"
+            }
+        },
+        "object_termset": {
+            "ENVO:01000253": {
+                "id": "ENVO:01000253",
+                "label": "freshwater river biome"
+            }
+        },
+        "subject_best_matches": {
+            "ENVO:01000252": {
+                "match_source": "ENVO:01000252",
+                "score": 9.196397212803504,
+                "similarity": {
+                    "subject_id": "ENVO:01000252",
+                    "object_id": "ENVO:01000253",
+                    "ancestor_id": "ENVO:00000873",
+                    "ancestor_label": "freshwater biome",
+                    "object_information_content": 10.459431618637298,
+                    "subject_information_content": 11.196397212803504,
+                    "ancestor_information_content": 9.196397212803504,
+                    "jaccard_similarity": 0.8450704225352113,
+                    "phenodigm_score": 2.7877595445851306
+                },
+                "match_source_label": "freshwater lake biome",
+                "match_target": "ENVO:01000253",
+                "match_target_label": "freshwater river biome"
+            }
+        },
+        "object_best_matches": {
+            "ENVO:01000253": {
+                "match_source": "ENVO:01000253",
+                "score": 9.196397212803504,
+                "similarity": {
+                    "subject_id": "ENVO:01000252",
+                    "object_id": "ENVO:01000253",
+                    "ancestor_id": "ENVO:00000873",
+                    "ancestor_label": "freshwater biome",
+                    "object_information_content": 10.459431618637298,
+                    "subject_information_content": 11.196397212803504,
+                    "ancestor_information_content": 9.196397212803504,
+                    "jaccard_similarity": 0.8450704225352113,
+                    "phenodigm_score": 2.7877595445851306
+                },
+                "match_source_label": "freshwater river biome",
+                "match_target": "ENVO:01000252",
+                "match_target_label": "freshwater lake biome"
+            }
+        },
+        "average_score": 9.196397212803504,
+        "best_score": 9.196397212803504,
+        "@type": "TermSetPairwiseSimilarity"
+    }
+]

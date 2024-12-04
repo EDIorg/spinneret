@@ -1,0 +1,12 @@
+{
+    "average_score": 9.196397212803504,
+    "best_score": 9.196397212803504,
+    "average_jaccard_similarity": 0.8450704225352113,
+    "best_jaccard_similarity": 0.8450704225352113,
+    "average_phenodigm_score": 2.7877595445851306,
+    "best_phenodigm_score": 2.7877595445851306,
+    "average_standard_information_content": 11.196397212803504,
+    "best_standard_information_content": 11.196397212803504,
+    "average_test_information_content": 10.459431618637298,
+    "best_test_information_content": 10.459431618637298
+}

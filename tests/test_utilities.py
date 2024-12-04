@@ -12,6 +12,8 @@ from spinneret.utilities import (
     write_workbook,
     write_eml,
     expand_curie,
+    compress_uri,
+    load_prefixmaps,
 )
 from spinneret.datasets import get_example_eml_dir
 
@@ -101,3 +103,21 @@ def test_expand_curie():
     )
     # Ungrounded CURIES should return the original CURIE
     assert expand_curie("AUTO:00001203") == "AUTO:00001203"
+
+
+def test_compress_uri():
+    """Test that a URI is compressed to a CURIE"""
+
+    # Return a CURIE if the URI is in the mapping
+    r = compress_uri("http://purl.obolibrary.org/obo/ENVO_00001203")
+    assert r == "ENVO:00001203"
+
+    # Return the original URI if the URI is not in the mapping
+    r = compress_uri("http://example.com/00001203")
+    assert r == "http://example.com/00001203"
+
+
+def test_load_prefixmaps():
+    """Test that the prefixmaps are loaded"""
+    prefixmaps = load_prefixmaps()
+    assert isinstance(prefixmaps, pd.DataFrame)
