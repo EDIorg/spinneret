@@ -23,10 +23,10 @@ classes:
   Dataset:
     tree_root: true
     attributes:
-      env_medium:
-        description: the environmental material(s) immediately surrounding the sample or specimen at the time of sampling
+      output:
+        description: The environmental material(s) immediately surrounding the measurement variable at the time of sampling
         annotations:
-          prompt: semicolon-separated list of the environmental material(s) immediately surrounding the sample or specimen at the time of sampling
+          prompt: semicolon-separated list of the environmental material(s) immediately surrounding the measurement variable at the time of sampling
         range: EnvironmentalMedium
         multivalued: true
 

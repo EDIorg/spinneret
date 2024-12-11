@@ -24,27 +24,28 @@ classes:
   Dataset:
     tree_root: true
     attributes:
-      env_broad_scale:
-        description: the broad environmental context in which the study was conducted
+      output:
+        description: The broad environmental context of the dataset
         annotations:
-          prompt: semicolon-separated list of broad environmental contexts in which the study was conducted
+          prompt: >- 
+            semicolon-separated list of the large scale environmental systems (e.g. ecosystem, biome)
         range: EnvBroadScale
         multivalued: true
 
   EnvBroadScale:
     is_a: NamedEntity
-    id_prefixes:
-      - ENVO
+#    id_prefixes:
+#      - ENVO
     annotations:
       annotators: sqlite:obo:envo
-    slot_usage:
-      id:
-        values_from:
-          - EnvoEnvironmentalSystem
+#    slot_usage:
+#      id:
+#        values_from:
+#          - EnvoEnvironmentalSystem
 
-enums:
-  EnvoEnvironmentalSystem:
-    reachable_from:
-      source_ontology: obo:envo
-      source_nodes:
-        - ENVO:01000254  # environmental system
+#enums:
+#  EnvoEnvironmentalSystem:
+#    reachable_from:
+#      source_ontology: obo:envo
+#      source_nodes:
+#        - ENVO:01000254  # environmental system
