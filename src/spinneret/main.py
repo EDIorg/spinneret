@@ -2,6 +2,7 @@
 
 import os
 from pathlib import Path
+from typing import Union
 from requests import get, codes
 from rdflib import Graph
 import daiquiri
@@ -56,6 +57,7 @@ def annotate_workbooks(
     output_dir: str,
     config_path: str,
     local_model: str = None,
+    temperature: Union[float, None] = None,
     return_ungrounded: bool = False,
     sample_size: int = 1,
 ) -> None:
@@ -70,6 +72,8 @@ def annotate_workbooks(
     :param output_dir: Directory to save annotated workbooks
     :param config_path: Path to configuration file
     :param local_model: See `get_ontogpt_annotation` documentation for details.
+    :param temperature: The temperature parameter for the model. If `None`, the
+        OntoGPT default will be used.
     :param return_ungrounded: See `get_ontogpt_annotation` documentation for
         details.
     :param sample_size: Executes multiple replicates of the annotation request
@@ -112,6 +116,7 @@ def annotate_workbooks(
             annotator=annotator,
             output_path=output_dir + "/" + workbook_file_annotated,
             local_model=local_model,
+            temperature=temperature,
             return_ungrounded=return_ungrounded,
             sample_size=sample_size,
         )
