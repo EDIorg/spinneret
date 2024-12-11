@@ -22,16 +22,16 @@ classes:
   Dataset:
     tree_root: true
     attributes:
-      method:
-        description: the type of method or technique used to gather data
+      output:
+        description: >-
+          The type of method or technique used to create the dataset
         annotations:
-          prompt: semicolon-separated list of the type of method or technique used to gather data
+          prompt: >-
+            semicolon-separated list of the type of method or technique used to create the dataset
         range: Method
         multivalued: true
 
   Method:
     is_a: NamedEntity
-    id_prefixes:
-      - ENVTHES
     annotations:
       annotators: bioportal:ENVTHES

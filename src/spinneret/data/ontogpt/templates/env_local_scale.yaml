@@ -24,31 +24,15 @@ classes:
   Dataset:
     tree_root: true
     attributes:
-      env_local_scale:
-        description: the local environmental context in which the study was conducted
+      output:
+        description: The local environmental context of the dataset
         annotations:
-          prompt: semicolon-separated list of local environmental contexts in which the study was conducted
+          prompt: semicolon-separated list of the local scale environmental features
         range: EnvLocalScale
         multivalued: true
 
   EnvLocalScale:
     is_a: NamedEntity
-    id_prefixes:
-      - ENVO
     annotations:
       annotators: sqlite:obo:envo
-    slot_usage:
-      id:
-        values_from:
-          - EnvoMaterialEntity
 
-enums:
-  EnvoMaterialEntity:
-    reachable_from:
-      source_ontology: obo:envo
-      source_nodes:  # a selection of nodes from the ENVO `material entity` branch
-        - ENVO:01000813  # astronomical body part
-        - ENVO:01001813  # construction
-        - ENVO:01000408  # environmental zone
-        - ENVO:01003020  # fiat part of an astronomical object
-        - ENVO:01000281  # layer

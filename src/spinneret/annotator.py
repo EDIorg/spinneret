@@ -746,7 +746,7 @@ def get_ontogpt_annotation(
             f"--output-format json -o {output_file}"
         )
         if local_model is not None:
-            cmd += f"  -m ollama/{local_model}"
+            cmd += f" -m ollama/{local_model}"
         try:
             # Clear the cache so that the model can derive new annotations
             cache_path = os.getcwd() + "/.litellm_cache"
