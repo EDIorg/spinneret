@@ -25,10 +25,11 @@ classes:
   Dataset:
     tree_root: true
     attributes:
-      contains_process:
-        description: the environmental process, biological process, or planned process investigated in the study
+      output:
+        description: The environmental or anthropogenic processes of the dataset
         annotations:
-          prompt: semicolon-separated list of the environmental process, biological process, or planned process investigated in the study
+          prompt: >-
+            semicolon-separated list of environmental processes or anthropogenic processes described by the text
         range: ContainsProcess
         multivalued: true
 
