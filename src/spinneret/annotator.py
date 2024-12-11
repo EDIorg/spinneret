@@ -140,6 +140,7 @@ def annotate_workbook(
     output_path: str,
     annotator: str,
     local_model: str = None,
+    temperature: Union[float, None] = None,
     return_ungrounded: bool = False,
     sample_size: int = 1,
 ) -> None:
@@ -154,6 +155,8 @@ def annotate_workbook(
         the `get_ontogpt_annotation` function. Similarly, BioPortal requires
         an API key and is described in the `get_bioportal_annotation` function.
     :param local_model: See `get_ontogpt_annotation` documentation for details.
+    :param temperature: The temperature parameter for the model. If None, the
+        OntoGPT default will be used.
     :param return_ungrounded: See `get_ontogpt_annotation` documentation for
         details.
     :param sample_size: Executes multiple replicates of the annotation request
@@ -188,6 +191,7 @@ def annotate_workbook(
             wb,
             eml,
             local_model=local_model,
+            temperature=temperature,
             return_ungrounded=return_ungrounded,
             sample_size=sample_size,
         )
@@ -195,6 +199,7 @@ def annotate_workbook(
             wb,
             eml,
             local_model=local_model,
+            temperature=temperature,
             return_ungrounded=return_ungrounded,
             sample_size=sample_size,
         )
@@ -202,6 +207,7 @@ def annotate_workbook(
             wb,
             eml,
             local_model=local_model,
+            temperature=temperature,
             return_ungrounded=return_ungrounded,
             sample_size=sample_size,
         )
@@ -209,6 +215,7 @@ def annotate_workbook(
             wb,
             eml,
             local_model=local_model,
+            temperature=temperature,
             return_ungrounded=return_ungrounded,
             sample_size=sample_size,
         )
@@ -216,6 +223,7 @@ def annotate_workbook(
             wb,
             eml,
             local_model=local_model,
+            temperature=temperature,
             return_ungrounded=return_ungrounded,
             sample_size=sample_size,
         )
@@ -224,6 +232,7 @@ def annotate_workbook(
             eml,
             annotator="ontogpt",
             local_model=local_model,
+            temperature=temperature,
             return_ungrounded=return_ungrounded,
             sample_size=sample_size,
         )
@@ -231,6 +240,7 @@ def annotate_workbook(
             wb,
             eml,
             local_model=local_model,
+            temperature=temperature,
             return_ungrounded=return_ungrounded,
             sample_size=sample_size,
         )
@@ -570,6 +580,7 @@ def add_measurement_type_annotations_to_workbook(
     output_path: str = None,
     overwrite: bool = False,
     local_model: str = None,
+    temperature: Union[float, None] = None,
     return_ungrounded: bool = False,
     sample_size: int = 1,
 ) -> pd.core.frame.DataFrame:
@@ -587,6 +598,8 @@ def add_measurement_type_annotations_to_workbook(
         annotations in the workbook, so a fresh set may be created.
     :param local_model: Required if `annotator` is "ontogpt". See
         `get_ontogpt_annotation` documentation for details.
+    :param temperature: The temperature parameter for the model. If `None`, the
+        OntoGPT default will be used.
     :param return_ungrounded: An option if `annotator` is "ontogpt". See
         `get_ontogpt_annotation` documentation for details.
     :param sample_size: Executes multiple replicates of the annotation request
@@ -647,6 +660,7 @@ def add_measurement_type_annotations_to_workbook(
                         text=attribute_description,
                         template="contains_measurement_of_type",
                         local_model=local_model,
+                        temperature=temperature,
                         return_ungrounded=return_ungrounded,
                     )
                     if res is not None:
@@ -705,7 +719,11 @@ def add_measurement_type_annotations_to_workbook(
 
 
 def get_ontogpt_annotation(
-    text: str, template: str, local_model: str = None, return_ungrounded: bool = False
+    text: str,
+    template: str,
+    local_model: str = None,
+    temperature: Union[float, None] = None,
+    return_ungrounded: bool = False,
 ) -> Union[list, None]:
     """
     :param text: The text to be annotated.
@@ -716,6 +734,8 @@ def get_ontogpt_annotation(
         https://ollama.com/library) and should be installed locally. If `None`,
         the configured remote model will be used. See the OntoGPT documentation
         for more information.
+    :param temperature: The temperature parameter for the model. If `None`, the
+        OntoGPT default will be used.
     :param return_ungrounded: If True, return ungrounded annotations. These
         may be useful in identifying potential concepts to add to a vocabulary,
         or to identify concepts that a human curator may be capable of
@@ -747,6 +767,8 @@ def get_ontogpt_annotation(
         )
         if local_model is not None:
             cmd += f" -m ollama_chat/{local_model}"
+        if temperature is not None:
+            cmd += f" --temperature {temperature}"
         try:
             # Clear the cache so that the model can derive new annotations
             cache_path = os.getcwd() + "/.litellm_cache"
@@ -785,6 +807,7 @@ def add_process_annotations_to_workbook(
     output_path: str = None,
     overwrite: bool = False,
     local_model: str = None,
+    temperature: Union[float, None] = None,
     return_ungrounded: bool = False,
     sample_size: int = 1,
 ) -> pd.core.frame.DataFrame:
@@ -797,6 +820,8 @@ def add_process_annotations_to_workbook(
     :param overwrite: If True, overwrite existing `process` annotations in the
         workbook, so a fresh set may be created.
     :param local_model: See `get_ontogpt_annotation` documentation for details.
+    :param temperature: The temperature parameter for the model. If `None`, the
+        OntoGPT default will be used.
     :param return_ungrounded: See `get_ontogpt_annotation` documentation for
         details.
     :param sample_size: Executes multiple replicates of the annotation request
@@ -858,6 +883,7 @@ def add_process_annotations_to_workbook(
                 text=element_description,
                 template="contains_process",
                 local_model=local_model,
+                temperature=temperature,
                 return_ungrounded=return_ungrounded,
             )
             if res is not None:
@@ -901,6 +927,7 @@ def add_env_broad_scale_annotations_to_workbook(
     output_path: str = None,
     overwrite: bool = False,
     local_model: str = None,
+    temperature: Union[float, None] = None,
     return_ungrounded: bool = False,
     sample_size: int = 1,
 ) -> pd.core.frame.DataFrame:
@@ -913,6 +940,8 @@ def add_env_broad_scale_annotations_to_workbook(
     :param overwrite: If True, overwrite existing `broad scale environmental
         context` annotations in the workbook, so a fresh set may be created.
     :param local_model: See `get_ontogpt_annotation` documentation for details.
+    :param temperature: The temperature parameter for the model. If `None`, the
+        OntoGPT default will be used.
     :param return_ungrounded: See `get_ontogpt_annotation` documentation for
         details.
     :param sample_size: Executes multiple replicates of the annotation request
@@ -973,6 +1002,7 @@ def add_env_broad_scale_annotations_to_workbook(
                 text=element_description,
                 template=predicate,
                 local_model=local_model,
+                temperature=temperature,
                 return_ungrounded=return_ungrounded,
             )
             if res is not None:
@@ -1018,6 +1048,7 @@ def add_env_local_scale_annotations_to_workbook(
     output_path: str = None,
     overwrite: bool = False,
     local_model: str = None,
+    temperature: Union[float, None] = None,
     return_ungrounded: bool = False,
     sample_size: int = 1,
 ) -> pd.core.frame.DataFrame:
@@ -1030,6 +1061,8 @@ def add_env_local_scale_annotations_to_workbook(
     :param overwrite: If True, overwrite existing `local scale environmental
         context` annotations in the workbook, so a fresh set may be created.
     :param local_model: See `get_ontogpt_annotation` documentation for details.
+    :param temperature: The temperature parameter for the model. If `None`, the
+        OntoGPT default will be used.
     :param return_ungrounded: See `get_ontogpt_annotation` documentation for
         details.
     :param sample_size: Executes multiple replicates of the annotation request
@@ -1092,6 +1125,7 @@ def add_env_local_scale_annotations_to_workbook(
                 text=element_description,
                 template=predicate,
                 local_model=local_model,
+                temperature=temperature,
                 return_ungrounded=return_ungrounded,
             )
             if res is not None:
@@ -1137,6 +1171,7 @@ def add_env_medium_annotations_to_workbook(
     output_path: str = None,
     overwrite: bool = False,
     local_model: str = None,
+    temperature: Union[float, None] = None,
     return_ungrounded: bool = False,
     sample_size: int = 1,
 ) -> pd.core.frame.DataFrame:
@@ -1150,6 +1185,8 @@ def add_env_medium_annotations_to_workbook(
         annotations in the workbook, so a fresh set may be created.
     :param local_model: Required if `annotator` is "ontogpt". See
         `get_ontogpt_annotation` documentation for details.
+    :param temperature: The temperature parameter for the model. If `None`, the
+        OntoGPT default will be used.
     :param return_ungrounded: An option if `annotator` is "ontogpt". See
         `get_ontogpt_annotation` documentation for details.
     :param sample_size: Executes multiple replicates of the annotation request
@@ -1210,6 +1247,7 @@ def add_env_medium_annotations_to_workbook(
                     text=attribute_description,
                     template="env_medium",
                     local_model=local_model,
+                    temperature=temperature,
                     return_ungrounded=return_ungrounded,
                 )
                 if res is not None:
@@ -1253,6 +1291,7 @@ def add_research_topic_annotations_to_workbook(
     output_path: str = None,
     overwrite: bool = False,
     local_model: str = None,
+    temperature: Union[float, None] = None,
     return_ungrounded: bool = False,
     sample_size: int = 1,
 ) -> pd.core.frame.DataFrame:
@@ -1265,6 +1304,8 @@ def add_research_topic_annotations_to_workbook(
     :param overwrite: If True, overwrite existing `research topic` annotations
         in the workbook, so a fresh set may be created.
     :param local_model: See `get_ontogpt_annotation` documentation for details.
+    :param temperature: The temperature parameter for the model. If `None`, the
+        OntoGPT default will be used.
     :param return_ungrounded: See `get_ontogpt_annotation` documentation for
         details.
     :param sample_size: Executes multiple replicates of the annotation request
@@ -1326,6 +1367,7 @@ def add_research_topic_annotations_to_workbook(
                 text=element_description,
                 template="research_topic",
                 local_model=local_model,
+                temperature=temperature,
                 return_ungrounded=return_ungrounded,
             )
             if res is not None:
@@ -1369,6 +1411,7 @@ def add_methods_annotations_to_workbook(
     output_path: str = None,
     overwrite: bool = False,
     local_model: str = None,
+    temperature: Union[float, None] = None,
     return_ungrounded: bool = False,
     sample_size: int = 1,
 ) -> pd.core.frame.DataFrame:
@@ -1381,6 +1424,8 @@ def add_methods_annotations_to_workbook(
     :param overwrite: If True, overwrite existing `methods` annotations in the
         workbook, so a fresh set may be created.
     :param local_model: See `get_ontogpt_annotation` documentation for details.
+    :param temperature: The temperature parameter for the model. If `None`, the
+        OntoGPT default will be used.
     :param return_ungrounded: See `get_ontogpt_annotation` documentation for
         details.
     :param sample_size: Executes multiple replicates of the annotation request
@@ -1445,6 +1490,7 @@ def add_methods_annotations_to_workbook(
                 text=element_description,
                 template="uses_method",
                 local_model=local_model,
+                temperature=temperature,
                 return_ungrounded=return_ungrounded,
             )
             if res is not None:
