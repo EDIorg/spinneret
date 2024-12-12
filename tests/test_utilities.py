@@ -93,6 +93,8 @@ def test_write_eml(tmp_path):
 
 def test_expand_curie():
     """Test that a CURIE is expanded to a URL"""
+
+    # Recognized CURIES should return the corresponding URI
     assert expand_curie("ECSO:00001203") == "http://purl.dataone.org/odo/ECSO_00001203"
     assert (
         expand_curie("ENVO:00001203") == "http://purl.obolibrary.org/obo/ENVO_00001203"
@@ -101,6 +103,11 @@ def test_expand_curie():
         expand_curie("ENVTHES:00001203")
         == "http://vocabs.lter-europe.net/EnvThes/00001203"
     )
+    assert (
+        expand_curie("OBOE:00001203")
+        == "http://ecoinformatics.org/oboe/oboe.1.2/00001203"
+    )
+
     # Ungrounded CURIES should return the original CURIE
     assert expand_curie("AUTO:00001203") == "AUTO:00001203"
 
