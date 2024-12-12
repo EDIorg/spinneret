@@ -97,21 +97,21 @@ def write_eml(eml: etree._ElementTree, output_path: str) -> None:
 
 def expand_curie(curie: str) -> str:
     """
+    Expand a CURIE into a URI based on the prefix mappings in the OBO and
+    BioPortal converters.
+
     :param curie: The CURIE to be expanded.
     :returns: The expanded CURIE. Returns the original CURIE if the prefix
         does not have a mapping.
+    :notes: This is a wrapper function around the `prefixmaps` and `curies`
+        libraries.
     """
-    mapping = {
-        "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-        "linkml": "https://w3id.org/linkml/",
-        "ECSO": "http://purl.dataone.org/odo/ECSO_",
-        "ENVO": "http://purl.obolibrary.org/obo/ENVO_",
-        "BFO": "http://purl.obolibrary.org/obo/BFO_",
-        "ENVTHES": "http://vocabs.lter-europe.net/EnvThes/",
-        "AUTO": "AUTO:",  # return ungrounded CURIEs as is
-    }
+    prefixmaps = load_prefixmaps()
     prefix, suffix = curie.split(":")
-    return f"{mapping[prefix]}{suffix}"
+    namespace = prefixmaps[prefixmaps["prefix"] == prefix]["namespace"]
+    if len(namespace) > 0:
+        return f"{namespace.to_string(index=False).strip()}{suffix}"
+    return curie
 
 
 def compress_uri(uri: str) -> str:
