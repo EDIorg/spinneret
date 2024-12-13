@@ -5,9 +5,12 @@ from typing import Union
 import importlib
 from urllib.parse import urlparse
 from json import load
+import daiquiri
 
 import pandas as pd
 from lxml import etree
+
+logger = daiquiri.getLogger(__name__)
 
 
 def load_configuration(config_file: str) -> None:
@@ -107,7 +110,17 @@ def expand_curie(curie: str) -> str:
         libraries.
     """
     prefixmaps = load_prefixmaps()
-    prefix, suffix = curie.split(":")
+
+    # On rare occasion we encounter a CURIE with multiple colons, so we need
+    # to use exception handling and issue a warning.
+    try:
+        prefix, suffix = curie.split(":")
+    except ValueError:
+        logger.warning(
+            f"Warning: {curie} is not recognized. Returning the original string."
+        )
+        return curie
+
     namespace = prefixmaps[prefixmaps["prefix"] == prefix]["namespace"]
     if len(namespace) > 0:
         return f"{namespace.to_string(index=False).strip()}{suffix}"

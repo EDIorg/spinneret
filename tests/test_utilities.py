@@ -112,6 +112,16 @@ def test_expand_curie():
     assert expand_curie("AUTO:00001203") == "AUTO:00001203"
 
 
+def test_expand_curie_handles_multiple_semicolon():
+    """Test that a CURIE with multiple semicolons does not raise an error
+
+    This is an unusual case that has occurred in past integration tests. Not sure
+    what the source of this issue is but are testing for it here.
+    """
+    curie = "ENVO:PATO:00001203"
+    assert expand_curie(curie) == curie
+
+
 def test_compress_uri():
     """Test that a URI is compressed to a CURIE"""
 
