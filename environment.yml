@@ -6,25 +6,25 @@ dependencies:
   - alabaster=1.0.0
   - annotated-types=0.7.0
   - anyio=4.6.2.post1
-  - astroid=3.3.5
   - babel=2.16.0
   - backoff=2.2.1
-  - black=24.10.0
+  - brotli=1.1.0
+  - brotli-bin=1.1.0
   - brotli-python=1.1.0
   - bzip2=1.0.8
-  - ca-certificates=2024.8.30
-  - certifi=2024.8.30
+  - ca-certificates=2024.12.14
+  - certifi=2024.12.14
   - cffi=1.17.1
-  - charset-normalizer=3.4.0
   - click=8.1.7
   - click-option-group=0.5.6
   - colorama=0.4.6
-  - coverage=7.6.8
-  - daiquiri=3.0.0
-  - dill=0.3.9
+  - contourpy=1.3.1
+  - cycler=0.12.1
   - docutils=0.21.2
   - dotty-dict=1.3.1
   - exceptiongroup=1.2.2
+  - fonttools=4.55.3
+  - freetype=2.12.1
   - gitdb=4.0.11
   - gitpython=3.1.43
   - gql=3.5.0
@@ -37,122 +37,129 @@ dependencies:
   - importlib-resources=6.4.5
   - importlib_resources=6.4.5
   - iniconfig=2.0.0
-  - isodate=0.7.2
   - isort=5.13.2
   - jinja2=3.1.4
+  - kiwisolver=1.4.7
+  - lcms2=2.16
+  - lerc=4.0.0
   - libblas=3.9.0
+  - libbrotlicommon=1.1.0
+  - libbrotlidec=1.1.0
+  - libbrotlienc=1.1.0
   - libcblas=3.9.0
   - libcxx=19.1.4
+  - libdeflate=1.23
   - libexpat=2.6.4
   - libffi=3.4.2
   - libgfortran=5.0.0
   - libgfortran5=13.2.0
   - libiconv=1.17
+  - libjpeg-turbo=3.0.0
   - liblapack=3.9.0
+  - liblzma=5.6.3
   - libopenblas=0.3.28
+  - libpng=1.6.44
   - libsqlite=3.47.0
+  - libtiff=4.7.0
+  - libwebp-base=1.4.0
+  - libxcb=1.17.0
   - libxml2=2.13.5
   - libxslt=1.1.39
   - libzlib=1.3.1
   - llvm-openmp=19.1.4
   - lxml=5.3.0
   - markdown-it-py=3.0.0
-  - markupsafe=3.0.2
+  - matplotlib=3.10.0
+  - matplotlib-base=3.10.0
   - mccabe=0.7.0
   - mdit-py-plugins=0.4.2
   - mdurl=0.1.2
   - multidict=6.1.0
+  - munkres=1.1.4
   - mypy_extensions=1.0.0
   - myst-parser=4.0.0
   - ncurses=6.5
+  - openjpeg=2.5.3
   - openssl=3.4.0
-  - packaging=24.2
-  - pandas=2.2.3
   - pathspec=0.12.1
+  - pillow=11.0.0
   - pip=24.3.1
   - platformdirs=4.3.6
   - pluggy=1.5.0
   - propcache=0.2.0
+  - pthread-stubs=0.4
   - pycparser=2.22
-  - pydantic=2.10.1
-  - pydantic-core=2.27.1
   - pygments=2.18.0
-  - pylint=3.3.1
-  - pyparsing=3.2.0
   - pysocks=1.7.1
   - pytest=8.3.3
-  - pytest-cov=6.0.0
   - pytest-mock=3.14.0
   - python=3.11.10
   - python-dateutil=2.9.0.post0
-  - python-gitlab=4.13.0
   - python-json-logger=2.0.7
-  - python-semantic-release=9.14.0
-  - python-tzdata=2024.2
   - python_abi=3.11
-  - pytz=2024.1
   - pyyaml=6.0.2
-  - rdflib=7.1.1
+  - qhull=2020.2
   - readline=8.2
   - requests=2.32.3
   - requests-toolbelt=1.0.0
-  - rich=13.9.4
-  - setuptools=75.6.0
   - shellingham=1.5.4
   - six=1.16.0
-  - smmap=5.0.0
   - sniffio=1.3.1
   - snowballstemmer=2.2.0
-  - sphinx=8.1.3
-  - sphinx-autoapi=3.3.3
   - sphinxcontrib-applehelp=2.0.0
   - sphinxcontrib-devhelp=2.0.0
   - sphinxcontrib-htmlhelp=2.1.0
   - sphinxcontrib-jsmath=1.0.1
   - sphinxcontrib-qthelp=2.0.0
-  - sphinxcontrib-serializinghtml=1.1.10
   - stdlib-list=0.11.0
   - tk=8.6.13
   - toml=0.10.2
   - tomli=2.1.0
   - tomlkit=0.13.2
+  - tornado=6.4.2
   - typing-extensions=4.12.2
   - typing_extensions=4.12.2
-  - tzdata=2024b
+  - unicodedata2=15.1.0
   - wheel=0.45.1
+  - xorg-libxau=1.0.12
+  - xorg-libxdmcp=1.1.5
   - xz=5.2.6
   - yaml=0.2.5
-  - yarl=1.18.0
-  - zipp=3.21.0
   - zstandard=0.23.0
   - zstd=1.5.6
   - pip:
       - adeft==0.12.3
       - aiofiles==24.1.0
       - aiohappyeyeballs==2.4.3
-      - aiohttp==3.11.7
+      - aiohttp==3.10.10
       - aiosignal==1.3.1
       - airium==0.2.6
       - aniso8601==9.0.1
       - antlr4-python3-runtime==4.9.3
       - appdirs==1.4.4
       - arrow==1.3.0
+      - astroid==3.2.4
       - attrs==24.2.0
       - bcp47==0.1.0
       - beautifulsoup4==4.12.3
       - bioc==2.1
-      - blinker==1.9.0
-      - boto3==1.35.69
-      - botocore==1.35.69
+      - black==24.8.0
+      - blinker==1.8.2
+      - boto3==1.35.54
+      - botocore==1.35.54
       - cachier==3.1.2
       - cattrs==24.1.2
       - cfgraph==0.2.1
       - chardet==5.2.0
-      - class-resolver==0.5.4
+      - charset-normalizer==3.3.2
+      - class-resolver==0.5.2
+      - coverage==7.6.1
       - curies==0.9.0
+      - daiquiri==3.2.5.1
       - defusedxml==0.7.1
-      - deprecated==1.2.15
+      - deprecated==1.2.14
       - deprecation==2.1.0
+      - dill==0.3.8
       - diskcache==5.6.3
       - distro==1.9.0
       - docopt==0.6.2
@@ -161,7 +168,7 @@ dependencies:
       - eutils==0.6.0
       - fastobo==0.12.3
       - filelock==3.16.1
-      - flask==3.1.0
+      - flask==3.0.3
       - flask-restx==1.3.0
       - fqdn==1.5.1
       - frontend==0.0.3
@@ -173,7 +180,7 @@ dependencies:
       - h11==0.14.0
       - hbreader==0.9.1
       - html5lib==1.1
-      - httpcore==1.0.7
+      - httpcore==1.0.6
       - httpx==0.27.2
       - huggingface-hub==0.26.2
       - ijson==3.3.0
@@ -181,9 +188,10 @@ dependencies:
       - inflect==7.4.0
       - inflection==0.5.1
       - intervaltree==3.1.0
+      - isodate==0.6.1
       - isoduration==20.11.0
       - itsdangerous==2.2.0
-      - jiter==0.7.1
+      - jiter==0.7.0
       - jmespath==1.0.1
       - joblib==1.4.2
       - json-flattener==0.1.9
@@ -203,83 +211,105 @@ dependencies:
       - linkml-owl==0.3.0
       - linkml-renderer==0.3.1
       - linkml-runtime==1.8.3
-      - litellm==1.52.16
+      - litellm==1.51.2
+      - markupsafe==2.1.5
       - more-click==0.1.2
       - more-itertools==10.5.0
       - ndex2==3.9.0
       - networkx==3.4.2
       - nltk==3.9.1
-      - numpy==2.0.2
+      - numpy==2.1.1
       - oaklib==0.6.18
       - ols-client==0.1.4
-      - ontogpt==1.0.8
+      - ontogpt==1.0.6
       - ontoportal-client==0.0.4
-      - openai==1.55.1
+      - openai==1.53.0
       - openpyxl==3.1.5
       - owlrl==6.0.2
+      - packaging==24.1
+      - pandas==2.2.2
       - pansql==0.0.1
       - parse==1.20.2
       - ply==3.11
-      - portalocker==3.0.0
+      - portalocker==2.10.1
       - prefixcommons==0.1.12
       - prefixmaps==0.2.6
-      - prettytable==3.12.0
+      - prettytable==3.11.0
       - pronto==2.5.8
+      - pydantic==2.9.2
+      - pydantic-core==2.23.4
       - pyjsg==0.11.10
-      - pymupdf==1.24.14
+      - pylint==3.2.7
+      - pymupdf==1.24.13
+      - pyparsing==3.1.4
       - pyshacl==0.26.0
       - pyshex==0.8.1
       - pyshexc==0.9.1
       - pysolr==3.10.0
-      - pystow==0.6.1
+      - pystow==0.5.6
+      - pytest-cov==5.0.0
       - pytest-logging==2015.11.4
       - python-dotenv==1.0.1
+      - python-gitlab==4.11.1
+      - python-semantic-release==9.8.8
       - pytrie==0.4.0
+      - pytz==2024.2
       - ratelimit==2.2.1
+      - rdflib==7.0.0
       - rdflib-jsonld==0.6.1
       - rdflib-shim==1.0.3
       - referencing==0.35.1
-      - regex==2024.11.6
+      - regex==2024.9.11
       - requests-cache==1.2.1
       - rfc3339-validator==0.1.4
       - rfc3987==1.3.8
-      - rpds-py==0.21.0
+      - rich==13.8.1
+      - rpds-py==0.20.1
       - ruamel-yaml==0.18.6
       - ruamel-yaml-clib==0.2.12
-      - s3transfer==0.10.4
+      - s3transfer==0.10.3
       - scikit-learn==1.4.2
       - scipy==1.14.1
       - semsql==0.3.3
+      - setuptools==75.3.0
       - shexjsg==0.8.2
+      - smmap==5.0.1
       - sortedcontainers==2.4.0
+      - soso==0.2.0
       - soupsieve==2.6
       - sparqlslurper==0.5.1
       - sparqlwrapper==2.0.0
+      - sphinx==8.0.2
+      - sphinx-autoapi==3.3.1
+      - sphinxcontrib-serializinghtml==2.0.0
+      - spinneret==0.2.0
       - sqlalchemy==2.0.36
       - sqlalchemy-utils==0.38.3
-      - sssom==0.4.13
+      - sssom==0.4.12
       - sssom-schema==1.0.0
-      - starlette==0.41.3
+      - starlette==0.41.2
       - tenacity==9.0.0
       - threadpoolctl==3.5.0
-      - tiktoken==0.8.0
-      - tokenizers==0.20.3
-      - tqdm==4.67.1
-      - typeguard==4.4.1
+      - tiktoken==0.7.0
+      - tokenizers==0.20.1
+      - tqdm==4.66.6
+      - typeguard==4.4.0
       - types-python-dateutil==2.9.0.20241003
+      - tzdata==2024.1
       - unidecode==1.3.8
       - uri-template==1.3.0
       - url-normalize==1.4.3
       - urllib3==1.26.20
-      - uvicorn==0.32.1
+      - uvicorn==0.32.0
       - validators==0.34.0
       - watchdog==6.0.0
       - wcwidth==0.2.13
-      - webcolors==24.11.1
+      - webcolors==24.8.0
       - webencodings==0.5.1
-      - werkzeug==3.1.3
+      - werkzeug==3.1.1
       - wikipedia==1.4.0
       - wikipedia-api==0.7.1
-      - wrapt==1.17.0
-      - git+https://github.com/clnsmth/soso.git@main
+      - wrapt==1.16.0
+      - yarl==1.17.1
+      - zipp==3.20.2
 prefix: /opt/miniconda3/envs/spinneret
