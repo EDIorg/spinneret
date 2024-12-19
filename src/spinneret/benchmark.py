@@ -10,8 +10,9 @@ from json import load
 from contextlib import contextmanager
 from daiquiri import getLogger
 import pandas as pd
+import matplotlib.pyplot as plt
 from spinneret.utilities import load_workbook, compress_uri
-from spinneret.workbook import delete_duplicate_annotations
+from spinneret.workbook import delete_duplicate_annotations, delete_unannotated_rows
 
 
 logger = getLogger(__name__)
@@ -374,3 +375,116 @@ def get_shared_ontology(set1: list, set2: list) -> Union[str, None]:
         return None
 
     return db
+
+
+def plot_grounding_rates(
+    grounding_rates: dict, configuration: str, output_file: str
+) -> None:
+    """
+    Plot the grounding rates of the test data.
+
+    :param grounding_rates: The return value from the `get_grounding_rates`
+        function.
+    :param configuration: The configuration of OntoGPT that was used to
+        generate the test data. This is typically the directory name of the
+        test data.
+    :param output_file: The path to save the plot to, as a PNG file.
+    :return: None
+    """
+
+    # Reformating the grounding rates dictionary into a DataFrame for plotting
+    df = pd.DataFrame(grounding_rates).T
+
+    # Calculate percentages
+    df_percent = df.div(df.sum(axis=1), axis=0) * 100
+
+    # Add data labels to the bars
+    plt.figure(figsize=(10, 6))
+    bottom = [0] * len(df)
+    for col in df_percent.columns:
+        bars = plt.bar(df_percent.index, df_percent[col], bottom=bottom, label=col)
+        for item in bars:
+            height = item.get_height()
+            if height > 5:  # Only add labels if the segment is large enough
+                plt.text(
+                    item.get_x() + item.get_width() / 2,
+                    item.get_y() + height / 2,
+                    f"{height:.1f}%",
+                    ha="center",
+                    va="center",
+                    color="white",
+                    fontsize=9,
+                )
+        bottom = [bottom[i] + df_percent[col][i] for i in range(len(bottom))]
+
+    plt.ylabel("Percentage")
+    title = f"OntoGPT Grounding Rates for Configuration '{configuration}'"
+    plt.title(title)
+    plt.xticks(rotation=-20)
+    plt.legend(title="State")
+    plt.tight_layout()
+    plt.savefig(output_file, dpi=300)
+    plt.show()
+
+
+def get_grounding_rates(test_dir: str) -> dict:
+    """
+    Get the OntoGPT grounding rates of the test data, by predicate.
+
+    Predicates may have different grounding rates, due to differences in LLM
+    prompting and the nature of the vocabularies/ontologies being grounded to.
+
+    :param test_dir: Path to a directory containing the test annotated
+        workbook files.
+    :return: A nested set of dictionaries containing the grounding rates of the
+        test data. The first level of dictionary keys are the predicates, and
+        the values are a second dictionary with keys "grounded" and
+        "ungrounded". The values of these keys are the number of grounded and
+        ungrounded terms, respectively.
+    """
+    res = {
+        "env_broad_scale": {"grounded": 0, "ungrounded": 0},
+        "env_local_scale": {"grounded": 0, "ungrounded": 0},
+        "contains process": {"grounded": 0, "ungrounded": 0},
+        "environmental material": {"grounded": 0, "ungrounded": 0},
+        "contains measurements of type": {"grounded": 0, "ungrounded": 0},
+        "uses standard": {"grounded": 0, "ungrounded": 0},
+        "usesMethod": {"grounded": 0, "ungrounded": 0},
+        "research topic": {"grounded": 0, "ungrounded": 0},
+    }
+
+    files = [f for f in os.listdir(test_dir) if f.endswith(".tsv")]
+    for file in files:
+        path = os.path.join(test_dir, file)
+        logger.info(f"Getting grounding rates for {path}")
+        wb = load_workbook(path)
+        wb = delete_unannotated_rows(wb)  # OntoGPT skipped these, don't count
+
+        # Group object_ids by predicate and element_xpath. These represent
+        # unique annotation opportunities for OntoGPT to ground to an ontology.
+        object_id_groups = group_object_ids(wb)
+
+        # For each group determine if the object_ids are grounded or ungrounded
+        for key, data in object_id_groups.items():
+            predicate = key[0]
+            if is_grounded(data):
+                res[predicate]["grounded"] += 1
+            else:
+                res[predicate]["ungrounded"] += 1
+    return res
+
+
+def is_grounded(data: list) -> bool:
+    """
+    Determine if the list contains a grounded object_id.
+
+    :param data: List of object_ids.
+    :return: True if the list contains a grounded object_id, False otherwise.
+        A grounded term is defined as a term that starts with "http".
+        Ungrounded terms are those that begin with "AUTO:" or are None.
+    """
+    # Remove None and NaN values from list to avoid errors on string matching
+    data = [d for d in data if d is not None]
+    data = [d for d in data if not pd.isna(d)]
+
+    return any("http" in s for s in data)

@@ -17,7 +17,5 @@ dependencies:
   - sphinx
   - sphinx-autoapi
   - daiquiri
-  - pip
-  - pip:
-      - git+https://github.com/clnsmth/soso.git@main
+  - matplotlib
 prefix: /opt/miniconda3/envs/spinneret

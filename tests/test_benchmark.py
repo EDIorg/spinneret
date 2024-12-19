@@ -16,6 +16,8 @@ from spinneret.benchmark import (
     parse_similarity_scores,
     delete_terms_from_unsupported_ontologies,
     get_shared_ontology,
+    get_grounding_rates,
+    is_grounded,
 )
 from spinneret.utilities import is_url
 
@@ -252,3 +254,36 @@ def test_get_shared_ontology():
     set2 = []
     db = get_shared_ontology(set1, set2)
     assert db is None
+
+
+def test_get_grounding_rates():
+    """Test the get_grounding_rates function"""
+    grounding_rates = get_grounding_rates("tests/data/benchmark/test_a")
+
+    # The result is a dictionary with expected keys and value types
+    assert isinstance(grounding_rates, dict)
+    assert set(grounding_rates.keys()) == {
+        "contains measurements of type",
+        "contains process",
+        "environmental material",
+        "uses standard",
+        "env_local_scale",
+        "research topic",
+        "env_broad_scale",
+        "usesMethod",
+    }
+    for _, v in grounding_rates.items():
+        for k2, v2 in v.items():
+            assert k2 in ["grounded", "ungrounded"]
+            assert isinstance(v2, int)
+
+
+def test_is_grounded():
+    """Test the is_grounded function"""
+
+    # Lists with None or NaN values are not grounded
+    assert not is_grounded([None])
+    assert not is_grounded([pd.NA])
+
+    # But lists with strings starting with "http" are grounded
+    assert is_grounded(["http://example.com"])
