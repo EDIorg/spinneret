@@ -11,6 +11,7 @@ from contextlib import contextmanager
 from daiquiri import getLogger
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 from spinneret.utilities import load_workbook, compress_uri
 from spinneret.workbook import delete_duplicate_annotations, delete_unannotated_rows
 
@@ -490,3 +491,76 @@ def is_grounded(data: list) -> bool:
     data = [d for d in data if not pd.isna(d)]
 
     return any("http" in s for s in data)
+
+
+def plot_similarity_scores_by_predicate(
+    benchmark_results: pd.DataFrame,
+    test_dir_path: str,
+    metric: str,
+    output_file: str = None,
+) -> None:
+    """
+    To see predicate level performance for an OntoGPT test configuration
+
+    :param benchmark_results: The return value from the
+        `benchmark_against_standard` function.
+    :param test_dir_path: Path to the test directory containing the test
+        annotated workbook files for the desired configuration. This should be
+        a value from the `test_dir` column of the benchmark_results DataFrame,
+        which indicates the configuration comparison to plot.
+    :param metric: The metric to plot. This should be a column name from the
+        benchmark_results DataFrame, e.g. "average_score", "best_score", etc.
+    :param output_file: The path to save the plot to, as a PNG file.
+    :return: None
+    """
+    # Subset the benchmark results dataframe to only include the desired
+    # columns: test_dir, metric
+    df = benchmark_results[benchmark_results["test_dir"] == test_dir_path][
+        ["predicate_value", metric]
+    ]
+
+    # Remove empty rows where the metric is 0 or NaN to avoid plotting them
+    df = df.dropna(subset=[metric])
+    df = df[df[metric] != 0]
+
+    # Order the "predicate_value" column to ensure the plot's x-axis is ordered
+    # correctly
+    df["predicate_value"] = pd.Categorical(
+        df["predicate_value"],
+        [
+            "env_broad_scale",
+            "env_local_scale",
+            "contains process",
+            "environmental material",
+            "contains measurements of type",
+            "uses standard",
+            "usesMethod",
+            "research topic",
+        ],
+    )
+
+    plt.figure(figsize=(10, 6))
+    grouped_data_long = df.groupby("predicate_value")[metric].apply(list)
+    plt.boxplot(
+        grouped_data_long.values, labels=grouped_data_long.index, showmeans=True
+    )
+
+    # Add individual data points (jittered)
+    for i, group_data in enumerate(grouped_data_long):
+        x = np.random.normal(i + 1, 0.08, size=len(group_data))  # Jitter x-values
+        plt.plot(x, group_data, "o", alpha=0.25, color="grey")
+
+    configuration = os.path.basename(test_dir_path)
+
+    plt.xlabel("Predicate")
+    plt.ylabel("Score")
+    title = (
+        f"Similarity Score '{metric}' Against Benchmark Standard for "
+        f"Configuration '{configuration}'"
+    )
+    plt.title(title)
+    plt.xticks(rotation=-20)
+    plt.tight_layout()
+    if output_file:
+        plt.savefig(output_file, dpi=300)
+    plt.show()
