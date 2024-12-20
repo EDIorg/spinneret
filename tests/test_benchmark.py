@@ -18,6 +18,7 @@ from spinneret.benchmark import (
     get_shared_ontology,
     get_grounding_rates,
     is_grounded,
+    plot_similarity_scores_by_predicate,
 )
 from spinneret.utilities import is_url
 
@@ -287,3 +288,13 @@ def test_is_grounded():
 
     # But lists with strings starting with "http" are grounded
     assert is_grounded(["http://example.com"])
+
+
+@pytest.mark.skip(reason="Manual inspection required")
+def test_plot_similarity_scores_by_predicate(termset_similarity_score_dataframe):
+    """Test the plot_similarity_scores_by_predicate function"""
+    plot_similarity_scores_by_predicate(
+        benchmark_results=termset_similarity_score_dataframe,
+        test_dir_path="tests/data/benchmark/test_a",
+        metric="average_score",
+    )
