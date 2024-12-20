@@ -94,9 +94,11 @@ def benchmark_against_standard(standard_dir: str, test_dirs: list) -> pd.DataFra
         if not standard_file.endswith(".tsv"):  # we are expecting tsv files
             continue
         standard_path = os.path.join(standard_dir, standard_file)
+        logger.info(f"Benchmarking against standard file: {standard_path}")
 
         for test_dir in test_dirs:
             test_path = os.path.join(test_dir, standard_file)
+            logger.info(f"Comparing to test file: {test_path}")
             if not os.path.exists(test_path):  # we need a matching test file
                 continue
 
