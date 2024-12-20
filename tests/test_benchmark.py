@@ -19,6 +19,7 @@ from spinneret.benchmark import (
     get_grounding_rates,
     is_grounded,
     plot_similarity_scores_by_predicate,
+    plot_similarity_scores_by_configuration,
 )
 from spinneret.utilities import is_url
 
@@ -296,5 +297,14 @@ def test_plot_similarity_scores_by_predicate(termset_similarity_score_dataframe)
     plot_similarity_scores_by_predicate(
         benchmark_results=termset_similarity_score_dataframe,
         test_dir_path="tests/data/benchmark/test_a",
+        metric="average_score",
+    )
+
+
+@pytest.mark.skip(reason="Manual inspection required")
+def test_plot_similarity_scores_by_configuration(termset_similarity_score_dataframe):
+    """Test the plot_similarity_scores_by_configuration function"""
+    plot_similarity_scores_by_configuration(
+        benchmark_results=termset_similarity_score_dataframe,
         metric="average_score",
     )

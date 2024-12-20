@@ -564,3 +564,48 @@ def plot_similarity_scores_by_predicate(
     if output_file:
         plt.savefig(output_file, dpi=300)
     plt.show()
+
+
+def plot_similarity_scores_by_configuration(
+    benchmark_results: pd.DataFrame,
+    metric: str,
+    output_file: str = None,
+) -> None:
+    """
+    To see configuration level performance for an OntoGPT predicate
+
+    :param benchmark_results: The return value from the
+        `benchmark_against_standard` function.
+    :param metric: The metric to plot. This should be a column name from the
+        benchmark_results DataFrame, e.g. "average_score", "best_score", etc.
+    :param output_file: The path to save the plot to, as a PNG file.
+    :return: None
+    """
+    # Subset the benchmark results dataframe to only include the desired
+    # columns: test_dir, metric
+    df = benchmark_results[["test_dir", metric]]
+
+    # Remove empty rows where the metric is 0 or NaN to avoid plotting them
+    df = df.dropna(subset=[metric])
+    df = df[df[metric] != 0]
+
+    plt.figure(figsize=(10, 6))
+    grouped_data_long = df.groupby("test_dir")[metric].apply(list)
+    plt.boxplot(
+        grouped_data_long.values, labels=grouped_data_long.index, showmeans=True
+    )
+
+    # Add individual data points (jittered)
+    for i, group_data in enumerate(grouped_data_long):
+        x = np.random.normal(i + 1, 0.08, size=len(group_data))  # Jitter x-values
+        plt.plot(x, group_data, "o", alpha=0.25, color="grey")
+
+    plt.xlabel("Configuration")
+    plt.ylabel("Score")
+    title = f"Similarity Score '{metric}' Across Configurations"
+    plt.title(title)
+    plt.xticks(rotation=-20)
+    plt.tight_layout()
+    if output_file:
+        plt.savefig(output_file, dpi=300)
+    plt.show()
