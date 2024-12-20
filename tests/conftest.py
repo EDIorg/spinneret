@@ -2,6 +2,7 @@
 
 from json import load
 import pytest
+import pandas as pd
 from spinneret.utilities import load_workbook
 
 
@@ -55,3 +56,13 @@ def termset_similarity_score_fields():
         "average_test_information_content",
         "best_test_information_content",
     ]
+
+
+@pytest.fixture(name="termset_similarity_score_dataframe")
+def termset_similarity_score_dataframe():
+    """Return a fixture for a dataframe of termset similarity scores returned
+    by the benchmark_against_standard function"""
+    scores = pd.read_csv(
+        "tests/data/benchmark/termset_similarity_scores.tsv", sep="\t", encoding="utf-8"
+    )
+    return scores
