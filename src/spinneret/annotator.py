@@ -138,7 +138,6 @@ def annotate_workbook(
     workbook_path: str,
     eml_path: str,
     output_path: str,
-    annotator: str,
     local_model: str = None,
     temperature: Union[float, None] = None,
     return_ungrounded: bool = False,
@@ -150,10 +149,6 @@ def annotate_workbook(
         corresponding to the EML file.
     :param eml_path: The path to the EML file corresponding to the workbook.
     :param output_path: The path to write the annotated workbook.
-    :param annotator: The annotator to use for grounding. Options are "ontogpt"
-        and "bioportal". OntoGPT requires setup and configuration described in
-        the `get_ontogpt_annotation` function. Similarly, BioPortal requires
-        an API key and is described in the `get_bioportal_annotation` function.
     :param local_model: See `get_ontogpt_annotation` documentation for details.
     :param temperature: The temperature parameter for the model. If None, the
         OntoGPT default will be used.
@@ -167,7 +162,6 @@ def annotate_workbook(
         path as the original workbook.
     """
     logger.info(f"Annotating workbook {workbook_path}")
-    logger.info(f"Annotating with {annotator}")
 
     # Ensure the workbook and eml file match to avoid errors
     pid = os.path.basename(workbook_path).split("_")[0]
@@ -180,70 +174,63 @@ def annotate_workbook(
     wb = load_workbook(workbook_path)
     eml = load_eml(eml_path)
 
-    # Run workbook annotators, results of one are used as input for the next
-    if annotator == "bioportal":
-        wb = add_dataset_annotations_to_workbook(wb, eml, sample_size=sample_size)
-        wb = add_measurement_type_annotations_to_workbook(
-            wb, eml, annotator=annotator, sample_size=sample_size
-        )
-    elif annotator == "ontogpt":
-        wb = add_env_broad_scale_annotations_to_workbook(
-            wb,
-            eml,
-            local_model=local_model,
-            temperature=temperature,
-            return_ungrounded=return_ungrounded,
-            sample_size=sample_size,
-        )
-        wb = add_env_local_scale_annotations_to_workbook(
-            wb,
-            eml,
-            local_model=local_model,
-            temperature=temperature,
-            return_ungrounded=return_ungrounded,
-            sample_size=sample_size,
-        )
-        wb = add_process_annotations_to_workbook(
-            wb,
-            eml,
-            local_model=local_model,
-            temperature=temperature,
-            return_ungrounded=return_ungrounded,
-            sample_size=sample_size,
-        )
-        wb = add_methods_annotations_to_workbook(
-            wb,
-            eml,
-            local_model=local_model,
-            temperature=temperature,
-            return_ungrounded=return_ungrounded,
-            sample_size=sample_size,
-        )
-        wb = add_research_topic_annotations_to_workbook(
-            wb,
-            eml,
-            local_model=local_model,
-            temperature=temperature,
-            return_ungrounded=return_ungrounded,
-            sample_size=sample_size,
-        )
-        wb = add_measurement_type_annotations_to_workbook(
-            wb,
-            eml,
-            annotator="ontogpt",
-            local_model=local_model,
-            temperature=temperature,
-            return_ungrounded=return_ungrounded,
-            sample_size=sample_size,
-        )
-        wb = add_env_medium_annotations_to_workbook(
-            wb,
-            eml,
-            local_model=local_model,
-            temperature=temperature,
-            return_ungrounded=return_ungrounded,
-            sample_size=sample_size,
-        )
+    # Run workbook annotator, results of one are used as input for the next
+    wb = add_env_broad_scale_annotations_to_workbook(
+        wb,
+        eml,
+        local_model=local_model,
+        temperature=temperature,
+        return_ungrounded=return_ungrounded,
+        sample_size=sample_size,
+    )
+    wb = add_env_local_scale_annotations_to_workbook(
+        wb,
+        eml,
+        local_model=local_model,
+        temperature=temperature,
+        return_ungrounded=return_ungrounded,
+        sample_size=sample_size,
+    )
+    wb = add_process_annotations_to_workbook(
+        wb,
+        eml,
+        local_model=local_model,
+        temperature=temperature,
+        return_ungrounded=return_ungrounded,
+        sample_size=sample_size,
+    )
+    wb = add_methods_annotations_to_workbook(
+        wb,
+        eml,
+        local_model=local_model,
+        temperature=temperature,
+        return_ungrounded=return_ungrounded,
+        sample_size=sample_size,
+    )
+    wb = add_research_topic_annotations_to_workbook(
+        wb,
+        eml,
+        local_model=local_model,
+        temperature=temperature,
+        return_ungrounded=return_ungrounded,
+        sample_size=sample_size,
+    )
+    wb = add_measurement_type_annotations_to_workbook(
+        wb,
+        eml,
+        local_model=local_model,
+        temperature=temperature,
+        return_ungrounded=return_ungrounded,
+        sample_size=sample_size,
+    )
+    wb = add_env_medium_annotations_to_workbook(
+        wb,
+        eml,
+        local_model=local_model,
+        temperature=temperature,
+        return_ungrounded=return_ungrounded,
+        sample_size=sample_size,
+    )
     wb = add_qudt_annotations_to_workbook(wb, eml)  # irrespective of annotator
 
     write_workbook(wb, output_path)
@@ -485,98 +472,11 @@ def add_qudt_annotations_to_workbook(
     return wb
 
 
-def add_dataset_annotations_to_workbook(
-    workbook: Union[str, pd.core.frame.DataFrame],
-    eml: Union[str, etree._ElementTree],
-    output_path: str = None,
-    overwrite: bool = False,
-    sample_size: int = 1,
-) -> pd.core.frame.DataFrame:
-    """
-    :param workbook: Either the path to the workbook to be annotated, or the
-        workbook itself as a pandas DataFrame.
-    :param eml: Either the path to the EML file corresponding to the workbook,
-        or the EML file itself as an lxml etree.
-    :param output_path: The path to write the annotated workbook.
-    :param overwrite: If True, overwrite existing `dataset` annotations in the
-        workbook, so a fresh set may be created.
-    :param sample_size: Executes multiple replicates of the annotation request
-        to reduce variability of outputs. Variability is inherent in OntoGPT.
-    :returns: Workbook with dataset annotations.
-    """
-    logger.info("Annotating dataset")
-
-    # Load the workbook and EML for processing
-    wb = load_workbook(workbook)
-    eml = load_eml(eml)
-
-    # Set the author identifier for consistent reference below
-    author = "spinneret.annotator.get_bioportal_annotation"
-
-    # Remove existing dataset annotations if overwrite is True, using a set of
-    # criteria that accurately define the annotations to remove.
-    if overwrite:
-        wb = delete_annotations(
-            workbook=wb,
-            criteria={
-                "element": "dataset",
-                "element_xpath": "/eml:eml/dataset",
-                "author": author,
-            },
-        )
-
-    # Get the dataset annotations
-    dataset_element = eml.xpath("//dataset")[0]
-    element_description = get_description(dataset_element)
-    annotations = []
-    for _ in range(sample_size):
-        res = get_bioportal_annotation(  # expecting a list of annotations
-            text=element_description,
-            api_key=os.environ["BIOPORTAL_API_KEY"],
-            ontologies="ENVO",  # ENVO provides environmental terms
-            exclude_synonyms="true",
-        )
-        if res is not None:
-            annotations.extend(res)
-    if len(annotations) == 0:
-        annotations = None
-
-    # Add dataset annotations to the workbook
-    if annotations is not None:
-        for annotation in annotations:
-            row = initialize_workbook_row()
-            row["package_id"] = get_package_id(eml)
-            row["url"] = get_package_url(eml)
-            row["element"] = dataset_element.tag
-            if "id" in dataset_element.attrib:
-                row["element_id"] = dataset_element.attrib["id"]
-            else:
-                row["element_id"] = pd.NA
-            row["element_xpath"] = eml.getpath(dataset_element)
-            row["context"] = get_subject_and_context(dataset_element)["context"]
-            row["description"] = element_description
-            row["subject"] = get_subject_and_context(dataset_element)["subject"]
-            row["predicate"] = "is about"
-            row["predicate_id"] = "http://purl.obolibrary.org/obo/IAO_0000136"
-            row["object"] = annotation["label"]
-            row["object_id"] = annotation["uri"]
-            row["author"] = author
-            row["date"] = pd.Timestamp.now()
-            row = pd.DataFrame([row], dtype=str)
-            wb = pd.concat([wb, row], ignore_index=True)
-        wb = delete_duplicate_annotations(wb)
-
-    if output_path:
-        write_workbook(wb, output_path)
-    return wb
-
-
 # pylint: disable=too-many-branches
 # pylint: disable=too-many-statements
 def add_measurement_type_annotations_to_workbook(
     workbook: Union[str, pd.core.frame.DataFrame],
     eml: Union[str, etree._ElementTree],
-    annotator: str,
     output_path: str = None,
     overwrite: bool = False,
     local_model: str = None,
@@ -589,10 +489,6 @@ def add_measurement_type_annotations_to_workbook(
         workbook itself as a pandas DataFrame.
     :param eml: Either the path to the EML file corresponding to the workbook,
         or the EML file itself as an lxml etree.
-    :param annotator: The annotator to use for grounding. Options are "ontogpt"
-        and "bioportal". OntoGPT requires setup and configuration described in
-        the `get_ontogpt_annotation` function. Similarly, BioPortal requires
-        an API key and is described in the `get_bioportal_annotation` function.
     :param output_path: The path to write the annotated workbook.
     :param overwrite: If True, overwrite existing `measurement type`
         annotations in the workbook, so a fresh set may be created.
@@ -652,35 +548,19 @@ def add_measurement_type_annotations_to_workbook(
         )
 
         if annotations is None:
-            # Select an annotator, and get the measurement type annotations
-            if annotator.lower() == "ontogpt":
-                annotations = []
-                for _ in range(sample_size):
-                    res = get_ontogpt_annotation(
-                        text=attribute_description,
-                        template="contains_measurement_of_type",
-                        local_model=local_model,
-                        temperature=temperature,
-                        return_ungrounded=return_ungrounded,
-                    )
-                    if res is not None:
-                        annotations.extend(res)
-                if len(annotations) == 0:
-                    annotations = None
-            else:
-                annotations = []
-                for _ in range(sample_size):
-                    res = get_bioportal_annotation(
-                        # expecting a list of annotations
-                        text=attribute_description,
-                        api_key=os.environ["BIOPORTAL_API_KEY"],
-                        ontologies="ECSO",  # ECSO provides measurment terms
-                        exclude_synonyms="true",
-                    )
-                    if res is not None:
-                        annotations.extend(res)
-                if len(annotations) == 0:
-                    annotations = None
+            annotations = []
+            for _ in range(sample_size):
+                res = get_ontogpt_annotation(
+                    text=attribute_description,
+                    template="contains_measurement_of_type",
+                    local_model=local_model,
+                    temperature=temperature,
+                    return_ungrounded=return_ungrounded,
+                )
+                if res is not None:
+                    annotations.extend(res)
+            if len(annotations) == 0:
+                annotations = None
 
         # Add the measurement type annotations to the workbook
         if annotations is not None:
@@ -704,10 +584,7 @@ def add_measurement_type_annotations_to_workbook(
                 )
                 row["object"] = annotation["label"]
                 row["object_id"] = annotation["uri"]
-                if annotator.lower() == "ontogpt":
-                    row["author"] = "spinneret.annotator.get_ontogpt_annotation"
-                elif annotator.lower() == "bioportal":
-                    row["author"] = "spinneret.annotator.get_bioportal_annotation"
+                row["author"] = "spinneret.annotator.get_ontogpt_annotation"
                 row["date"] = pd.Timestamp.now()
                 row = pd.DataFrame([row], dtype=str)
                 wb = pd.concat([wb, row], ignore_index=True)
