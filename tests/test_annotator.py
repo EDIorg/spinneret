@@ -15,13 +15,13 @@ from spinneret.annotator import (
     add_qudt_annotations_to_workbook,
     add_measurement_type_annotations_to_workbook,
     add_process_annotations_to_workbook,
-    add_env_broad_scale_annotations_to_workbook,
     add_env_local_scale_annotations_to_workbook,
     add_env_medium_annotations_to_workbook,
     add_research_topic_annotations_to_workbook,
     add_methods_annotations_to_workbook,
     get_annotation_from_workbook,
     has_annotation,
+    add_predicate_annotations_to_workbook,
 )
 from spinneret.utilities import (
     load_configuration,
@@ -82,10 +82,8 @@ def test_get_bioportal_annotation(mocker, use_mock, get_annotation_fixture):
 
 # pylint: disable=duplicate-code
 @pytest.mark.parametrize("use_mock", [True])  # False tests with real LLM queries
-def test_annotate_workbook_with_ontogpt(
-    tmp_path, mocker, use_mock, get_annotation_fixture
-):
-    """Test annotate_workbook using the OntoGPT annotator"""
+def test_annotate_workbook(tmp_path, mocker, use_mock, get_annotation_fixture):
+    """Test annotate_workbook"""
 
     # Configure the mock responses
     if use_mock:
@@ -546,8 +544,8 @@ def test_add_process_annotations_to_workbook(tmp_path, use_mock, mocker):
 
 
 @pytest.mark.parametrize("use_mock", [True])  # False tests with real local LLM queries
-def test_add_env_broad_scale_annotations_to_workbook(tmp_path, use_mock, mocker):
-    """Test add_env_broad_scale_annotations_to_workbook"""
+def test_add_predicate_annotations_to_workbook(tmp_path, use_mock, mocker):
+    """Test add_predicate_annotations_to_workbook"""
 
     # Parameterize the test
     workbook_path = "tests/edi.3.9_annotation_workbook.tsv"
@@ -563,7 +561,8 @@ def test_add_env_broad_scale_annotations_to_workbook(tmp_path, use_mock, mocker)
             "spinneret.annotator.get_ontogpt_annotation",
             return_value=[{"label": "a label", "uri": "a uri"}],
         )
-    wb = add_env_broad_scale_annotations_to_workbook(
+    wb = add_predicate_annotations_to_workbook(
+        predicate="env_broad_scale",
         workbook=workbook_path,
         eml=get_example_eml_dir() + "/" + "edi.3.9.xml",
         output_path=output_path,
@@ -579,7 +578,8 @@ def test_add_env_broad_scale_annotations_to_workbook(tmp_path, use_mock, mocker)
             "spinneret.annotator.get_ontogpt_annotation",
             return_value=[{"label": "a different label", "uri": "a different uri"}],
         )
-    wb = add_env_broad_scale_annotations_to_workbook(
+    wb = add_predicate_annotations_to_workbook(
+        predicate="env_broad_scale",
         workbook=output_path,  # the output from the first call
         eml=get_example_eml_dir() + "/" + "edi.3.9.xml",
         output_path=output_path,

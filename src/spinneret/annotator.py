@@ -24,6 +24,9 @@ from spinneret.utilities import (
     write_workbook,
     write_eml,
     expand_curie,
+    get_elements_for_predicate,
+    get_template_for_predicate,
+    get_predicate_id_for_predicate,
 )
 
 logger = getLogger(__name__)
@@ -175,63 +178,26 @@ def annotate_workbook(
     eml = load_eml(eml_path)
 
     # Run workbook annotator, results of one are used as input for the next
-    wb = add_env_broad_scale_annotations_to_workbook(
-        wb,
-        eml,
-        local_model=local_model,
-        temperature=temperature,
-        return_ungrounded=return_ungrounded,
-        sample_size=sample_size,
-    )
-    wb = add_env_local_scale_annotations_to_workbook(
-        wb,
-        eml,
-        local_model=local_model,
-        temperature=temperature,
-        return_ungrounded=return_ungrounded,
-        sample_size=sample_size,
-    )
-    wb = add_process_annotations_to_workbook(
-        wb,
-        eml,
-        local_model=local_model,
-        temperature=temperature,
-        return_ungrounded=return_ungrounded,
-        sample_size=sample_size,
-    )
-    wb = add_methods_annotations_to_workbook(
-        wb,
-        eml,
-        local_model=local_model,
-        temperature=temperature,
-        return_ungrounded=return_ungrounded,
-        sample_size=sample_size,
-    )
-    wb = add_research_topic_annotations_to_workbook(
-        wb,
-        eml,
-        local_model=local_model,
-        temperature=temperature,
-        return_ungrounded=return_ungrounded,
-        sample_size=sample_size,
-    )
-    wb = add_measurement_type_annotations_to_workbook(
-        wb,
-        eml,
-        local_model=local_model,
-        temperature=temperature,
-        return_ungrounded=return_ungrounded,
-        sample_size=sample_size,
-    )
-    wb = add_env_medium_annotations_to_workbook(
-        wb,
-        eml,
-        local_model=local_model,
-        temperature=temperature,
-        return_ungrounded=return_ungrounded,
-        sample_size=sample_size,
-    )
-    wb = add_qudt_annotations_to_workbook(wb, eml)  # irrespective of annotator
+    predicates = [
+        "contains measurements of type",
+        "contains process",
+        "env_broad_scale",
+        "env_local_scale",
+        "environmental material",
+        "research topic",
+        "usesMethod",
+    ]
+    for p in predicates:
+        wb = add_predicate_annotations_to_workbook(
+            predicate=p,
+            workbook=wb,
+            eml=eml,
+            local_model=local_model,
+            temperature=temperature,
+            return_ungrounded=return_ungrounded,
+            sample_size=sample_size,
+        )
+    wb = add_qudt_annotations_to_workbook(wb, eml)
 
     write_workbook(wb, output_path)
     return None
@@ -796,6 +762,137 @@ def add_process_annotations_to_workbook(
     if output_path:
         write_workbook(wb, output_path)
     return wb
+
+
+def add_predicate_annotations_to_workbook(
+    predicate: str,
+    workbook: Union[str, pd.core.frame.DataFrame],
+    eml: Union[str, etree._ElementTree],
+    output_path: str = None,
+    overwrite: bool = False,
+    local_model: str = None,
+    temperature: Union[float, None] = None,
+    return_ungrounded: bool = False,
+    sample_size: int = 1,
+) -> pd.core.frame.DataFrame:
+    """
+    :param predicate: The predicate label for the annotation. This guides the
+        annotation process with which OntoGPT template to use. The options are:
+        `contains measurements of type`, `contains process`, `env_broad_scale`,
+        `env_local_scale`, `environmental material`, `research topic`,
+        `usesMethod`, `uses standard`.
+    :param workbook: Either the path to the workbook to be annotated, or the
+        workbook itself as a pandas DataFrame.
+    :param eml: Either the path to the EML file corresponding to the workbook,
+        or the EML file itself as an lxml etree.
+    :param output_path: The path to write the annotated workbook.
+    :param overwrite: If True, overwrite existing annotations in the workbook,
+        so a fresh set may be created. Only annotations with the same predicate
+        as the `predicate` input will be removed.
+    :param local_model: See `get_ontogpt_annotation` documentation for details.
+    :param temperature: The temperature parameter for the model. If `None`, the
+        OntoGPT default will be used.
+    :param return_ungrounded: See `get_ontogpt_annotation` documentation for
+        details.
+    :param sample_size: Executes multiple replicates of the annotation request
+        to reduce variability of outputs. Variability is inherent in OntoGPT.
+    :returns: Workbook with predicate annotations.
+    :notes: This function retrieves annotations using OntoGPT, except for the
+        `uses standard` which uses a deterministic method. OntoGPT requires
+        setup and configuration described in the `get_ontogpt_annotation`
+        function.
+    """
+
+    # Load the workbook and EML for processing
+    wb = load_workbook(workbook)
+    eml = load_eml(eml)
+
+    # Annotate for each element in the set that matches the predicate
+    elements = get_elements_for_predicate(eml, predicate)
+    for element in elements:
+        logger.info(f"Annotating {predicate}")
+
+        # Parameters for use below
+        element_tag = element.tag
+        element_description = get_description(element)
+        element_xpath = eml.getpath(element)
+        template = get_template_for_predicate(predicate)
+        predicate_id = get_predicate_id_for_predicate(predicate)
+        author = "spinneret.annotator.get_ontogpt_annotation"
+
+        # Remove existing annotations if instructed to do so
+        if overwrite:
+            wb = delete_annotations(
+                workbook=wb,
+                criteria={
+                    "element": element_tag,
+                    "element_xpath": element_xpath,
+                    "predicate": predicate,
+                    "author": author,
+                },
+            )
+
+        # Skip if this element already has an annotation in the workbook, to:
+        # prevent duplicate annotations, and to allow for resuming annotation
+        # of a partially annotated workbook.
+        if has_annotation(wb, element_xpath, predicate):
+            return wb
+
+        # Reuse existing annotations for elements with identical tag names,
+        # descriptions, and predicate labels, to reduce redundant processing.
+        # Note this assumes semantic equivalence between elements with matching
+        # tags and descriptions, which is generally true.
+        annotations = get_annotation_from_workbook(
+            workbook=wb,
+            element=element_tag,
+            description=element_description,
+            predicate=predicate,
+        )
+
+        if annotations is None:
+            # Get the annotations
+            annotations = []
+            for _ in range(sample_size):
+                res = get_ontogpt_annotation(
+                    text=element_description,
+                    template=template,
+                    local_model=local_model,
+                    temperature=temperature,
+                    return_ungrounded=return_ungrounded,
+                )
+                if res is not None:
+                    annotations.extend(res)
+            if len(annotations) == 0:
+                annotations = None
+
+        # Add annotations to the workbook
+        if annotations is not None:
+            for annotation in annotations:
+                row = initialize_workbook_row()
+                row["package_id"] = get_package_id(eml)
+                row["url"] = get_package_url(eml)
+                row["element"] = element_tag
+                if "id" in element.attrib:
+                    row["element_id"] = element.attrib["id"]
+                else:
+                    row["element_id"] = pd.NA
+                row["element_xpath"] = eml.getpath(element)
+                row["context"] = get_subject_and_context(element)["context"]
+                row["description"] = element_description
+                row["subject"] = get_subject_and_context(element)["subject"]
+                row["predicate"] = predicate
+                row["predicate_id"] = predicate_id
+                row["object"] = annotation["label"]
+                row["object_id"] = annotation["uri"]
+                row["author"] = author
+                row["date"] = pd.Timestamp.now()
+                row = pd.DataFrame([row], dtype=str)
+                wb = pd.concat([wb, row], ignore_index=True)
+            wb = delete_duplicate_annotations(wb)
+
+        if output_path:
+            write_workbook(wb, output_path)
+        return wb
 
 
 def add_env_broad_scale_annotations_to_workbook(
