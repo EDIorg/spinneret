@@ -214,18 +214,17 @@ def get_predicate_id_for_predicate(predicate: str) -> Union[str, None]:
     """
     predicate_and_id = {
         "contains measurements of type": "http://ecoinformatics.org/oboe/"
-                                         "oboe.1.2/oboe-core.owl#"
-                                         "containsMeasurementsOfType",
+        "oboe.1.2/oboe-core.owl#"
+        "containsMeasurementsOfType",
         "contains process": "http://purl.obolibrary.org/obo/BFO_0000067",
         "env_broad_scale": "https://genomicsstandardsconsortium.github.io/mixs"
-                           "/0000012/",
+        "/0000012/",
         "env_local_scale": "https://genomicsstandardsconsortium.github.io/mixs"
-                           "/0000013/",
-        "environmental material": "http://purl.obolibrary.org/obo/"
-                                  "ENVO_00010483",
+        "/0000013/",
+        "environmental material": "http://purl.obolibrary.org/obo/" "ENVO_00010483",
         "research topic": "http://vocabs.lter-europe.net/EnvThes/21604",
         "usesMethod": "http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#"
-                      "usesMethod",
+        "usesMethod",
     }
     predicate_id = predicate_and_id.get(predicate)
     if not predicate_id:
