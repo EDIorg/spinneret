@@ -647,9 +647,9 @@ def add_predicate_annotations_to_workbook(
                 wb = pd.concat([wb, row], ignore_index=True)
             wb = delete_duplicate_annotations(wb)
 
-        if output_path:
-            write_workbook(wb, output_path)
-        return wb
+    if output_path:
+        write_workbook(wb, output_path)
+    return wb
 
 
 def get_annotation_from_workbook(
