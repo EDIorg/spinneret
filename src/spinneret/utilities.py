@@ -157,3 +157,76 @@ def load_prefixmaps() -> dict:
     file = str(importlib.resources.files("spinneret.data")) + "/prefixmaps.csv"
     prefixmaps = pd.read_csv(file)
     return prefixmaps
+
+
+def get_elements_for_predicate(eml: etree._ElementTree, predicate: str) -> list:
+    """
+    Get the EML elements that corresponds to a predicate. Elements contain
+    the information from which annotations are derived.
+
+    :param eml: An EML document.
+    :param predicate: The predicate to be used to find the element(s).
+    :returns: The element(s) that corresponds to the predicate, each as an
+    etree._Element. If the predicate is not found, returns empty list.
+    """
+    predicate_and_xpath = {
+        "contains measurements of type": "//attribute",
+        "contains process": "//dataset",
+        "env_broad_scale": "//dataset",
+        "env_local_scale": "//dataset",
+        "environmental material": "//attribute",
+        "research topic": "//dataset",
+        "usesMethod": "//dataset/methods",
+    }
+    xpath = predicate_and_xpath.get(predicate)
+    if xpath:
+        return eml.xpath(xpath)
+    logger.warning(f"Predicate {predicate} not found in the list of predicates.")
+    return []
+
+
+def get_template_for_predicate(predicate: str) -> Union[str, None]:
+    """
+    :param predicate: The predicate to be used to find the template.
+    :returns: The OntoGPT template for the predicate. Returns None if the
+        predicate is not found.
+    """
+    predicate_and_template = {
+        "contains measurements of type": "contains_measurement_of_type",
+        "contains process": "contains_process",
+        "env_broad_scale": "env_broad_scale",
+        "env_local_scale": "env_local_scale",
+        "environmental material": "env_medium",
+        "research topic": "research_topic",
+        "usesMethod": "uses_method",
+    }
+    template = predicate_and_template.get(predicate)
+    if not template:
+        logger.warning(f"Predicate {predicate} not found in the list of predicates.")
+    return template
+
+
+def get_predicate_id_for_predicate(predicate: str) -> Union[str, None]:
+    """
+    :param predicate: The predicate to be used to find the predicate ID.
+    :returns: The predicate ID for the predicate. Returns None if the
+        predicate is not found.
+    """
+    predicate_and_id = {
+        "contains measurements of type": "http://ecoinformatics.org/oboe/"
+        "oboe.1.2/oboe-core.owl#"
+        "containsMeasurementsOfType",
+        "contains process": "http://purl.obolibrary.org/obo/BFO_0000067",
+        "env_broad_scale": "https://genomicsstandardsconsortium.github.io/mixs"
+        "/0000012/",
+        "env_local_scale": "https://genomicsstandardsconsortium.github.io/mixs"
+        "/0000013/",
+        "environmental material": "http://purl.obolibrary.org/obo/" "ENVO_00010483",
+        "research topic": "http://vocabs.lter-europe.net/EnvThes/21604",
+        "usesMethod": "http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#"
+        "usesMethod",
+    }
+    predicate_id = predicate_and_id.get(predicate)
+    if not predicate_id:
+        logger.warning(f"Predicate {predicate} not found in the list of predicates.")
+    return predicate_id

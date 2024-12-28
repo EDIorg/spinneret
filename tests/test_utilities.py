@@ -14,6 +14,9 @@ from spinneret.utilities import (
     expand_curie,
     compress_uri,
     load_prefixmaps,
+    get_elements_for_predicate,
+    get_template_for_predicate,
+    get_predicate_id_for_predicate,
 )
 from spinneret.datasets import get_example_eml_dir
 
@@ -138,3 +141,43 @@ def test_load_prefixmaps():
     """Test that the prefixmaps are loaded"""
     prefixmaps = load_prefixmaps()
     assert isinstance(prefixmaps, pd.DataFrame)
+
+
+def test_get_elements_for_predicate():
+    """Test that elements are retrieved for a given predicate"""
+    eml = load_eml(get_example_eml_dir() + "/" + "edi.3.9.xml")
+
+    # Elements are retrieved for a given predicate
+    elements = get_elements_for_predicate(eml, "contains measurements of type")
+    for element in elements:
+        assert element.tag == "attribute"
+        assert isinstance(element, etree._Element)
+
+    # Elements are not retrieved for a non-existent predicate
+    elements = get_elements_for_predicate(eml, "non-existent predicate")
+    assert elements == []
+
+
+def test_get_template_for_predicate():
+    """Test that a template is retrieved for a given predicate"""
+    # The template is retrieved for a given predicate
+    template = get_template_for_predicate("contains measurements of type")
+    assert template == "contains_measurement_of_type"
+
+    # None is returned for a non-existent predicate
+    template = get_template_for_predicate("non-existent predicate")
+    assert template is None
+
+
+def test_get_predicate_id_for_predicate():
+    """Test that a predicate ID is retrieved for a given predicate"""
+    # The predicate ID is retrieved for a given predicate
+    predicate_id = get_predicate_id_for_predicate("contains measurements of type")
+    assert predicate_id == (
+        "http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#"
+        "containsMeasurementsOfType"
+    )
+
+    # None is returned for a non-existent predicate
+    predicate_id = get_predicate_id_for_predicate("non-existent predicate")
+    assert predicate_id is None

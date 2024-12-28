@@ -13,15 +13,9 @@ from spinneret.annotator import (
     annotate_eml,
     create_annotation_element,
     add_qudt_annotations_to_workbook,
-    add_measurement_type_annotations_to_workbook,
-    add_process_annotations_to_workbook,
-    add_env_broad_scale_annotations_to_workbook,
-    add_env_local_scale_annotations_to_workbook,
-    add_env_medium_annotations_to_workbook,
-    add_research_topic_annotations_to_workbook,
-    add_methods_annotations_to_workbook,
     get_annotation_from_workbook,
     has_annotation,
+    add_predicate_annotations_to_workbook,
 )
 from spinneret.utilities import (
     load_configuration,
@@ -82,10 +76,8 @@ def test_get_bioportal_annotation(mocker, use_mock, get_annotation_fixture):
 
 # pylint: disable=duplicate-code
 @pytest.mark.parametrize("use_mock", [True])  # False tests with real LLM queries
-def test_annotate_workbook_with_ontogpt(
-    tmp_path, mocker, use_mock, get_annotation_fixture
-):
-    """Test annotate_workbook using the OntoGPT annotator"""
+def test_annotate_workbook(tmp_path, mocker, use_mock, get_annotation_fixture):
+    """Test annotate_workbook"""
 
     # Configure the mock responses
     if use_mock:
@@ -340,111 +332,15 @@ def test_has_annotations():
     assert has_annotations(wb) is True
 
 
-@pytest.mark.parametrize("use_mock", [True])  # False makes real HTTP requests
-def test_add_measurement_type_annotations_to_workbook(tmp_path, use_mock, mocker):
-    """Test add_measurement_type_annotations_to_workbook"""
-
-    # Parameterize the test
-    workbook_path = "tests/edi.3.9_annotation_workbook.tsv"
-    output_path = str(tmp_path) + "edi.3.9_annotation_workbook_annotated.tsv"
-
-    # The workbook shouldn't have any annotations yet
-    wb = load_workbook(workbook_path)
-    assert not has_annotations(wb)
-
-    # The workbook "should" have annotations after calling the function. We
-    # say "should" because OntoGPT is non-deterministic, and we can't always
-    # expect the same results, or any results at all.
-    if use_mock:
-        mocker.patch(
-            "spinneret.annotator.get_ontogpt_annotation",
-            return_value=[
-                {
-                    "label": "depth",
-                    "uri": "http://purl.dataone.org/odo/ECSO_00000515",
-                }
-            ],
-        )
-    wb = add_measurement_type_annotations_to_workbook(
-        workbook=workbook_path,
-        eml=get_example_eml_dir() + "/" + "edi.3.9.xml",
-        output_path=output_path,
-    )
-    assert has_annotations(wb)
-
-    # Overwriting changes the annotations. Note, we can't test this with real
-    # requests because we'll expect the same results as the first call.
-    if use_mock:
-        mocker.patch(  # an arbitrary response to check for
-            "spinneret.annotator.get_ontogpt_annotation",
-            return_value=[
-                {
-                    "label": "A different measurement type",
-                    "uri": "http://purl.dataone.org/odo/ECSO_XXXXXXXX",
-                }
-            ],
-        )
-    wb = add_measurement_type_annotations_to_workbook(
-        workbook=output_path,  # the output from the first call
-        eml=get_example_eml_dir() + "/" + "edi.3.9.xml",
-        output_path=output_path,
-        overwrite=True,
-    )
-    assert wb["object"].str.contains("A different measurement type").any()
-    assert (
-        wb["object_id"].str.contains("http://purl.dataone.org/odo/ECSO_XXXXXXXX").any()
-    )
-
-    # Original annotations are gone
-    assert not wb["object"].str.contains("depth").any()
-    assert (
-        not wb["object_id"]
-        .str.contains("http://purl.dataone.org/odo/ECSO_00000515")
-        .any()
-    )
-
-
-def test_add_measurement_type_annotations_to_workbook_io_options(tmp_path, mocker):
-    """Test add_measurement_type_annotations_to_workbook with different input
-    and output options"""
-
-    mocker.patch(
-        "spinneret.annotator.get_ontogpt_annotation",
-        return_value=[
-            {
-                "label": "depth",
-                "uri": "http://purl.dataone.org/odo/ECSO_00000515",
-            }
-        ],
-    )
-
-    # Accepts file path as input
-    output_path = str(tmp_path) + "edi.3.9_annotation_workbook_annotated.tsv"
-    wb = add_measurement_type_annotations_to_workbook(
-        workbook="tests/edi.3.9_annotation_workbook.tsv",
-        eml=get_example_eml_dir() + "/" + "edi.3.9.xml",
-        output_path=output_path,
-    )
-    wb = load_workbook(output_path)
-    assert has_annotations(wb)
-
-    # Accepts dataframes and etree objects as input
-    wb = load_workbook("tests/edi.3.9_annotation_workbook.tsv")
-    eml = load_eml(get_example_eml_dir() + "/" + "edi.3.9.xml")
-    wb = add_measurement_type_annotations_to_workbook(workbook=wb, eml=eml)
-    assert has_annotations(wb)
-
-
 def test_annotators_are_listed_as_authors(tmp_path, mocker):
     """Test that the annotators are listed as authors in the workbook."""
 
-    # Test for the `add_measurement_type_annotations_to_workbook` function
-    # using the OntoGPT annotator
     mocker.patch(
         "spinneret.annotator.get_ontogpt_annotation",
         return_value=[{"label": "a label", "uri": "a uri"}],
     )
-    wb = add_measurement_type_annotations_to_workbook(
+    wb = add_predicate_annotations_to_workbook(
+        predicate="contains measurements of type",
         workbook="tests/edi.3.9_annotation_workbook.tsv",
         eml=get_example_eml_dir() + "/" + "edi.3.9.xml",
         output_path=str(tmp_path) + "edi.3.9_annotation_workbook_dataset.tsv",
@@ -496,58 +392,8 @@ def test_get_ontogpt_annotation(mocker, use_mock):
 
 
 @pytest.mark.parametrize("use_mock", [True])  # False tests with real local LLM queries
-def test_add_process_annotations_to_workbook(tmp_path, use_mock, mocker):
-    """Test add_process_annotations_to_workbook"""
-
-    # Parameterize the test
-    workbook_path = "tests/edi.3.9_annotation_workbook.tsv"
-    output_path = str(tmp_path) + "edi.3.9_annotation_workbook_qudt.tsv"
-
-    # The workbook shouldn't have any annotations yet
-    wb = load_workbook(workbook_path)
-    assert not has_annotations(wb)
-
-    # The workbook has annotations after calling the function
-    if use_mock:
-        mocker.patch(
-            "spinneret.annotator.get_ontogpt_annotation",
-            return_value=[{"label": "a label", "uri": "a uri"}],
-        )
-    wb = add_process_annotations_to_workbook(
-        workbook=workbook_path,
-        eml=get_example_eml_dir() + "/" + "edi.3.9.xml",
-        output_path=output_path,
-        local_model="llama3.2",
-        return_ungrounded=True,  # ensures we get at least one annotation back
-    )
-    assert has_annotations(wb)
-
-    # Overwriting changes the annotations. Note, we can't test this with real
-    # requests because we'll expect the same results as the first call.
-    if use_mock:
-        mocker.patch(  # an arbitrary response to check for
-            "spinneret.annotator.get_ontogpt_annotation",
-            return_value=[{"label": "a different label", "uri": "a different uri"}],
-        )
-    wb = add_process_annotations_to_workbook(
-        workbook=output_path,  # the output from the first call
-        eml=get_example_eml_dir() + "/" + "edi.3.9.xml",
-        output_path=output_path,
-        local_model="llama3.2",
-        return_ungrounded=True,  # ensures we get at least one annotation back
-        overwrite=True,
-    )
-    assert wb["object"].str.contains("a different label").any()
-    assert wb["object_id"].str.contains("a different uri").any()
-
-    # Original annotations are gone
-    assert not wb["object"].str.contains("a label").any()
-    assert not wb["object_id"].str.contains("a uri").any()
-
-
-@pytest.mark.parametrize("use_mock", [True])  # False tests with real local LLM queries
-def test_add_env_broad_scale_annotations_to_workbook(tmp_path, use_mock, mocker):
-    """Test add_env_broad_scale_annotations_to_workbook"""
+def test_add_predicate_annotations_to_workbook(tmp_path, use_mock, mocker):
+    """Test add_predicate_annotations_to_workbook"""
 
     # Parameterize the test
     workbook_path = "tests/edi.3.9_annotation_workbook.tsv"
@@ -563,7 +409,8 @@ def test_add_env_broad_scale_annotations_to_workbook(tmp_path, use_mock, mocker)
             "spinneret.annotator.get_ontogpt_annotation",
             return_value=[{"label": "a label", "uri": "a uri"}],
         )
-    wb = add_env_broad_scale_annotations_to_workbook(
+    wb = add_predicate_annotations_to_workbook(
+        predicate="env_broad_scale",
         workbook=workbook_path,
         eml=get_example_eml_dir() + "/" + "edi.3.9.xml",
         output_path=output_path,
@@ -579,207 +426,8 @@ def test_add_env_broad_scale_annotations_to_workbook(tmp_path, use_mock, mocker)
             "spinneret.annotator.get_ontogpt_annotation",
             return_value=[{"label": "a different label", "uri": "a different uri"}],
         )
-    wb = add_env_broad_scale_annotations_to_workbook(
-        workbook=output_path,  # the output from the first call
-        eml=get_example_eml_dir() + "/" + "edi.3.9.xml",
-        output_path=output_path,
-        local_model="llama3.2",
-        return_ungrounded=True,  # ensures we get at least one annotation back
-        overwrite=True,
-    )
-    assert wb["object"].str.contains("a different label").any()
-    assert wb["object_id"].str.contains("a different uri").any()
-
-    # Original annotations are gone
-    assert not wb["object"].str.contains("a label").any()
-    assert not wb["object_id"].str.contains("a uri").any()
-
-
-@pytest.mark.parametrize("use_mock", [True])  # False tests with real local LLM queries
-def test_add_env_local_scale_annotations_to_workbook(tmp_path, use_mock, mocker):
-    """Test add_env_local_scale_annotations_to_workbook"""
-
-    # Parameterize the test
-    workbook_path = "tests/edi.3.9_annotation_workbook.tsv"
-    output_path = str(tmp_path) + "edi.3.9_annotation_workbook.tsv"
-
-    # The workbook shouldn't have any annotations yet
-    wb = load_workbook(workbook_path)
-    assert not has_annotations(wb)
-
-    # The workbook has annotations after calling the function
-    if use_mock:
-        mocker.patch(
-            "spinneret.annotator.get_ontogpt_annotation",
-            return_value=[{"label": "a label", "uri": "a uri"}],
-        )
-    wb = add_env_local_scale_annotations_to_workbook(
-        workbook=workbook_path,
-        eml=get_example_eml_dir() + "/" + "edi.3.9.xml",
-        output_path=output_path,
-        local_model="llama3.2",
-        return_ungrounded=True,  # ensures we get at least one annotation back
-    )
-    assert has_annotations(wb)
-
-    # Overwriting changes the annotations. Note, we can't test this with real
-    # requests because we'll expect the same results as the first call.
-    if use_mock:
-        mocker.patch(  # an arbitrary response to check for
-            "spinneret.annotator.get_ontogpt_annotation",
-            return_value=[{"label": "a different label", "uri": "a different uri"}],
-        )
-    wb = add_env_local_scale_annotations_to_workbook(
-        workbook=output_path,  # the output from the first call
-        eml=get_example_eml_dir() + "/" + "edi.3.9.xml",
-        output_path=output_path,
-        local_model="llama3.2",
-        return_ungrounded=True,  # ensures we get at least one annotation back
-        overwrite=True,
-    )
-    assert wb["object"].str.contains("a different label").any()
-    assert wb["object_id"].str.contains("a different uri").any()
-
-    # Original annotations are gone
-    assert not wb["object"].str.contains("a label").any()
-    assert not wb["object_id"].str.contains("a uri").any()
-
-
-@pytest.mark.parametrize("use_mock", [True])  # False tests with real local LLM queries
-def test_add_env_medium_annotations_to_workbook(tmp_path, use_mock, mocker):
-    """Test add_env_medium_annotations_to_workbook"""
-
-    # Parameterize the test
-    workbook_path = "tests/edi.3.9_annotation_workbook.tsv"
-    output_path = str(tmp_path) + "edi.3.9_annotation_workbook.tsv"
-
-    # The workbook shouldn't have any annotations yet
-    wb = load_workbook(workbook_path)
-    assert not has_annotations(wb)
-
-    # The workbook has annotations after calling the function
-    if use_mock:
-        mocker.patch(
-            "spinneret.annotator.get_ontogpt_annotation",
-            return_value=[{"label": "a label", "uri": "a uri"}],
-        )
-    wb = add_env_medium_annotations_to_workbook(
-        workbook=workbook_path,
-        eml=get_example_eml_dir() + "/" + "edi.3.9.xml",
-        output_path=output_path,
-        local_model="llama3.2",
-        return_ungrounded=True,  # ensures we get at least one annotation back
-    )
-    assert has_annotations(wb)
-
-    # Overwriting changes the annotations. Note, we can't test this with real
-    # requests because we'll expect the same results as the first call.
-    if use_mock:
-        mocker.patch(  # an arbitrary response to check for
-            "spinneret.annotator.get_ontogpt_annotation",
-            return_value=[{"label": "a different label", "uri": "a different uri"}],
-        )
-    wb = add_env_medium_annotations_to_workbook(
-        workbook=output_path,  # the output from the first call
-        eml=get_example_eml_dir() + "/" + "edi.3.9.xml",
-        output_path=output_path,
-        local_model="llama3.2",
-        return_ungrounded=True,  # ensures we get at least one annotation back
-        overwrite=True,
-    )
-    assert wb["object"].str.contains("a different label").any()
-    assert wb["object_id"].str.contains("a different uri").any()
-
-    # Original annotations are gone
-    assert not wb["object"].str.contains("a label").any()
-    assert not wb["object_id"].str.contains("a uri").any()
-
-
-@pytest.mark.parametrize("use_mock", [True])  # False tests with real local LLM queries
-def test_add_research_topic_annotations_to_workbook(tmp_path, use_mock, mocker):
-    """Test add_research_topic_annotations_to_workbook"""
-
-    # Parameterize the test
-    workbook_path = "tests/edi.3.9_annotation_workbook.tsv"
-    output_path = str(tmp_path) + "edi.3.9_annotation_workbook.tsv"
-
-    # The workbook shouldn't have any annotations yet
-    wb = load_workbook(workbook_path)
-    assert not has_annotations(wb)
-
-    # The workbook has annotations after calling the function
-    if use_mock:
-        mocker.patch(
-            "spinneret.annotator.get_ontogpt_annotation",
-            return_value=[{"label": "a label", "uri": "a uri"}],
-        )
-    wb = add_research_topic_annotations_to_workbook(
-        workbook=workbook_path,
-        eml=get_example_eml_dir() + "/" + "edi.3.9.xml",
-        output_path=output_path,
-        local_model="llama3.2",
-        return_ungrounded=True,  # ensures we get at least one annotation back
-    )
-    assert has_annotations(wb)
-
-    # Overwriting changes the annotations. Note, we can't test this with real
-    # requests because we'll expect the same results as the first call.
-    if use_mock:
-        mocker.patch(  # an arbitrary response to check for
-            "spinneret.annotator.get_ontogpt_annotation",
-            return_value=[{"label": "a different label", "uri": "a different uri"}],
-        )
-    wb = add_research_topic_annotations_to_workbook(
-        workbook=output_path,  # the output from the first call
-        eml=get_example_eml_dir() + "/" + "edi.3.9.xml",
-        output_path=output_path,
-        local_model="llama3.2",
-        return_ungrounded=True,  # ensures we get at least one annotation back
-        overwrite=True,
-    )
-    assert wb["object"].str.contains("a different label").any()
-    assert wb["object_id"].str.contains("a different uri").any()
-
-    # Original annotations are gone
-    assert not wb["object"].str.contains("a label").any()
-    assert not wb["object_id"].str.contains("a uri").any()
-
-
-@pytest.mark.parametrize("use_mock", [True])  # False tests with real local LLM queries
-def test_add_methods_annotations_to_workbook(tmp_path, use_mock, mocker):
-    """Test add_methods_annotations_to_workbook"""
-
-    # Parameterize the test
-    workbook_path = "tests/edi.3.9_annotation_workbook.tsv"
-    output_path = str(tmp_path) + "edi.3.9_annotation_workbook.tsv"
-
-    # The workbook shouldn't have any annotations yet
-    wb = load_workbook(workbook_path)
-    assert not has_annotations(wb)
-
-    # The workbook has annotations after calling the function
-    if use_mock:
-        mocker.patch(
-            "spinneret.annotator.get_ontogpt_annotation",
-            return_value=[{"label": "a label", "uri": "a uri"}],
-        )
-    wb = add_methods_annotations_to_workbook(
-        workbook=workbook_path,
-        eml=get_example_eml_dir() + "/" + "edi.3.9.xml",
-        output_path=output_path,
-        local_model="llama3.2",
-        return_ungrounded=True,  # ensures we get at least one annotation back
-    )
-    assert has_annotations(wb)
-
-    # Overwriting changes the annotations. Note, we can't test this with real
-    # requests because we'll expect the same results as the first call.
-    if use_mock:
-        mocker.patch(  # an arbitrary response to check for
-            "spinneret.annotator.get_ontogpt_annotation",
-            return_value=[{"label": "a different label", "uri": "a different uri"}],
-        )
-    wb = add_methods_annotations_to_workbook(
+    wb = add_predicate_annotations_to_workbook(
+        predicate="env_broad_scale",
         workbook=output_path,  # the output from the first call
         eml=get_example_eml_dir() + "/" + "edi.3.9.xml",
         output_path=output_path,
