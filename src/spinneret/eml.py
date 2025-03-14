@@ -1,6 +1,7 @@
 """EML metadata related operations"""
 
 import json
+import warnings
 from math import isnan
 from typing import List, Union
 from lxml import etree
@@ -289,6 +290,112 @@ class GeographicCoverage:
             # altitude_minimum and altitude_maximum
             x = None
         return x
+
+    def to_geojson_geometry(self) -> Union[str | None]:
+        """Convert geographicCoverage to GeoJSON geometry
+
+        :return: GeoJSON geometry type as "polygon" or "point"
+
+        :notes: The logic here presumes that if a polygon is listed, it is the
+            true feature of interest, rather than the associated
+            boundingCoordinates, which are required to be listed by the EML
+            spec alongside all polygon listings.
+
+            Geographic coverage latitude and longitude are assumed to be in the
+            spatial reference system of WKID 4326 and are inserted into the
+            GeoJSON geometry as x and y values. Geographic coverages with
+            altitudes and associated units are converted to units of meters and
+            added to the GeoJSON geometry as z values.
+
+            Geographic coverages that are point locations, as indicated by
+            their bounding box latitude min and max values and longitude min
+            and max values being equivalent, are converted to GeoJSON points.
+        """
+        if self.geom_type() == "polygon" or self.geom_type() == "envelope":
+            return self._to_geojson_polygon()
+        if self.geom_type() == "point":
+            return self._to_geojson_point()
+        return None
+
+    def _to_geojson_polygon(self) -> str:
+        """Convert EML polygon or envelope to GeoJSON polygon geometry"""
+        if self.geom_type() == "envelope":
+            z = self._average_altitudes()
+            coordinates = [
+                [self.west(), self.south(), z],
+                [self.east(), self.south(), z],
+                [self.east(), self.north(), z],
+                [self.west(), self.north(), z],
+                [self.west(), self.south(), z],
+            ]
+            coordinates = [list(filter(None, item)) for item in coordinates]
+            res = {
+                "type": "Polygon",
+                "coordinates": [coordinates],
+            }
+            return json.dumps(res)
+
+        if self.geom_type() == "polygon":
+
+            def _format_ring(gring):
+                # Reformat the string of coordinates into a list of lists
+                ring = []
+                z = self._average_altitudes()
+                for item in gring.split():
+                    x = item.split(",")
+                    # Try to convert the coordinates to floats. The EML spec does
+                    # not enforce strictly numeric values.
+                    try:
+                        ring.append([float(x[0]), float(x[1]), z])
+                    except TypeError:
+                        ring.append([x[0], x[1], z])
+                # Ensure that the first and last points are the same
+                if ring[0] != ring[-1]:
+                    ring.append(ring[0])
+                # Remove None values to comply with GeoJSON spec
+                ring = [list(filter(None, item)) for item in ring]
+                return ring
+
+            if self.outer_gring() is not None:
+                ring = _format_ring(self.outer_gring())  # counter-clockwise
+                res = {"type": "Polygon", "coordinates": [ring]}
+                # if self.exclusion_gring() is not None:
+                #     ring = _format_ring(self.exclusion_gring())  # clockwise
+                #     res["coordinates"].append(ring)
+                return json.dumps(res)
+
+        return None
+
+    def _to_geojson_point(self) -> Union[str | None]:
+        """Convert EML point to GeoJSON point geometry"""
+        if self.geom_type() != "point":
+            return None
+        z = self._average_altitudes()
+        coordinates = [self.west(), self.north(), z]
+        # Remove z values that are None to comply with GeoJSON spec
+        coordinates = list(filter(None, coordinates))
+        res = {"type": "Point", "coordinates": coordinates}
+        return json.dumps(res)
+
+    def _average_altitudes(self) -> Union[float | None]:
+        """Average the minimum and maximum altitudes
+
+        :return: average altitude
+        :notes: GeoJSON doesn't support a range of z values, so we'll just use
+            the average of the minimum and maximum values.
+        """
+        try:
+            altitude_minimum = self.altitude_minimum(to_meters=True)
+            altitude_maximum = self.altitude_maximum(to_meters=True)
+            z = (altitude_minimum + altitude_maximum) / 2
+            if altitude_minimum != altitude_maximum:
+                warnings.warn(
+                    "Altitude minimum and maximum are different. Using "
+                    "average value."
+                )
+        except TypeError:
+            z = None
+        return z
 
 
 def _load_conversion_factors() -> dict:
