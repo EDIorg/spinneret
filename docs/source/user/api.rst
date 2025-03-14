@@ -21,6 +21,12 @@ Datasets Module
 .. automodule:: spinneret.datasets
    :members:
 
+EML Module
+----------
+
+.. automodule:: spinneret.eml
+   :members:
+
 Graph Module
 ------------
 

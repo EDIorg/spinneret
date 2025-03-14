@@ -70,16 +70,163 @@
 				agrees to abide by the terms of this agreement. Thank you for your cooperation. </para>
     </intellectualRights>
     <coverage>
+      <!-- For testing purposes, do not remove. -->
       <geographicCoverage>
-        <geographicDescription>the University of Kansas Field Station (KUFS) located in eastern
-					Kansas in the prairie-forest ecotone region of the central USA. KUFS and is located just
-					north of Lawrence, Kansas, USA.</geographicDescription>
+        <geographicDescription>Bounding box on land, spanning several ecosystems.</geographicDescription>
         <boundingCoordinates>
-          <westBoundingCoordinate>-95.1976</westBoundingCoordinate>
-          <eastBoundingCoordinate>-95.1834</eastBoundingCoordinate>
-          <northBoundingCoordinate>39.0525</northBoundingCoordinate>
-          <southBoundingCoordinate>39.0408</southBoundingCoordinate>
+          <westBoundingCoordinate>-123.552</westBoundingCoordinate>
+          <eastBoundingCoordinate>-120.830</eastBoundingCoordinate>
+          <northBoundingCoordinate>40.441</northBoundingCoordinate>
+          <southBoundingCoordinate>39.804</southBoundingCoordinate>
         </boundingCoordinates>
+      </geographicCoverage>
+      <!-- For testing purposes, do not remove. -->
+      <geographicCoverage>
+        <geographicDescription>Point location on land.</geographicDescription>
+        <boundingCoordinates>
+          <westBoundingCoordinate>-72.22</westBoundingCoordinate>
+          <eastBoundingCoordinate>-72.22</eastBoundingCoordinate>
+          <northBoundingCoordinate>+42.48</northBoundingCoordinate>
+          <southBoundingCoordinate>+42.48</southBoundingCoordinate>
+        </boundingCoordinates>
+      </geographicCoverage>
+      <!-- For testing purposes, do not remove. -->
+      <geographicCoverage>
+        <geographicDescription>Polygon with exlusion ring on land and ocean.</geographicDescription>
+        <boundingCoordinates>
+          <westBoundingCoordinate>-123.8222818</westBoundingCoordinate>
+          <eastBoundingCoordinate>-123.7976226</eastBoundingCoordinate>
+          <northBoundingCoordinate>39.3085666</northBoundingCoordinate>
+          <southBoundingCoordinate>39.2943269</southBoundingCoordinate>
+        </boundingCoordinates>
+        <datasetGPolygon>
+          <datasetGPolygonOuterGRing>
+            <gRing>-123.7976226,39.3085666 -123.8222818,39.3141049 -123.8166231,39.2943269 -123.7976226,39.3085666</gRing>
+          </datasetGPolygonOuterGRing>
+          <datasetGPolygonExclusionGRing>
+            <gRing>-123.8078563,39.3068951 -123.8163387,39.3086898 -123.813222,39.3022756 -123.8078177,39.3068354</gRing>
+          </datasetGPolygonExclusionGRing>
+        </datasetGPolygon>
+      </geographicCoverage>
+      <!-- For testing purposes, do not remove. -->
+      <geographicCoverage>
+        <geographicDescription>Polygon on land and ocean.</geographicDescription>
+        <boundingCoordinates>
+          <westBoundingCoordinate>-123.8222818</westBoundingCoordinate>
+          <eastBoundingCoordinate>-123.800</eastBoundingCoordinate>
+          <northBoundingCoordinate>39.3085666</northBoundingCoordinate>
+          <southBoundingCoordinate>39.2943269</southBoundingCoordinate>
+        </boundingCoordinates>
+        <datasetGPolygon>
+          <datasetGPolygonOuterGRing>
+            <gRing>-123.800,39.312 -123.8222818,39.3141049 -123.8166231,39.2943269 -123.800,39.312</gRing>
+          </datasetGPolygonOuterGRing>
+        </datasetGPolygon>
+      </geographicCoverage>
+      <!-- For testing purposes, do not remove. -->
+      <geographicCoverage>
+        <geographicDescription>Point location on ocean.</geographicDescription>
+        <boundingCoordinates>
+          <westBoundingCoordinate>-122.760</westBoundingCoordinate>
+          <eastBoundingCoordinate>-122.760</eastBoundingCoordinate>
+          <northBoundingCoordinate>+37.774</northBoundingCoordinate>
+          <southBoundingCoordinate>+37.774</southBoundingCoordinate>
+          <boundingAltitudes>
+            <altitudeMinimum>-100</altitudeMinimum>
+            <altitudeMaximum>0</altitudeMaximum>
+            <altitudeUnits>meter</altitudeUnits>
+          </boundingAltitudes>
+        </boundingCoordinates>
+      </geographicCoverage>
+      <!-- For testing purposes, do not remove. -->
+      <geographicCoverage>
+        <geographicDescription>Point location on lake.</geographicDescription>
+        <boundingCoordinates>
+          <westBoundingCoordinate>-87.107</westBoundingCoordinate>
+          <eastBoundingCoordinate>-87.107</eastBoundingCoordinate>
+          <northBoundingCoordinate>+43.618</northBoundingCoordinate>
+          <southBoundingCoordinate>+43.618</southBoundingCoordinate>
+        </boundingCoordinates>
+      </geographicCoverage>
+      <!-- For testing purposes, do not remove. -->
+      <geographicCoverage>
+        <geographicDescription>Point location outside of map extent.</geographicDescription>
+        <boundingCoordinates>
+          <westBoundingCoordinate>-136.937</westBoundingCoordinate>
+          <eastBoundingCoordinate>-136.937</eastBoundingCoordinate>
+          <northBoundingCoordinate>-77.444</northBoundingCoordinate>
+          <southBoundingCoordinate>-77.444</southBoundingCoordinate>
+        </boundingCoordinates>
+      </geographicCoverage>
+      <!-- For testing purposes, do not remove. -->
+      <geographicCoverage>
+        <geographicDescription>Point location on land resolving to WTE and then ECU when expanded into an envelope.</geographicDescription>
+        <boundingCoordinates>
+          <westBoundingCoordinate>-122.688</westBoundingCoordinate>
+          <eastBoundingCoordinate>-122.688</eastBoundingCoordinate>
+          <northBoundingCoordinate>37.913</northBoundingCoordinate>
+          <southBoundingCoordinate>37.913</southBoundingCoordinate>
+        </boundingCoordinates>
+      </geographicCoverage>
+      <!-- For testing purposes, do not remove. -->
+      <geographicCoverage>
+        <geographicDescription>Envelop enclosing multiple ECUs.</geographicDescription>
+        <boundingCoordinates>
+          <westBoundingCoordinate>-122.437</westBoundingCoordinate>
+          <eastBoundingCoordinate>-122.266</eastBoundingCoordinate>
+          <northBoundingCoordinate>47.866</northBoundingCoordinate>
+          <southBoundingCoordinate>47.529</southBoundingCoordinate>
+        </boundingCoordinates>
+      </geographicCoverage>
+      <!-- For testing purposes, do not remove. -->
+      <geographicCoverage>
+        <geographicDescription>Envelope enclosing multiple EMUs.</geographicDescription>
+        <boundingCoordinates>
+          <westBoundingCoordinate>-126.125</westBoundingCoordinate>
+          <eastBoundingCoordinate>-125.875</eastBoundingCoordinate>
+          <northBoundingCoordinate>48.625</northBoundingCoordinate>
+          <southBoundingCoordinate>48.375</southBoundingCoordinate>
+          <boundingAltitudes>
+            <altitudeMinimum>-150</altitudeMinimum>
+            <altitudeMaximum>-100</altitudeMaximum>
+            <altitudeUnits>meter</altitudeUnits>
+          </boundingAltitudes>
+        </boundingCoordinates>
+      </geographicCoverage>
+      <!-- For testing purposes, do not remove. -->
+      <geographicCoverage>
+        <geographicDescription>Polygon enclosing multiple EMUs.</geographicDescription>
+        <boundingCoordinates>
+          <westBoundingCoordinate>-125.875</westBoundingCoordinate>
+          <eastBoundingCoordinate>-126.125</eastBoundingCoordinate>
+          <northBoundingCoordinate>48.375</northBoundingCoordinate>
+          <southBoundingCoordinate>48.125</southBoundingCoordinate>
+        </boundingCoordinates>
+        <boundingAltitudes>
+            <altitudeMinimum>-25</altitudeMinimum>
+            <altitudeMaximum>-25</altitudeMaximum>
+            <altitudeUnits>meter</altitudeUnits>
+        </boundingAltitudes>
+        <datasetGPolygon>
+          <datasetGPolygonOuterGRing>
+            <gRing>-126.125,48.375 -126.125,48.125 -125.875,48.375 -126.125,48.375</gRing>
+          </datasetGPolygonOuterGRing>
+        </datasetGPolygon>
+      </geographicCoverage>
+      <!-- For testing purposes, do not remove. -->
+      <geographicCoverage>
+        <geographicDescription>Point location on ocean depth specifications.</geographicDescription>
+        <boundingCoordinates>
+          <westBoundingCoordinate>-157.875</westBoundingCoordinate>
+          <eastBoundingCoordinate>-157.875</eastBoundingCoordinate>
+          <northBoundingCoordinate>21.125</northBoundingCoordinate>
+          <southBoundingCoordinate>21.125</southBoundingCoordinate>
+        </boundingCoordinates>
+        <boundingAltitudes>
+            <altitudeMinimum>-15</altitudeMinimum>
+            <altitudeMaximum>0</altitudeMaximum>
+            <altitudeUnits>meter</altitudeUnits>
+        </boundingAltitudes>
       </geographicCoverage>
       <temporalCoverage>
         <rangeOfDates>
