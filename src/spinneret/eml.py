@@ -1,22 +1,16 @@
 """EML metadata related operations"""
+
 import json
 from math import isnan
+from typing import List, Union
 from lxml import etree
-import geopandas as gpd
 
 
-def get_geographic_coverage(eml):
-    """Get geographicCoverage elements from EML metadata
+def get_geographic_coverage(eml: str) -> List["GeographicCoverage"]:
+    """Get GeographicCoverage objects from EML metadata
 
-    Parameters
-    ----------
-    eml : str
-        Path to EML metadata file
-
-    Returns
-    -------
-    list : GeographicCoverage
-        List of GeographicCoverage instances
+    :param eml: path to EML metadata
+    :return: list of geographicCoverage objects
     """
     xml = etree.parse(eml)
     gc = xml.xpath(".//geographicCoverage")
@@ -29,136 +23,72 @@ def get_geographic_coverage(eml):
 
 
 class GeographicCoverage:
-    """geographicCoverage related operations"""
+    """GeographicCoverage class"""
 
     def __init__(self, gc):
         self.gc = gc
 
-    def description(self):
-        """Get geographicDescription element from geographicCoverage
+    def description(self) -> Union[str | None]:
+        """Get geographicDescription element value from geographicCoverage
 
-        Returns
-        -------
-        str : description
-            geographicDescription element
-
-        Examples
-        --------
-        >>> from spinneret import eml
-        >>> res = eml.get_geographic_coverage(
-        ...     eml="src/spinneret/data/eml/edi.1.1.xml"
-        ... )
-        >>> res[0].description()
+        :return: geographicDescription
         """
         try:
             return self.gc.findtext(".//geographicDescription")
         except TypeError:
             return None
 
-    def west(self):
-        """Get westBoundingCoordinate element from geographicCoverage
+    def west(self) -> Union[float | None]:
+        """
+        Get westBoundingCoordinate element value from geographicCoverage
 
-        Returns
-        -------
-        float : west
-            westBoundingCoordinate element
-
-        Examples
-        --------
-        >>> from spinneret import eml
-        >>> res = eml.get_geographic_coverage(
-        ...     eml="src/spinneret/data/eml/edi.1.1.xml"
-        ... )
-        >>> res[0].westBoundingCoordinate()
+        :return: westBoundingCoordinate
         """
         try:
             return float(self.gc.findtext(".//westBoundingCoordinate"))
         except TypeError:
             return None
 
-    def east(self):
-        """Get eastBoundingCoordinate element from geographicCoverage
+    def east(self) -> Union[float | None]:
+        """Get eastBoundingCoordinate element value from geographicCoverage
 
-        Returns
-        -------
-        float : east
-            eastBoundingCoordinate element
-
-        Examples
-        --------
-        >>> from spinneret import eml
-        >>> res = eml.get_geographic_coverage(
-        ...     eml="src/spinneret/data/eml/edi.1.1.xml"
-        ... )
-        >>> res[0].east()
+        :return: eastBoundingCoordinate
         """
         try:
             return float(self.gc.findtext(".//eastBoundingCoordinate"))
         except TypeError:
             return None
 
-    def north(self):
-        """Get northBoundingCoordinate element from geographicCoverage
+    def north(self) -> Union[float | None]:
+        """Get northBoundingCoordinate element value from geographicCoverage
 
-        Returns
-        -------
-        float : north
-            northBoundingCoordinate element
-
-        Examples
-        --------
-        >>> from spinneret import eml
-        >>> res = eml.get_geographic_coverage(
-        ...     eml="src/spinneret/data/eml/edi.1.1.xml"
-        ... )
-        >>> res[0].north()
+        :return: northBoundingCoordinate
         """
         try:
             return float(self.gc.findtext(".//northBoundingCoordinate"))
         except TypeError:
             return None
 
-    def south(self):
-        """Get southBoundingCoordinate element from geographicCoverage
+    def south(self) -> Union[float | None]:
+        """Get southBoundingCoordinate element value from geographicCoverage
 
-        Returns
-        -------
-        float : south
-            southBoundingCoordinate element
-
-        Examples
-        --------
-        >>> from spinneret import eml
-        >>> res = eml.get_geographic_coverage(
-        ...     eml="src/spinneret/data/eml/edi.1.1.xml"
-        ... )
-        >>> res[0].south()
+        :return: southBoundingCoordinate
         """
         try:
             return float(self.gc.findtext(".//southBoundingCoordinate"))
         except TypeError:
             return None
 
-    def altitude_minimum(self, to_meters=False):
-        """Get altitudeMinimum element from geographicCoverage
+    def altitude_minimum(self, to_meters=False) -> Union[float | None]:
+        """Get altitudeMinimum element value from geographicCoverage
 
-        Parameters
-        ----------
-        to_meters : bool
-            Convert to meters?
-
-        Returns
-        -------
-        float : altitude_minimum
-            altitudeMinimum element
-
-        Notes
-        -----
-        A conversion to meters is based on the value retrieved from the
-        altitudeUnits element of the geographic coverage, and a conversion
-        table from the EML specification. If the altitudeUnits element is
-        not present, and the to_meters parameter is True, then the altitude
-        value is returned as-is and a warning issued.
+        :param to_meters: Convert to meters?
+        :return: altitudeMinimum
+        :notes: A conversion to meters is based on the value retrieved from the
+            altitudeUnits element of the geographic coverage, and a conversion
+            table from the EML specification. If the altitudeUnits element is
+            not present, and the to_meters parameter is True, then the altitude
+            value is returned as-is and a warning issued.
         """
         try:
             res = float(self.gc.findtext(".//altitudeMinimum"))
@@ -168,26 +98,16 @@ class GeographicCoverage:
             res = self._convert_to_meters(x=res, from_units=self.altitude_units())
         return res
 
-    def altitude_maximum(self, to_meters=False):
-        """Get altitudeMaximum element from geographicCoverage
+    def altitude_maximum(self, to_meters=False) -> Union[float | None]:
+        """Get altitudeMaximum element value from geographicCoverage
 
-        Parameters
-        ----------
-        to_meters : bool
-            Convert to meters?
-
-        Returns
-        -------
-        float : altitude_maximum
-            altitudeMaximum element
-
-        Notes
-        -----
-        A conversion to meters is based on the value retrieved from the
-        altitudeUnits element of the geographic coverage, and a conversion
-        table from the EML specification. If the altitudeUnits element is
-        not present, and the to_meters parameter is True, then the altitude
-        value is returned as-is and a warning issued.
+        :param to_meters: Convert to meters?
+        :return: altitudeMaximum
+        :notes: A conversion to meters is based on the value retrieved from the
+            altitudeUnits element of the geographic coverage, and a conversion
+            table from the EML specification. If the altitudeUnits element is
+            not present, and the to_meters parameter is True, then the altitude
+            value is returned as-is and a warning issued.
         """
         try:
             res = float(self.gc.findtext(".//altitudeMaximum"))
@@ -197,67 +117,44 @@ class GeographicCoverage:
             res = self._convert_to_meters(x=res, from_units=self.altitude_units())
         return res
 
-    def altitude_units(self):
+    def altitude_units(self) -> Union[str | None]:
+        """Get altitudeUnits element value from geographicCoverage
+
+        :return: altitudeUnits
+        """
         try:
             return self.gc.findtext(".//altitudeUnits")
         except TypeError:
             return None
 
-    def outer_gring(self):
-        """Get datasetGPolygonOuterGRing/gRing element from geographicCoverage
+    def outer_gring(self) -> Union[str | None]:
+        """Get datasetGPolygonOuterGRing/gRing element value from
+        geographicCoverage
 
-        Returns
-        -------
-        str : outer_gring
-            datasetGPolygonOuterGRing/gRing element
-
-        Examples
-        --------
-        >>> from spinneret import eml
-        >>> res = eml.get_geographic_coverage(
-        ...     eml="src/spinneret/data/eml/edi.1.1.xml"
-        ... )
-        >>> res[0].outer_gring()
+        :return: datasetGPolygonOuterGRing/gRing element
         """
         try:
             return self.gc.findtext(".//datasetGPolygonOuterGRing/gRing")
         except TypeError:
             return None
 
-    def exclusion_gring(self):
-        """Get datasetGPolygonExclusionGRing/gRing element from
+    def exclusion_gring(self) -> Union[str | None]:
+        """Get datasetGPolygonExclusionGRing/gRing element value from
         geographicCoverage
 
-        Returns
-        -------
-        str : exclusion_gring
-            datasetGPolygonExclusionGRing/gRing element
-
-        Examples
-        --------
-        >>> from spinneret import eml
-        >>> res = eml.get_geographic_coverage(
-        ...     eml="src/spinneret/data/eml/edi.1.1.xml"
-        ... )
-        >>> res[0].exclusion_gring()
+        :return: datasetGPolygonExclusionGRing/gRing
         """
         try:
             return self.gc.findtext(".//datasetGPolygonExclusionGRing/gRing")
         except TypeError:
             return None
 
-    def geom_type(self, schema="eml"):
+    def geom_type(self, schema="eml") -> Union[str | None]:
         """Get geometry type from geographicCoverage
 
-        Parameters
-        ----------
-        schema : str
-            Schema dialect to use when returning values, either "eml" or "esri"
-
-        Returns
-        -------
-        str : geometry type
-            geometry type as "polygon", "point", or "envelope" for
+        :param: Schema dialect to use when returning values, either "eml" or
+            "esri"
+        :return: geometry type as "polygon", "point", or "envelope" for
             `schema="eml"`, or "esriGeometryPolygon", "esriGeometryPoint", or
             "esriGeometryEnvelope" for `schema="esri"`
         """
@@ -279,67 +176,48 @@ class GeographicCoverage:
             return res
         return None
 
-    def to_esri_geometry(self):
+    def to_esri_geometry(self) -> Union[str | None]:
         """Convert geographicCoverage to ESRI JSON geometry
 
-        Returns
-        -------
-        str : ESRI JSON geometry
-            ESRI JSON geometry type as "polygon", "point", or "envelope"
+        :return: ESRI JSON geometry type as "polygon", "point", or "envelope"
 
-        Notes
-        -----
-        The logic here presumes that if a polygon is listed, it is the true
-        feature of interest, rather than the associated boundingCoordinates,
-        which are required to be listed by the EML spec alongside all polygon
-        listings.
+        :notes: The logic here presumes that if a polygon is listed, it is the
+            true feature of interest, rather than the associated
+            boundingCoordinates, which are required to be listed by the EML
+            spec alongside all polygon listings.
 
-        Geographic coverage latitude and longitude are assumed to be in the
-        spatial reference system of WKID 4326 and are inserted into the ESRI
-        geometry as x and y values. Geographic coverages with altitudes and
-        associated units are converted to units of meters and added to the ESRI
-        geometry as z values.
+            Geographic coverage latitude and longitude are assumed to be in the
+            spatial reference system of WKID 4326 and are inserted into the
+            ESRI geometry as x and y values. Geographic coverages with
+            altitudes and associated units are converted to units of meters and
+            added to the ESRI geometry as z values.
 
-        Geographic coverages that are point locations, as indicated by their
-        bounding box latitude min and max values and longitude min and max
-        values being equivalent, are converted to ESRI envelopes rather than
-        ESRI points, because the envelope geometry type is more expressive and
-        handles more usecases than the point geometry alone. Furthermore, point
-        locations represented as envelope geometries produce the same results
-        as if the point of location was represented as a point geometry.
-
-        Examples
-        --------
-        >>> from spinneret import eml
-        >>> res = eml.get_geographic_coverage(
-        ...     eml="src/spinneret/data/eml/edi.1.1.xml"
-        ... )
-        >>> res[0].to_esri_geometry()
-        >>> res[1].to_esri_geometry()
-        >>> res[2].to_esri_geometry()
+            Geographic coverages that are point locations, as indicated by
+            their bounding box latitude min and max values and longitude min
+            and max values being equivalent, are converted to ESRI envelopes
+            rather than ESRI points, because the envelope geometry type is more
+            expressive and handles more usecases than the point geometry alone.
+            Furthermore, point locations represented as envelope geometries
+            produce the same results as if the point of location was
+            represented as a point geometry.
         """
         if self.geom_type() == "polygon":
             return self._to_esri_polygon()
         if self.geom_type() == "point":
             return (
                 self._to_esri_envelope()
-            )  # Envelopes are more expressive and behave the same as point geometries, so us envelopes
+            )  # Envelopes are more expressive and behave the same as point
+            # geometries, so us envelopes
         if self.geom_type() == "envelope":
             return self._to_esri_envelope()
         return None
 
-    def _to_esri_envelope(self):
+    def _to_esri_envelope(self) -> str:
         """Convert boundingCoordinates to ESRI JSON envelope geometry
 
-        Returns
-        -------
-        str : ESRI JSON envelope geometry
-            ESRI JSON envelope geometry
-
-        Notes
-        -----
-        Defaulting to WGS84 because the EML spec does not specify a CRS and
-        notes the coordinates are meant to convey general information.
+        :return: ESRI JSON envelope geometry
+        :notes: Defaulting to WGS84 because the EML spec does not specify a
+        CRS and notes the coordinates are meant to convey general information.
         """
         altitude_minimum = self.altitude_minimum(to_meters=True)
         altitude_maximum = self.altitude_maximum(to_meters=True)
@@ -354,18 +232,12 @@ class GeographicCoverage:
         }
         return json.dumps(res)
 
-    def _to_esri_polygon(self):
+    def _to_esri_polygon(self) -> str:
         """Convert datasetGPolygon to ESRI JSON polygon geometry
 
-        Returns
-        -------
-        str : ESRI JSON polygon geometry
-            ESRI JSON polygon geometry
-
-        Notes
-        -----
-        Defaulting to WGS84 because the EML spec does not specify a CRS and
-        notes the coordinates are meant to convey general information.
+        :return: ESRI JSON polygon geometry
+        :notes: Defaulting to WGS84 because the EML spec does not specify a
+        CRS and notes the coordinates are meant to convey general information.
         """
 
         def _format_ring(gring):
@@ -382,8 +254,6 @@ class GeographicCoverage:
             # Ensure that the first and last points are the same
             if ring[0] != ring[-1]:
                 ring.append(ring[0])
-            # TODO Ensure that the outer ring is oriented clockwise and the
-            #  inner ring is oriented counter-clockwise
             return ring
 
         if self.outer_gring() is not None:
@@ -396,49 +266,36 @@ class GeographicCoverage:
         return None
 
     @staticmethod
-    def _convert_to_meters(x, from_units):
+    def _convert_to_meters(x, from_units) -> Union[float | None]:
         """Convert an elevation from a given unit of measurement to meters.
 
-        Parameters
-        ----------
-        x : float
-            Value to convert.
-        from_units : str
-            Units to convert from. This must be one of: meter, decimeter,
-            dekameter, hectometer, kilometer, megameter, Foot_US, foot,
-            Foot_Gold_Coast, fathom, nauticalMile, yard, Yard_Indian,
+        :param x: value to convert
+        :param from_units: Units to convert from. This must be one of: meter,
+            decimeter, dekameter, hectometer, kilometer, megameter, Foot_US,
+            foot, Foot_Gold_Coast, fathom, nauticalMile, yard, Yard_Indian,
             Link_Clarke, Yard_Sears, mile.
-
-        Returns
-        -------
-        float : in units of meters
+        :return: value in meters
         """
-        # TODO Warn if x is a non-nan float and the units are empty. This indicates that
-        #  the value has no units and results derived from subsequent use of the value
-        #  may be incorrect.
         if x is None:
             x = float("NaN")
         conversion_factors = _load_conversion_factors()
         conversion_factor = conversion_factors.get(from_units, float("NaN"))
         if not isnan(
             conversion_factor
-        ):  # Apply the conversion factor if from_units is a valid unit of measurement otherwise return the length value as is
+        ):  # Apply the conversion factor if from_units is a valid unit of
+            # measurement otherwise return the length value as is
             x = x * conversion_factors.get(from_units, float("NaN"))
-        if isnan(
-            x
-        ):  # Convert back to None, which is the NULL type returned by altitude_minimum and altitude_maximum
+        if isnan(x):  # Convert back to None, which is the NULL type returned by
+            # altitude_minimum and altitude_maximum
             x = None
         return x
 
 
-def _load_conversion_factors():
+def _load_conversion_factors() -> dict:
     """Load conversion factors
 
-    Returns
-    -------
-    dict : conversion factors
-        Dictionary of conversion factors for converting from common units of
-        length to meters.
+    :return: Dictionary of conversion factors for converting from common units
+        of length to meters.
     """
     conversion_factors = {
         "meter": 1,
@@ -459,9 +316,3 @@ def _load_conversion_factors():
         "mile": 1609.344,
     }
     return conversion_factors
-
-
-if __name__ == "__main__":
-    geocov = get_geographic_coverage(eml="data/eml/edi.1.1.xml")
-    for item in geocov:
-        print(item.to_esri_geometry())

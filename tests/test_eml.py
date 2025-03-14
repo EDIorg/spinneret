@@ -1,17 +1,18 @@
 """Tests for the eml module."""
+
 from json import dumps
 from importlib.resources import files
-import pytest
 from unittest.mock import patch
+import pytest
 from spinneret import eml
 from spinneret.eml import get_geographic_coverage
 
 
-@pytest.fixture
-def geocov():
+@pytest.fixture(name="geocov")
+def geocov_fixture():
     """A list of GeographicCoverage instances from the test EML file."""
     eml_file = str(files("spinneret.data.eml").joinpath("edi.1.1.xml"))
-    with open(eml_file, "r") as f:
+    with open(eml_file, "r", encoding="utf-8") as f:
         res = get_geographic_coverage(eml=f)
     return res
 
@@ -189,6 +190,7 @@ def test_exclusion_gring(geocov):
 
 
 def test_altitude_minimum(geocov):
+    """Test geographicCoverage altitude_minimum method"""
     g = geocov[11]  # A geographic coverage with altitudes in meters
     assert isinstance(g.altitude_minimum(), float)
     assert g.altitude_minimum() == -15
@@ -212,6 +214,7 @@ def test_altitude_minimum(geocov):
 
 
 def test_altitude_maximum(geocov):
+    """Test geographicCoverage altitude_maximum method"""
     g = geocov[11]  # A geographic coverage with altitudes in meters
     assert isinstance(g.altitude_maximum(), float)
     assert g.altitude_maximum() == 0
@@ -235,6 +238,7 @@ def test_altitude_maximum(geocov):
 
 
 def test_altitude_units(geocov):
+    """Test geographicCoverage altitude_units method"""
     g = geocov[11]  # A geographic coverage with altitude in units of feet
     assert isinstance(g.altitude_units(), str)
     assert g.altitude_units() == "meter"
@@ -242,6 +246,7 @@ def test_altitude_units(geocov):
     assert g.altitude_units() is None
 
 
+# pylint: disable=protected-access
 def test__convert_to_meters(geocov):
     """Test geographicCoverage _convert_to_meters method
 
