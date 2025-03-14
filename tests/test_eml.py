@@ -267,3 +267,110 @@ def test__convert_to_meters(geocov):
     assert g._convert_to_meters(x=None, from_units="meters") is None
     # Case when altitude is specified and units are specified. Should convert to meters.
     assert g._convert_to_meters(x=10, from_units="foot") == 3.048
+
+
+def test__to_geojson_polygon(geocov):
+    """Test geographicCoverage _to_geojson_polygon method"""
+
+    # A bounding box without z values
+    g = geocov[0]
+    assert g._to_geojson_polygon() == dumps(
+        {
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [-123.552, 39.804],
+                    [-120.83, 39.804],
+                    [-120.83, 40.441],
+                    [-123.552, 40.441],
+                    [-123.552, 39.804],
+                ]
+            ],
+        }
+    )
+
+    # A bounding box with z values
+    g = geocov[9]
+    with pytest.warns(UserWarning):  # because z min and max are different
+        assert g._to_geojson_polygon() == dumps(
+            {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [-126.125, 48.375, -125.0],
+                        [-125.875, 48.375, -125.0],
+                        [-125.875, 48.625, -125.0],
+                        [-126.125, 48.625, -125.0],
+                        [-126.125, 48.375, -125.0],
+                    ]
+                ],
+            }
+        )
+
+    # A polygon with z values
+    g = geocov[10]
+    assert g._to_geojson_polygon() == dumps(
+        {
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [-126.125, 48.375, -25.0],
+                    [-126.125, 48.125, -25.0],
+                    [-125.875, 48.375, -25.0],
+                    [-126.125, 48.375, -25.0],
+                ]
+            ],
+        }
+    )
+
+    # A polygon without z values
+    g = geocov[3]
+    assert g._to_geojson_polygon() == dumps(
+        {
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [-123.8, 39.312],
+                    [-123.8222818, 39.3141049],
+                    [-123.8166231, 39.2943269],
+                    [-123.8, 39.312],
+                ]
+            ],
+        }
+    )
+
+
+def test__to_geojson_point(geocov):
+    """Test geographicCoverage _to_geojson_point method"""
+
+    # A point without z values
+    g = geocov[1]
+    assert g._to_geojson_point() == dumps(
+        {"type": "Point", "coordinates": [-72.22, 42.48]}
+    )
+
+    # A point with z values, where z min and max are different resulting in a
+    # warning about points being averaged.
+    g = geocov[11]
+    with pytest.warns(UserWarning):
+        assert g._to_geojson_point() == dumps(
+            {"type": "Point", "coordinates": [-157.875, 21.125, -7.5]}
+        )
+
+    # A bounding box results in None
+    g = geocov[0]
+    assert g._to_geojson_point() is None
+
+
+def test__average_altitudes(geocov):
+    """Test geographicCoverage _average_altitudes method"""
+
+    # A point with z values, where z min and max are different resulting in a
+    # warning about points being averaged.
+    g = geocov[11]
+    with pytest.warns(UserWarning):
+        assert g._average_altitudes() == -7.5
+
+    # A geographic coverage with no altitudes results in None
+    g = geocov[0]
+    assert g._average_altitudes() is None
