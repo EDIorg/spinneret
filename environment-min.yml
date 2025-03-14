@@ -18,4 +18,5 @@ dependencies:
   - sphinx-autoapi
   - daiquiri
   - matplotlib
+  - geopandas
 prefix: /opt/miniconda3/envs/spinneret

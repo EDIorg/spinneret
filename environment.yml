@@ -6,25 +6,36 @@ dependencies:
   - alabaster=1.0.0
   - annotated-types=0.7.0
   - anyio=4.6.2.post1
+  - aom=3.9.1
   - babel=2.16.0
   - backoff=2.2.1
+  - blosc=1.21.6
+  - branca=0.8.1
   - brotli=1.1.0
   - brotli-bin=1.1.0
   - brotli-python=1.1.0
   - bzip2=1.0.8
-  - ca-certificates=2024.12.14
-  - certifi=2024.12.14
+  - c-ares=1.34.4
+  - ca-certificates=2025.1.31
   - cffi=1.17.1
   - click=8.1.7
   - click-option-group=0.5.6
   - colorama=0.4.6
   - contourpy=1.3.1
   - cycler=0.12.1
+  - dav1d=1.2.1
   - docutils=0.21.2
   - dotty-dict=1.3.1
   - exceptiongroup=1.2.2
+  - folium=0.19.5
   - fonttools=4.55.3
   - freetype=2.12.1
+  - freexl=2.0.0
+  - geopandas=1.0.1
+  - geopandas-base=1.0.1
+  - geos=3.13.0
+  - geotiff=1.7.4
+  - giflib=5.2.2
   - gitdb=4.0.11
   - gitpython=3.1.43
   - gql=3.5.0
@@ -32,6 +43,7 @@ dependencies:
   - h2=4.1.0
   - hpack=4.0.0
   - hyperframe=6.0.1
+  - icu=75.1
   - idna=3.10
   - imagesize=1.4.1
   - importlib-resources=6.4.5
@@ -39,27 +51,43 @@ dependencies:
   - iniconfig=2.0.0
   - isort=5.13.2
   - jinja2=3.1.4
+  - joblib=1.4.2
+  - json-c=0.18
   - kiwisolver=1.4.7
+  - krb5=1.21.3
   - lcms2=2.16
   - lerc=4.0.0
+  - libarchive=3.7.7
+  - libavif16=1.2.0
   - libblas=3.9.0
   - libbrotlicommon=1.1.0
   - libbrotlidec=1.1.0
   - libbrotlienc=1.1.0
   - libcblas=3.9.0
+  - libcurl=8.12.1
   - libcxx=19.1.4
+  - libde265=1.0.15
   - libdeflate=1.23
+  - libedit=3.1.20250104
+  - libev=4.33
   - libexpat=2.6.4
   - libffi=3.4.2
+  - libgdal-core=3.10.0
   - libgfortran=5.0.0
   - libgfortran5=13.2.0
+  - libheif=1.18.2
   - libiconv=1.17
   - libjpeg-turbo=3.0.0
+  - libkml=1.3.0
   - liblapack=3.9.0
   - liblzma=5.6.3
+  - libnghttp2=1.64.0
   - libopenblas=0.3.28
   - libpng=1.6.44
-  - libsqlite=3.47.0
+  - librttopo=1.1.0
+  - libspatialite=5.1.0
+  - libsqlite=3.49.1
+  - libssh2=1.11.1
   - libtiff=4.7.0
   - libwebp-base=1.4.0
   - libxcb=1.17.0
@@ -68,42 +96,55 @@ dependencies:
   - libzlib=1.3.1
   - llvm-openmp=19.1.4
   - lxml=5.3.0
+  - lz4-c=1.10.0
+  - lzo=2.10
+  - mapclassify=2.8.1
   - markdown-it-py=3.0.0
   - matplotlib=3.10.0
   - matplotlib-base=3.10.0
   - mccabe=0.7.0
   - mdit-py-plugins=0.4.2
   - mdurl=0.1.2
+  - minizip=4.0.7
   - multidict=6.1.0
   - munkres=1.1.4
   - mypy_extensions=1.0.0
   - myst-parser=4.0.0
   - ncurses=6.5
+  - networkx=3.4.2
   - openjpeg=2.5.3
-  - openssl=3.4.0
+  - openssl=3.4.1
   - pathspec=0.12.1
+  - pcre2=10.44
   - pillow=11.0.0
   - pip=24.3.1
   - platformdirs=4.3.6
   - pluggy=1.5.0
+  - proj=9.5.1
   - propcache=0.2.0
   - pthread-stubs=0.4
   - pycparser=2.22
   - pygments=2.18.0
+  - pyogrio=0.10.0
+  - pyproj=3.7.1
   - pysocks=1.7.1
   - pytest=8.3.3
   - pytest-mock=3.14.0
   - python=3.11.10
   - python-dateutil=2.9.0.post0
   - python-json-logger=2.0.7
+  - python-tzdata=2025.1
   - python_abi=3.11
   - pyyaml=6.0.2
   - qhull=2020.2
+  - rav1e=0.6.6
   - readline=8.2
   - requests=2.32.3
   - requests-toolbelt=1.0.0
+  - shapely=2.0.7
   - shellingham=1.5.4
   - six=1.16.0
+  - snappy=1.2.1
   - sniffio=1.3.1
   - snowballstemmer=2.2.0
   - sphinxcontrib-applehelp=2.0.0
@@ -111,7 +152,9 @@ dependencies:
   - sphinxcontrib-htmlhelp=2.1.0
   - sphinxcontrib-jsmath=1.0.1
   - sphinxcontrib-qthelp=2.0.0
+  - sqlite=3.49.1
   - stdlib-list=0.11.0
+  - svt-av1=3.0.1
   - tk=8.6.13
   - toml=0.10.2
   - tomli=2.1.0
@@ -120,11 +163,16 @@ dependencies:
   - typing-extensions=4.12.2
   - typing_extensions=4.12.2
   - unicodedata2=15.1.0
+  - uriparser=0.9.8
   - wheel=0.45.1
+  - x265=3.5
+  - xerces-c=3.2.5
   - xorg-libxau=1.0.12
   - xorg-libxdmcp=1.1.5
+  - xyzservices=2025.1.0
   - xz=5.2.6
   - yaml=0.2.5
+  - zlib=1.3.1
   - zstandard=0.23.0
   - zstd=1.5.6
   - pip:
@@ -149,6 +197,7 @@ dependencies:
       - botocore==1.35.54
       - cachier==3.1.2
       - cattrs==24.1.2
+      - certifi==2024.8.30
       - cfgraph==0.2.1
       - chardet==5.2.0
       - charset-normalizer==3.3.2
@@ -193,7 +242,6 @@ dependencies:
       - itsdangerous==2.2.0
       - jiter==0.7.0
       - jmespath==1.0.1
-      - joblib==1.4.2
       - json-flattener==0.1.9
       - jsonasobj==1.3.1
       - jsonasobj2==1.0.4
@@ -216,7 +264,6 @@ dependencies:
       - more-click==0.1.2
       - more-itertools==10.5.0
       - ndex2==3.9.0
-      - networkx==3.4.2
       - nltk==3.9.1
       - numpy==2.1.1
       - oaklib==0.6.18
