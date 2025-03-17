@@ -17,6 +17,7 @@ ontogpt = "^1.0.6"
 daiquiri = "^3.2.5.1"
 matplotlib = "^3.10.0"
 geopandas = "^1.0.1"
+geoenvo = {git = "https://github.com/clnsmth/geoenvo.git", rev = "development"}
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.2"

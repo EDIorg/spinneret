@@ -12,7 +12,7 @@ dependencies:
   - pytest-cov
   - pytest-mock
   - python-semantic-release
-  - python=3.11
+  - python=3.11.11
   - rdflib
   - sphinx
   - sphinx-autoapi
