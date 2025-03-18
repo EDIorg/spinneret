@@ -4,11 +4,18 @@ import os
 import tempfile
 from importlib import resources
 from json import loads, decoder, load
-from typing import Union
+from typing import Union, List
 from requests import get, exceptions
 import pandas as pd
 from lxml import etree
 from daiquiri import getLogger
+from geoenvo.resolver import Resolver
+from geoenvo.data_sources import (
+    WorldTerrestrialEcosystems,
+    EcologicalMarineUnits,
+    EcologicalCoastalUnits,
+)
+from geoenvo.geometry import Geometry
 from spinneret.workbook import (
     delete_annotations,
     initialize_workbook_row,
@@ -28,6 +35,7 @@ from spinneret.utilities import (
     get_template_for_predicate,
     get_predicate_id_for_predicate,
 )
+from spinneret.eml import get_geographic_coverage
 
 logger = getLogger(__name__)
 
@@ -35,6 +43,7 @@ logger = getLogger(__name__)
 
 
 # pylint: disable=too-many-locals
+# pylint: disable=too-many-positional-arguments
 def get_bioportal_annotation(
     text: str,
     api_key: str,
@@ -137,6 +146,7 @@ def get_bioportal_annotation(
     return annotations
 
 
+# pylint: disable=too-many-positional-arguments
 def annotate_workbook(
     workbook_path: str,
     eml_path: str,
@@ -521,6 +531,7 @@ def get_ontogpt_annotation(
     return annotations
 
 
+# pylint: disable=too-many-positional-arguments
 def add_predicate_annotations_to_workbook(
     predicate: str,
     workbook: Union[str, pd.core.frame.DataFrame],
@@ -717,3 +728,36 @@ def has_annotation(
         & wb["object_id"].notna()
     )
     return bool(matching_rows.any())
+
+
+def get_geoenv_response_data(eml: str) -> List[dict]:
+    """
+    Get `geoenv` response data for each Geographic Coverage in an EML file. The
+    data is the raw JSON response from the `geoenv` resolver, which includes
+    environmental properties and the data source used to resolve them. This
+    raw data can be further processed to extract specific properties of
+    interest.
+
+    :param eml: Path to the EML metadata document in XML format.
+    :return: A list of JSON values returned by the geoenvo.Resolver.resolve
+        method.
+    """
+    # Initialize the resolver
+    data_sources = [
+        WorldTerrestrialEcosystems(),
+        EcologicalMarineUnits(),
+        EcologicalCoastalUnits(),
+    ]
+    resolver = Resolver(data_sources)
+
+    # Get the list of GeographicCoverage objects
+    geographic_coverages = get_geographic_coverage(eml)
+
+    # Resolve the environments
+    environments = []
+    if geographic_coverages:
+        for gc in geographic_coverages:
+            geometry = Geometry(loads(gc.to_geojson_geometry()))
+            response = resolver.resolve(geometry)
+            environments.append(response.data)
+    return environments

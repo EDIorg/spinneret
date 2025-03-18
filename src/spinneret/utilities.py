@@ -167,7 +167,7 @@ def get_elements_for_predicate(eml: etree._ElementTree, predicate: str) -> list:
     :param eml: An EML document.
     :param predicate: The predicate to be used to find the element(s).
     :returns: The element(s) that corresponds to the predicate, each as an
-    etree._Element. If the predicate is not found, returns empty list.
+        etree._Element. If the predicate is not found, returns empty list.
     """
     predicate_and_xpath = {
         "contains measurements of type": "//attribute",
