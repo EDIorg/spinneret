@@ -35,7 +35,7 @@ from spinneret.utilities import (
     get_template_for_predicate,
     get_predicate_id_for_predicate,
 )
-from src.spinneret.eml import get_geographic_coverage
+from spinneret.eml import get_geographic_coverage
 
 logger = getLogger(__name__)
 
