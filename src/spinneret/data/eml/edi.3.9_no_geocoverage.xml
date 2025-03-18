@@ -313,15 +313,6 @@
       </online>
     </distribution>
     <coverage>
-      <geographicCoverage>
-        <geographicDescription>California, USA: Nearshore reefs of the Santa Barbara Channel and Channel Islands, California, USA</geographicDescription>
-        <boundingCoordinates>
-          <westBoundingCoordinate>-126.125</westBoundingCoordinate>
-          <eastBoundingCoordinate>-125.875</eastBoundingCoordinate>
-          <northBoundingCoordinate>48.625</northBoundingCoordinate>
-          <southBoundingCoordinate>48.375</southBoundingCoordinate>
-        </boundingCoordinates>
-      </geographicCoverage>
       <temporalCoverage>
         <rangeOfDates>
           <beginDate>

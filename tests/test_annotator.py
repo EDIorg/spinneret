@@ -1,6 +1,7 @@
 """Test annotator code"""
 
 import os
+from importlib.resources import files
 from shutil import copyfile
 
 import pandas as pd
@@ -16,6 +17,7 @@ from spinneret.annotator import (
     get_annotation_from_workbook,
     has_annotation,
     add_predicate_annotations_to_workbook,
+    get_geoenv_response_data,
 )
 from spinneret.utilities import (
     load_configuration,
@@ -496,3 +498,20 @@ def test_has_annotation(annotated_workbook):
         element_xpath="a non-existent xpath",
         predicate="a non-existent predicate",
     )
+
+
+def test_get_geoenv_response_data():
+    """Test get_geoenv_response_data"""
+
+    # Positive test case: EML has geographic coverage
+    eml_file = str(files("spinneret.data.eml").joinpath("edi.3.9.xml"))
+    response = get_geoenv_response_data(eml_file)
+    assert isinstance(response, list)
+    for item in response:
+        assert isinstance(item, dict)
+
+    # Negative test case: EML has no geographic coverage
+    eml_file = str(files("spinneret.data.eml").joinpath("edi.3.9_no_geocoverage.xml"))
+    response = get_geoenv_response_data(eml_file)
+    assert isinstance(response, list)
+    assert len(response) == 0
