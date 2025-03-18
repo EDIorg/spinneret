@@ -744,8 +744,7 @@ def get_geoenv_response_data(eml: str) -> List[dict]:
     """
     # Initialize the resolver
     data_sources = [
-        # TODO uncomment after WTE data source connection stabilizes
-        # WorldTerrestrialEcosystems(),
+        WorldTerrestrialEcosystems(),
         EcologicalMarineUnits(),
         EcologicalCoastalUnits(),
     ]
