@@ -752,12 +752,15 @@ def get_geoenv_response_data(eml: str) -> List[dict]:
 
     # Get the list of GeographicCoverage objects
     geographic_coverages = get_geographic_coverage(eml)
+    identifier = get_package_id(load_eml(eml))
 
     # Resolve the environments
     environments = []
     if geographic_coverages:
         for gc in geographic_coverages:
             geometry = Geometry(loads(gc.to_geojson_geometry()))
-            response = resolver.resolve(geometry)
+            response = resolver.resolve(
+                geometry, identifier, description=gc.description()
+            )
             environments.append(response.data)
     return environments
