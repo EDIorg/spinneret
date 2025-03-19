@@ -361,8 +361,10 @@ if __name__ == "__main__":
     daiquiri.setup(
         level=logging.INFO,
         outputs=(
-            daiquiri.output.File(
-                "/Users/csmith/Data/testing_geoenvo/small_batch/geoenv_responses/spinneret.log"
+            daiquiri.output.RotatingFile(
+                "/Users/csmith/Data/testing_geoenvo/small_batch/spinneret.log",
+                max_size_bytes=100 * 10**6,  # 100 MB
+                backup_count=0,  # Unlimited backup files
             ),
             "stdout",
         ),
@@ -370,8 +372,8 @@ if __name__ == "__main__":
 
     create_geoenv_data_files(
         eml_dir="/Users/csmith/Data/testing_geoenvo/small_batch/eml",
-        output_dir="/Users/csmith/Data/testing_geoenvo/small_batch/geoenv_responses",
-        overwrite=True,
+        output_dir="/Users/csmith/Data/testing_geoenvo/small_batch/responses",
+        overwrite=False,
     )
 
     # create_workbooks(
