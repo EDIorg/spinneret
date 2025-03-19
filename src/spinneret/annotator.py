@@ -760,7 +760,7 @@ def get_geoenv_response_data(eml: str) -> List[dict]:
         for gc in geographic_coverages:
             geometry = Geometry(loads(gc.to_geojson_geometry()))
             response = resolver.resolve(
-                geometry, identifier, description=gc.description()
+                geometry, identifier=identifier, description=gc.description()
             )
             environments.append(response.data)
     return environments
