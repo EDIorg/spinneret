@@ -3,6 +3,19 @@
 
 
 
+## v0.4.0 (2025-03-19)
+
+
+### Build
+
+* build: update environment to use geoenvo package ([`425d0bf`](https://github.com/EDIorg/spinneret/commit/425d0bf3400d39b522206eea6bf0e23b8c3666ce)) 
+
+### Feature
+
+* feat: iterate over EML files to obtain environments ([`74ff66a`](https://github.com/EDIorg/spinneret/commit/74ff66a81d935f2745cd93087ce130d0c0290a27)) 
+* feat: add GeoJSON conversion to GeographicCoverage class ([`4cb2dc3`](https://github.com/EDIorg/spinneret/commit/4cb2dc333c7b01366a35a379e5a758be7f896f2f)) 
+* feat: parse EML geographic coverage to spatial geometries ([`54a82cc`](https://github.com/EDIorg/spinneret/commit/54a82cc2fe5972698e980ed30bd0789bb4cf9345)) 
+
 ## v0.3.0 (2025-01-17)
 
 

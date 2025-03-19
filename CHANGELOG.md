@@ -3,6 +3,51 @@
 
 
 
+## v0.3.0 (2025-01-17)
+
+
+### Build
+
+* build: configure Read the Docs for explicit path to config.py ([`ee47493`](https://github.com/EDIorg/spinneret/commit/ee474938e6c15baec225f1a303c842dfb731f78b)) 
+
+### Feature
+
+* feat: make plot writing to file optional in `plot_grounding_rates` ([`18d01bb`](https://github.com/EDIorg/spinneret/commit/18d01bbf495bee37977bccf3b46f2114dce40a78)) 
+* feat: visualize similarity metrics by configuration ([`b392629`](https://github.com/EDIorg/spinneret/commit/b39262910b05e2b0ea7de92e3759683c654c8920)) 
+* feat: visualize similarity metrics by predicate ([`1bd1184`](https://github.com/EDIorg/spinneret/commit/1bd118495fb9a46c98336bdac6aded865b5de07f)) 
+* feat: add logging to `benchmark_against_standard` for better insights ([`13b2eb6`](https://github.com/EDIorg/spinneret/commit/13b2eb64bcd5f3b01c9e41767f445897a803970e)) 
+* feat: visualize grounding rates across OntoGPT configurations ([`8fd9962`](https://github.com/EDIorg/spinneret/commit/8fd9962ac308279f6c61fea0ea697d0d79e01145)) 
+* feat: enhance CURIE expansion with expanded prefix map ([`5a09e7e`](https://github.com/EDIorg/spinneret/commit/5a09e7ed8c17e56083e960e08769f1ed08781b56)) 
+* feat: introduce `temperature` parameter for OntoGPT calls ([`44ac7d6`](https://github.com/EDIorg/spinneret/commit/44ac7d61598c3f363ff71ee4b66622d1322dbe7b)) 
+* feat: implement benchmark data collection and testing ([`f003b96`](https://github.com/EDIorg/spinneret/commit/f003b96237e7e97ea83b21b51612d2959f3f93fb)) 
+* feat: implement performance metric logging ([`d667b31`](https://github.com/EDIorg/spinneret/commit/d667b3161d4cd533cb3ea8764dba26b56a85cd50)) 
+* feat: implement logging for debugging ([`864889e`](https://github.com/EDIorg/spinneret/commit/864889eac7791a2cf91c03a176975d973f2e6caf)) 
+* feat: initialize benchmark testing module ([`66843ba`](https://github.com/EDIorg/spinneret/commit/66843ba5fe8d2c41ce78875a214a43522c51b321)) 
+
+### Fix
+
+* fix: correct return logic in `add_predicate_annotations_to_workbook` ([`5a49584`](https://github.com/EDIorg/spinneret/commit/5a495842e17f8dad5db95453ad2a540382b52ce3)) 
+* fix: handle multiple semicolons in CURIE expansion ([`31d0e9c`](https://github.com/EDIorg/spinneret/commit/31d0e9cf12ae01017038b253c74b7093b0282593)) 
+* fix: update OntoGPT templates to improve grounding ([`1c79260`](https://github.com/EDIorg/spinneret/commit/1c7926037e76f9137ba25548a030e26e55598f7c)) 
+* fix: correct OntoGPT command construction ([`31a5ff4`](https://github.com/EDIorg/spinneret/commit/31a5ff4605c02fd1c8a49e7a98d8ff376233f5ce)) 
+* fix: prevent OntoGPT cache-related errors by clearing cache ([`d342773`](https://github.com/EDIorg/spinneret/commit/d3427737114469e2be59cdf7289a724c08a8601b)) 
+* fix: add missing parameters to `annotate_workbooks` ([`9e8570a`](https://github.com/EDIorg/spinneret/commit/9e8570a52f3448712af71738c74bb18d93f99a55)) 
+
+### Performance
+
+* perf: optimize OntoGPT calls using `ollama_chat` ([`2a46e33`](https://github.com/EDIorg/spinneret/commit/2a46e3388bd2b4013848c83309ef773dc6e29fa0)) 
+* perf: enhance OntoGPT grounding with sample size ([`57e6df7`](https://github.com/EDIorg/spinneret/commit/57e6df729b005224621d594a9ef169a7bc128f40)) 
+
+### Refactor
+
+* refactor: consolidate OntoGPT workbook annotators into a single function ([`ed668b1`](https://github.com/EDIorg/spinneret/commit/ed668b1ecf46121045733d37f0dfdbc357d043ca)) 
+* refactor: remove outdated `add_dataset_annotations_to_workbook` function ([`25f0a8b`](https://github.com/EDIorg/spinneret/commit/25f0a8bc89c406c70fc1259e68abc8c243c94384)) 
+* refactor: replace print statements with logging ([`23907c6`](https://github.com/EDIorg/spinneret/commit/23907c66d9af541ac233782e0b24d97f5e96499e)) 
+
+### Test
+
+* test: create test data for term-set similarity score analysis ([`513e5e5`](https://github.com/EDIorg/spinneret/commit/513e5e5789e84fe10d215c844c1d5098be6fb2f5)) 
+
 ## v0.2.0 (2024-11-13)
 
 
