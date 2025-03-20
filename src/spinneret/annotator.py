@@ -10,11 +10,6 @@ import pandas as pd
 from lxml import etree
 from daiquiri import getLogger
 from geoenvo.resolver import Resolver
-from geoenvo.data_sources import (
-    WorldTerrestrialEcosystems,
-    EcologicalMarineUnits,
-    EcologicalCoastalUnits,
-)
 from geoenvo.geometry import Geometry
 from spinneret.workbook import (
     delete_annotations,
@@ -730,7 +725,7 @@ def has_annotation(
     return bool(matching_rows.any())
 
 
-def get_geoenv_response_data(eml: str) -> List[dict]:
+def get_geoenv_response_data(eml: str, data_sources: list) -> List[dict]:
     """
     Get `geoenv` response data for each Geographic Coverage in an EML file. The
     data is the raw JSON response from the `geoenv` resolver, which includes
@@ -739,15 +734,11 @@ def get_geoenv_response_data(eml: str) -> List[dict]:
     interest.
 
     :param eml: Path to the EML metadata document in XML format.
+    :param data_sources: A list of geoenvo data sources to use for resolution.
     :return: A list of JSON values returned by the geoenvo.Resolver.resolve
         method.
     """
     # Initialize the resolver
-    data_sources = [
-        WorldTerrestrialEcosystems(),
-        EcologicalMarineUnits(),
-        EcologicalCoastalUnits(),
-    ]
     resolver = Resolver(data_sources)
 
     # Get the list of GeographicCoverage objects

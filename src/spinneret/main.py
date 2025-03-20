@@ -327,7 +327,9 @@ def create_kgraph(soso_dir: str, vocabulary_dir: str) -> Graph:
     return kgraph
 
 
-def create_geoenv_data_files(eml_dir: str, output_dir: str, overwrite=False):
+def create_geoenv_data_files(
+    eml_dir: str, output_dir: str, data_sources: list, overwrite=False
+):
     """
     Create GeoEnv data files for each EML file in a directory
     :param eml_dir: Path to directory containing EML files
@@ -347,7 +349,7 @@ def create_geoenv_data_files(eml_dir: str, output_dir: str, overwrite=False):
         logger.info(file)
 
         # Get the GeoEnv response data
-        response = get_geoenv_response_data(file)
+        response = get_geoenv_response_data(file, data_sources=data_sources)
         result = {"data": response}
 
         # Write the data to a file
@@ -357,6 +359,11 @@ def create_geoenv_data_files(eml_dir: str, output_dir: str, overwrite=False):
 
 if __name__ == "__main__":
     import logging
+    from geoenvo.data_sources import (
+        WorldTerrestrialEcosystems,
+        EcologicalMarineUnits,
+        EcologicalCoastalUnits,
+    )
 
     daiquiri.setup(
         level=logging.INFO,
@@ -373,6 +380,11 @@ if __name__ == "__main__":
     create_geoenv_data_files(
         eml_dir="/Users/csmith/Data/testing_geoenvo/small_batch/eml",
         output_dir="/Users/csmith/Data/testing_geoenvo/small_batch/responses",
+        data_sources=[
+            WorldTerrestrialEcosystems(),
+            EcologicalCoastalUnits(),
+            EcologicalMarineUnits(),
+        ],
         overwrite=False,
     )
 

@@ -6,6 +6,7 @@ from shutil import copyfile
 
 import pandas as pd
 import pytest
+from geoenvo.data_sources import WorldTerrestrialEcosystems
 from lxml import etree
 
 from spinneret import annotator
@@ -504,14 +505,15 @@ def test_get_geoenv_response_data():
     """Test get_geoenv_response_data"""
 
     # Positive test case: EML has geographic coverage
-    eml_file = str(files("spinneret.data.eml").joinpath("edi.3.9.xml"))
-    response = get_geoenv_response_data(eml_file)
+    eml_file = str(files("spinneret.data.eml").joinpath("edi.2.2.xml"))
+    data_source = WorldTerrestrialEcosystems()
+    response = get_geoenv_response_data(eml_file, data_sources=[data_source])
     assert isinstance(response, list)
     for item in response:
         assert isinstance(item, dict)
 
     # Negative test case: EML has no geographic coverage
     eml_file = str(files("spinneret.data.eml").joinpath("edi.3.9_no_geocoverage.xml"))
-    response = get_geoenv_response_data(eml_file)
+    response = get_geoenv_response_data(eml_file, data_sources=[data_source])
     assert isinstance(response, list)
     assert len(response) == 0
