@@ -365,7 +365,8 @@ if __name__ == "__main__":
         EcologicalCoastalUnits,
     )
 
-    scope = "edi"
+    scope = "remainder"
+
     daiquiri.setup(
         level=logging.INFO,
         outputs=(
@@ -378,14 +379,18 @@ if __name__ == "__main__":
         ),
     )
 
+    ecu = EcologicalCoastalUnits()
+    ecu.buffer = 1
+    sources = [
+        WorldTerrestrialEcosystems(),
+        ecu,
+        EcologicalMarineUnits(),
+    ]
+
     create_geoenv_data_files(
         eml_dir="/Users/csmith/Data/testing_geoenvo/full_batch/eml",
         output_dir="/Users/csmith/Data/testing_geoenvo/full_batch/responses",
-        data_sources=[
-            WorldTerrestrialEcosystems(),
-            EcologicalCoastalUnits(),
-            EcologicalMarineUnits(),
-        ],
+        data_sources=sources,
         overwrite=False,
     )
 
