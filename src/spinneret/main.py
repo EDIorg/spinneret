@@ -365,11 +365,12 @@ if __name__ == "__main__":
         EcologicalCoastalUnits,
     )
 
+    scope = "edi"
     daiquiri.setup(
         level=logging.INFO,
         outputs=(
             daiquiri.output.RotatingFile(
-                "/Users/csmith/Data/testing_geoenvo/small_batch/spinneret.log",
+                f"/Users/csmith/Data/testing_geoenvo/full_batch/{scope}_spinneret.log",
                 max_size_bytes=100 * 10**6,  # 100 MB
                 backup_count=0,  # Unlimited backup files
             ),
@@ -378,8 +379,8 @@ if __name__ == "__main__":
     )
 
     create_geoenv_data_files(
-        eml_dir="/Users/csmith/Data/testing_geoenvo/small_batch/eml",
-        output_dir="/Users/csmith/Data/testing_geoenvo/small_batch/responses",
+        eml_dir="/Users/csmith/Data/testing_geoenvo/full_batch/eml",
+        output_dir="/Users/csmith/Data/testing_geoenvo/full_batch/responses",
         data_sources=[
             WorldTerrestrialEcosystems(),
             EcologicalCoastalUnits(),
