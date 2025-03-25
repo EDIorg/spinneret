@@ -3,14 +3,37 @@
 
 
 
+## v0.5.0 (2025-03-25)
+
+
+### Bug fixes
+
+* fix: resolve EML geographic coverage ID references ([`8642818`](https://github.com/EDIorg/spinneret/commit/8642818b6205fc1a704455b80552acfc72c76176)) 
+* fix: include data package identifier in geoenvo resolve logs ([`e1fe2c6`](https://github.com/EDIorg/spinneret/commit/e1fe2c6f32feda3e48578d1e872d59ad828c57d7)) 
+
+### Build system
+
+* build: update dependencies to address security vulnerabilities ([`5a9e414`](https://github.com/EDIorg/spinneret/commit/5a9e414cbd371619bc00e26646552c96bd8ba81e)) 
+* build: update geoenvo package to latest version ([`3876807`](https://github.com/EDIorg/spinneret/commit/387680788ba81ff61244916901eb16c3691301fa)) 
+
+### Features
+
+* feat: enable data source filtering in create_geoenv_data_files ([`1ba6ae7`](https://github.com/EDIorg/spinneret/commit/1ba6ae765ec7a92c7cf47b3d721840ceced540b6)) 
+* feat: enhance geometry resolution logging with metadata ([`9e16bb0`](https://github.com/EDIorg/spinneret/commit/9e16bb0f799d014a64b8d6e8c9270529f200ed8d)) 
+
+### Testing
+
+* test: update geoenvo test configuration ([`5a6504e`](https://github.com/EDIorg/spinneret/commit/5a6504e1619296d078a2506a8d1a2c0fed630b7e)) 
+* test: batch process EML with geoenvo ([`052345c`](https://github.com/EDIorg/spinneret/commit/052345c808ea13f196cf0366628e41195b822dab)) 
+
 ## v0.4.0 (2025-03-19)
 
 
-### Build
+### Build system
 
 * build: update environment to use geoenvo package ([`425d0bf`](https://github.com/EDIorg/spinneret/commit/425d0bf3400d39b522206eea6bf0e23b8c3666ce)) 
 
-### Feature
+### Features
 
 * feat: iterate over EML files to obtain environments ([`74ff66a`](https://github.com/EDIorg/spinneret/commit/74ff66a81d935f2745cd93087ce130d0c0290a27)) 
 * feat: add GeoJSON conversion to GeographicCoverage class ([`4cb2dc3`](https://github.com/EDIorg/spinneret/commit/4cb2dc333c7b01366a35a379e5a758be7f896f2f)) 
@@ -19,11 +42,20 @@
 ## v0.3.0 (2025-01-17)
 
 
-### Build
+### Bug fixes
+
+* fix: correct return logic in `add_predicate_annotations_to_workbook` ([`5a49584`](https://github.com/EDIorg/spinneret/commit/5a495842e17f8dad5db95453ad2a540382b52ce3)) 
+* fix: handle multiple semicolons in CURIE expansion ([`31d0e9c`](https://github.com/EDIorg/spinneret/commit/31d0e9cf12ae01017038b253c74b7093b0282593)) 
+* fix: update OntoGPT templates to improve grounding ([`1c79260`](https://github.com/EDIorg/spinneret/commit/1c7926037e76f9137ba25548a030e26e55598f7c)) 
+* fix: correct OntoGPT command construction ([`31a5ff4`](https://github.com/EDIorg/spinneret/commit/31a5ff4605c02fd1c8a49e7a98d8ff376233f5ce)) 
+* fix: prevent OntoGPT cache-related errors by clearing cache ([`d342773`](https://github.com/EDIorg/spinneret/commit/d3427737114469e2be59cdf7289a724c08a8601b)) 
+* fix: add missing parameters to `annotate_workbooks` ([`9e8570a`](https://github.com/EDIorg/spinneret/commit/9e8570a52f3448712af71738c74bb18d93f99a55)) 
+
+### Build system
 
 * build: configure Read the Docs for explicit path to config.py ([`ee47493`](https://github.com/EDIorg/spinneret/commit/ee474938e6c15baec225f1a303c842dfb731f78b)) 
 
-### Feature
+### Features
 
 * feat: make plot writing to file optional in `plot_grounding_rates` ([`18d01bb`](https://github.com/EDIorg/spinneret/commit/18d01bbf495bee37977bccf3b46f2114dce40a78)) 
 * feat: visualize similarity metrics by configuration ([`b392629`](https://github.com/EDIorg/spinneret/commit/b39262910b05e2b0ea7de92e3759683c654c8920)) 
@@ -37,34 +69,38 @@
 * feat: implement logging for debugging ([`864889e`](https://github.com/EDIorg/spinneret/commit/864889eac7791a2cf91c03a176975d973f2e6caf)) 
 * feat: initialize benchmark testing module ([`66843ba`](https://github.com/EDIorg/spinneret/commit/66843ba5fe8d2c41ce78875a214a43522c51b321)) 
 
-### Fix
-
-* fix: correct return logic in `add_predicate_annotations_to_workbook` ([`5a49584`](https://github.com/EDIorg/spinneret/commit/5a495842e17f8dad5db95453ad2a540382b52ce3)) 
-* fix: handle multiple semicolons in CURIE expansion ([`31d0e9c`](https://github.com/EDIorg/spinneret/commit/31d0e9cf12ae01017038b253c74b7093b0282593)) 
-* fix: update OntoGPT templates to improve grounding ([`1c79260`](https://github.com/EDIorg/spinneret/commit/1c7926037e76f9137ba25548a030e26e55598f7c)) 
-* fix: correct OntoGPT command construction ([`31a5ff4`](https://github.com/EDIorg/spinneret/commit/31a5ff4605c02fd1c8a49e7a98d8ff376233f5ce)) 
-* fix: prevent OntoGPT cache-related errors by clearing cache ([`d342773`](https://github.com/EDIorg/spinneret/commit/d3427737114469e2be59cdf7289a724c08a8601b)) 
-* fix: add missing parameters to `annotate_workbooks` ([`9e8570a`](https://github.com/EDIorg/spinneret/commit/9e8570a52f3448712af71738c74bb18d93f99a55)) 
-
-### Performance
+### Performance improvements
 
 * perf: optimize OntoGPT calls using `ollama_chat` ([`2a46e33`](https://github.com/EDIorg/spinneret/commit/2a46e3388bd2b4013848c83309ef773dc6e29fa0)) 
 * perf: enhance OntoGPT grounding with sample size ([`57e6df7`](https://github.com/EDIorg/spinneret/commit/57e6df729b005224621d594a9ef169a7bc128f40)) 
 
-### Refactor
+### Refactoring
 
 * refactor: consolidate OntoGPT workbook annotators into a single function ([`ed668b1`](https://github.com/EDIorg/spinneret/commit/ed668b1ecf46121045733d37f0dfdbc357d043ca)) 
 * refactor: remove outdated `add_dataset_annotations_to_workbook` function ([`25f0a8b`](https://github.com/EDIorg/spinneret/commit/25f0a8bc89c406c70fc1259e68abc8c243c94384)) 
 * refactor: replace print statements with logging ([`23907c6`](https://github.com/EDIorg/spinneret/commit/23907c66d9af541ac233782e0b24d97f5e96499e)) 
 
-### Test
+### Testing
 
 * test: create test data for term-set similarity score analysis ([`513e5e5`](https://github.com/EDIorg/spinneret/commit/513e5e5789e84fe10d215c844c1d5098be6fb2f5)) 
 
 ## v0.2.0 (2024-11-13)
 
 
-### Build
+### Bug fixes
+
+* fix: preserve case sensitivity in `local_model` arguments ([`2fd7fa3`](https://github.com/EDIorg/spinneret/commit/2fd7fa31c585857ec4d235df6938fa464a56d49e)) 
+* fix: ensure correct file extension for OntoGPT output ([`677dd0a`](https://github.com/EDIorg/spinneret/commit/677dd0a4d92a94194336de471a16018d9c3b030e)) 
+* fix: gracefully handle missing OntoGPT output files ([`3636672`](https://github.com/EDIorg/spinneret/commit/36366727a0128afab59befa63a0925ae9c77b7a3)) 
+* fix: handle optional methods element gracefully ([`591ed67`](https://github.com/EDIorg/spinneret/commit/591ed675d017cc8f983539a4c4c3f18798ef5d99)) 
+* fix: handle ungrounded IDs gracefully in CURIE expansion ([`b493340`](https://github.com/EDIorg/spinneret/commit/b493340341b4a410fcb7aa49a371bcbc6382d5ac)) 
+* fix: remove empty XML tags during EML loading ([`4c42c93`](https://github.com/EDIorg/spinneret/commit/4c42c9362c82287b383f007eae8bc7537a7f3544)) 
+* fix: enhance author attribution in `add_qudt_annotations_to_workbook` ([`3047953`](https://github.com/EDIorg/spinneret/commit/3047953cb6c4f9153e69b9c8e7be04159da7b07b)) 
+* fix: ensure correct annotation placement in EML ([`346281c`](https://github.com/EDIorg/spinneret/commit/346281ca08204fda4d648b4c1af63c3a1614b1b1)) 
+* fix: make `get_description` more resilient to missing elements ([`87a66d0`](https://github.com/EDIorg/spinneret/commit/87a66d08f5be7203237d0a34d1ab813495417ac8)) 
+* fix: correct BioPortal annotator parameter format ([`b95961f`](https://github.com/EDIorg/spinneret/commit/b95961f772e7491956e70433e086d13be09a33d2)) 
+
+### Build system
 
 * build: integrate `ontogpt` for SPIRES-based annotation ([`235924e`](https://github.com/EDIorg/spinneret/commit/235924ec8180822892f85aa752e2defd992945d1)) 
 * build: upgrade `soso` dependency to latest version ([`58b282a`](https://github.com/EDIorg/spinneret/commit/58b282aa27b5ec01e24808d23b700de767002250)) 
@@ -80,7 +116,7 @@
 * docs: remove obsolete function reference ([`54589dc`](https://github.com/EDIorg/spinneret/commit/54589dcd31007d9763e1c932318d6704d430ffb5)) 
 * docs: correct GitHub username references ([`0922168`](https://github.com/EDIorg/spinneret/commit/09221687093052f64a360759939eb0cc1097300d)) 
 
-### Feature
+### Features
 
 * feat: enhance `annotate_eml` flexibility with object/path input/output ([`e5a96a5`](https://github.com/EDIorg/spinneret/commit/e5a96a5ce9656ee45d6bfdfaa29a04fc78c700b0)) 
 * feat: implement duplicate annotation removal in workbook annotators ([`7f388e3`](https://github.com/EDIorg/spinneret/commit/7f388e39b749f9271ba4a19b5a18ab667f822391)) 
@@ -123,26 +159,13 @@
 * feat: introduce configuration file for spinneret ([`1231973`](https://github.com/EDIorg/spinneret/commit/1231973259b51bb6ec819a79020c190be5b3c176)) 
 * feat: add element descriptions to workbook ([`9d6da08`](https://github.com/EDIorg/spinneret/commit/9d6da0854f59ab0a59802be8351e3c123d41b48b)) 
 
-### Fix
-
-* fix: preserve case sensitivity in `local_model` arguments ([`2fd7fa3`](https://github.com/EDIorg/spinneret/commit/2fd7fa31c585857ec4d235df6938fa464a56d49e)) 
-* fix: ensure correct file extension for OntoGPT output ([`677dd0a`](https://github.com/EDIorg/spinneret/commit/677dd0a4d92a94194336de471a16018d9c3b030e)) 
-* fix: gracefully handle missing OntoGPT output files ([`3636672`](https://github.com/EDIorg/spinneret/commit/36366727a0128afab59befa63a0925ae9c77b7a3)) 
-* fix: handle optional methods element gracefully ([`591ed67`](https://github.com/EDIorg/spinneret/commit/591ed675d017cc8f983539a4c4c3f18798ef5d99)) 
-* fix: handle ungrounded IDs gracefully in CURIE expansion ([`b493340`](https://github.com/EDIorg/spinneret/commit/b493340341b4a410fcb7aa49a371bcbc6382d5ac)) 
-* fix: remove empty XML tags during EML loading ([`4c42c93`](https://github.com/EDIorg/spinneret/commit/4c42c9362c82287b383f007eae8bc7537a7f3544)) 
-* fix: enhance author attribution in `add_qudt_annotations_to_workbook` ([`3047953`](https://github.com/EDIorg/spinneret/commit/3047953cb6c4f9153e69b9c8e7be04159da7b07b)) 
-* fix: ensure correct annotation placement in EML ([`346281c`](https://github.com/EDIorg/spinneret/commit/346281ca08204fda4d648b4c1af63c3a1614b1b1)) 
-* fix: make `get_description` more resilient to missing elements ([`87a66d0`](https://github.com/EDIorg/spinneret/commit/87a66d08f5be7203237d0a34d1ab813495417ac8)) 
-* fix: correct BioPortal annotator parameter format ([`b95961f`](https://github.com/EDIorg/spinneret/commit/b95961f772e7491956e70433e086d13be09a33d2)) 
-
-### Performance
+### Performance improvements
 
 * perf: skip annotation if element is annotated ([`a508e9b`](https://github.com/EDIorg/spinneret/commit/a508e9b4c1ee779ad924973d28ecb99e047bff0f)) 
 * perf: extend annotation with caching to all workbook annotators ([`7a9fa7c`](https://github.com/EDIorg/spinneret/commit/7a9fa7c42ecc5d75dadea81a1afe3bf5e84d2a6b)) 
 * perf: optimize attribute annotation with caching ([`7287f31`](https://github.com/EDIorg/spinneret/commit/7287f3109e747a420ea62cadf4b70a567032bce8)) 
 
-### Refactor
+### Refactoring
 
 * refactor: enhance duplicate annotation detection criteria ([`31067f8`](https://github.com/EDIorg/spinneret/commit/31067f8363206c7899c87c8e1359e55c5d99582c)) 
 * refactor: remove extraneous commented code ([`83ed3d5`](https://github.com/EDIorg/spinneret/commit/83ed3d5650c9dadcf75088bdc344ed4447cb0612)) 
@@ -169,7 +192,7 @@
 * refactor: rename `combine_jsonld_files` to `load_metadata` ([`9eae7f5`](https://github.com/EDIorg/spinneret/commit/9eae7f5f8f99b4523fd18f774e8f6fbeb9069dc2)) 
 * refactor: output one workbook per EML file ([`b6e7c92`](https://github.com/EDIorg/spinneret/commit/b6e7c924d5343acf2fe0438c26521bbfdbbfc2a2)) 
 
-### Test
+### Testing
 
 * test: refine workbook annotator test clarity ([`cbe98ae`](https://github.com/EDIorg/spinneret/commit/cbe98ae5bf9fb7070acadf720ec0c3b069e95044)) 
 * test: integrate `has_annotations` utility ([`987c5b0`](https://github.com/EDIorg/spinneret/commit/987c5b05dd94b13aaf998fc774b0b356884e12ef)) 
@@ -181,18 +204,18 @@
 ## v0.1.0 (2024-08-21)
 
 
-### Build
+### Build system
 
 * build: establish package structure ([`8e71588`](https://github.com/EDIorg/spinneret/commit/8e71588ebd1f75d0a94846ab5fc84e6aa44c8d30)) 
 
-### Ci
+### Continuous integration
 
 * ci: align Black version in CI with local environment ([`35dec17`](https://github.com/EDIorg/spinneret/commit/35dec17ddd572d4ba1bcbeeaf8bf63362ab343bf)) 
 
-### Feature
+### Features
 
 * feat: migrate src/ modules from previous spinneret iteration ([`4a846ca`](https://github.com/EDIorg/spinneret/commit/4a846ca0541d20db2919ea344d5e896f99326822)) 
 
-### Test
+### Testing
 
-* test: migrate tests/ module from previous spinneret iteration ([`a0f524b`](https://github.com/EDIorg/spinneret/commit/a0f524b10f3814cb424ec4c25b2604ae18d51d6b)) 
+* test: migrate tests/ module from previous spinneret iteration ([`a0f524b`](https://github.com/EDIorg/spinneret/commit/a0f524b10f3814cb424ec4c25b2604ae18d51d6b))
