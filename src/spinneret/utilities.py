@@ -54,7 +54,7 @@ def is_url(text: str) -> bool:
 
 
 def load_workbook(
-    workbook: Union[str, pd.core.frame.DataFrame]
+    workbook: Union[str, pd.core.frame.DataFrame],
 ) -> pd.core.frame.DataFrame:
     """
     :param workbook: The workbook to be loaded.

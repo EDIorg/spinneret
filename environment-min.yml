@@ -4,7 +4,10 @@ channels:
   - defaults
 dependencies:
   - black
+  - daiquiri
+  - geopandas
   - lxml
+  - matplotlib
   - myst-parser
   - pandas
   - pylint
@@ -16,7 +19,4 @@ dependencies:
   - rdflib
   - sphinx
   - sphinx-autoapi
-  - daiquiri
-  - matplotlib
-  - geopandas
 prefix: /opt/miniconda3/envs/spinneret
