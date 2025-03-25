@@ -1,0 +1,33 @@
+{
+  "data": [
+    {
+      "identifier": "test-id-003",
+      "properties": {
+        "environment": [
+          {
+            "dataSource": {
+              "identifier": "doi:abcd",
+              "name": "EcoOcean"
+            },
+            "dateCreated": "2025-03-23 09:00:00",
+            "properties": {
+              "oxygenLevel": "High",
+              "chlorophyll": "Low"
+            }
+          },
+          {
+            "dataSource": {
+              "identifier": "doi:efgh",
+              "name": "DeepSeaProfiles"
+            },
+            "dateCreated": "2025-03-23 10:00:00",
+            "properties": {
+              "depthZone": "Abyssopelagic",
+              "pressure": "High"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

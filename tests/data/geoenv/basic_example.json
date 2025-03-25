@@ -1,0 +1,22 @@
+{
+  "data": [
+    {
+      "identifier": "test-id-001",
+      "properties": {
+        "environment": [
+          {
+            "dataSource": {
+              "identifier": "doi:1234",
+              "name": "TestDataSource"
+            },
+            "dateCreated": "2025-03-25 00:00:00",
+            "properties": {
+              "temperature": "Cold",
+              "salinity": "Euhaline"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

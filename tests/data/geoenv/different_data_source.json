@@ -1,0 +1,23 @@
+{
+  "data": [
+    {
+      "identifier": "test-id-002",
+      "properties": {
+        "environment": [
+          {
+            "dataSource": {
+              "identifier": "doi:5678",
+              "name": "LandSurfaceData"
+            },
+            "dateCreated": "2025-03-24 12:00:00",
+            "properties": {
+              "landCover": "Grassland",
+              "soilMoisture": "Moderate",
+              "surfaceTemperature": "Warm"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
