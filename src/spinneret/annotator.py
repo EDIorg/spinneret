@@ -749,7 +749,10 @@ def get_geoenv_response_data(eml: str, data_sources: list) -> List[dict]:
     environments = []
     if geographic_coverages:
         for gc in geographic_coverages:
-            geometry = Geometry(loads(gc.to_geojson_geometry()))
+            geojson = gc.to_geojson_geometry()
+            if geojson is None:  # geographicCoverage has ID references
+                continue
+            geometry = Geometry(loads(geojson))
             response = resolver.resolve(
                 geometry, identifier=identifier, description=gc.description()
             )

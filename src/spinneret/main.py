@@ -365,13 +365,13 @@ if __name__ == "__main__":
         EcologicalCoastalUnits,
     )
 
-    scope = "remainder"
+    SCOPE = "remainder"
 
     daiquiri.setup(
         level=logging.INFO,
         outputs=(
             daiquiri.output.RotatingFile(
-                f"/Users/csmith/Data/testing_geoenvo/full_batch/{scope}_spinneret.log",
+                f"/Users/csmith/Data/testing_geoenvo/full_batch/{SCOPE}_spinneret.log",
                 max_size_bytes=100 * 10**6,  # 100 MB
                 backup_count=0,  # Unlimited backup files
             ),
