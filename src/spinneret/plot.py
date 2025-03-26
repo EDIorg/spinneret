@@ -20,14 +20,12 @@ def extract_environments_from_file(file_path: PosixPath) -> List[dict]:
     records = []
 
     for feature in content.get("data", []):
-        dataset_id = feature.get("identifier")
+        identifier = feature.get("identifier")
         for env in feature.get("properties", {}).get("environment", []):
             data_source = env.get("dataSource", {})
             base_record = {
-                "dataset_id": dataset_id,
-                "data_source_name": data_source.get("name"),
-                "data_source_identifier": data_source.get("identifier"),
-                "date_created": env.get("dateCreated"),
+                "identifier": identifier,
+                "dataSource": data_source.get("name"),
             }
             env_props = env.get("properties", {})
             full_record = {**base_record, **env_props}
