@@ -172,3 +172,38 @@ def calculate_unresolvable_geometry_percentage(directory: MultiplexedPath) -> fl
 
     percentage = (unresolved_with_geometry / total_with_geometry) * 100
     return round(percentage, 2)
+
+
+def summarize_geoenv_directory(directory: MultiplexedPath) -> dict:
+    """
+    Summarizes key metrics from geoenv JSON files in a directory.
+
+    :param directory: Path to the directory of geoenv JSON files.
+    :return: A dictionary of metric names and their values.
+    """
+
+    summary = {
+        "unique_datasets": count_unique_datasets(directory),
+        "unique_geometries": count_unique_geometries(directory),
+        "unique_environments": count_unique_environments(directory),
+        "unique_environments_by_data_source": count_unique_environments_by_data_source(
+            directory
+        ),
+        "unresolvable_geometry_percentage": calculate_unresolvable_geometry_percentage(
+            directory
+        ),
+    }
+
+    # Print summary
+    print("\n📊 GeoEnv Summary")
+    print("-" * 30)
+    print(f"📁 Unique datasets: {summary['unique_datasets']}")
+    print(f"🌐 Unique geometries: {summary['unique_geometries']}")
+    print(f"🌎 Unique environments: {summary['unique_environments']}")
+    print("📀 Unique environments by data source:")
+    for source, props in summary["unique_environments_by_data_source"].items():
+        print(f"    - {source}: {props}")
+    print(f"❌ Unresolvable geometry %: {summary['unresolvable_geometry_percentage']}")
+    print("-" * 30)
+
+    return summary

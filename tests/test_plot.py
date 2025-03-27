@@ -12,6 +12,7 @@ from spinneret.plot import (
     count_unique_geometries,
     count_unique_environments_by_data_source,
     calculate_unresolvable_geometry_percentage,
+    summarize_geoenv_directory,
 )
 
 
@@ -194,3 +195,46 @@ def test_calculate_unresolvable_geometry_percentage():
 
     # Based on fixture assumptions: 2 of 8 geometries has no environments
     assert percent == 25.0
+
+
+def test_summarize_geoenv_directory():
+    """Test that the summarize_geoenv_directory function can summarize key
+    metrics from geoenv JSON files in a directory."""
+    directory = files("tests.data.geoenv")
+    summary = summarize_geoenv_directory(directory)
+
+    # Ensure summary is a dictionary
+    assert isinstance(summary, dict)
+
+    # Required keys should be present
+    expected_keys = {
+        "unique_datasets",
+        "unique_geometries",
+        "unique_environments",
+        "unique_environments_by_data_source",
+        "unresolvable_geometry_percentage",
+    }
+    assert expected_keys.issubset(summary.keys())
+
+    # Check data types
+    assert isinstance(summary["unique_datasets"], int)
+    assert isinstance(summary["unique_geometries"], int)
+    assert isinstance(summary["unique_environments"], int)
+    assert isinstance(summary["unique_environments_by_data_source"], dict)
+    assert isinstance(summary["unresolvable_geometry_percentage"], float)
+
+    # Spot-check known values from fixture set
+    assert summary["unique_datasets"] == 5
+    assert summary["unique_geometries"] == 8
+    assert summary["unique_environments"] == 9
+    assert summary["unresolvable_geometry_percentage"] == 25.0
+
+    # Check expected sources in environment breakdown
+    expected_sources = {
+        "WorldTerrestrialEcosystems",
+        "EcologicalMarineUnits",
+        "EcologicalCoastalUnits",
+    }
+    assert expected_sources.issubset(
+        summary["unique_environments_by_data_source"].keys()
+    )
