@@ -136,3 +136,39 @@ def count_unique_geometries(directory: MultiplexedPath) -> int:
                 global_geometries.add(geom_hash)
 
     return len(global_geometries)
+
+
+def calculate_unresolvable_geometry_percentage(directory: MultiplexedPath) -> float:
+    """
+    Calculates the percentage of geometries that could not be resolved (i.e.,
+    have an empty or missing environment list). Only counts features that
+    contain a geometry.
+
+    :param directory: Path to directory containing geoenv JSON files.
+    :return: Percentage (0–100) of geometries that are non-resolvable.
+    """
+    total_with_geometry = 0
+    unresolved_with_geometry = 0
+
+    for file_path in directory.iterdir():
+        if file_path.suffix != ".json":
+            continue
+        with open(file_path, encoding="utf-8") as f:
+            content = json.load(f)
+
+        for feature in content.get("data", []):
+            geometry = feature.get("geometry")
+            if geometry:
+                total_with_geometry += 1
+
+                env = feature.get("properties", {}).get("environment", [])
+                if not env:
+                    unresolved_with_geometry += 1
+
+    if total_with_geometry == 0:
+        return (
+            0.0  # Avoid divide-by-zero; define as 0% unresolved if no geometries exist
+        )
+
+    percentage = (unresolved_with_geometry / total_with_geometry) * 100
+    return round(percentage, 2)

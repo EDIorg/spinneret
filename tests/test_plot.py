@@ -11,6 +11,7 @@ from spinneret.plot import (
     count_unique_datasets,
     count_unique_geometries,
     count_unique_environments_by_data_source,
+    calculate_unresolvable_geometry_percentage,
 )
 
 
@@ -102,8 +103,7 @@ def test_find_empty_extractions():
     produced no extracted environment records."""
     empty_files = find_empty_extractions(files("tests.data.geoenv"))
 
-    assert len(empty_files) == 1
-    assert empty_files[0].endswith("knb-lter-and.3147.7.json")
+    assert len(empty_files) == 2
 
 
 def test_find_empty_extractions_with_empty_folder(tmp_path):
@@ -134,7 +134,7 @@ def test_count_unique_datasets_from_fixture_dir():
     directory = files("tests.data.geoenv")
     result = count_unique_datasets(directory)
 
-    assert result == 4
+    assert result == 5
 
 
 def test_count_unique_datasets_from_empty_dir(tmp_path):
@@ -151,7 +151,7 @@ def test_count_unique_geometries():
     total_unique = count_unique_geometries(files("tests.data.geoenv"))
 
     # Expecting 3 total unique geometries in current fixture set
-    assert total_unique == 7
+    assert total_unique == 8
 
 
 def test_count_unique_geometries_with_empty_geometry_file(tmp_path):
@@ -184,3 +184,13 @@ def test_count_unique_environments_by_data_source():
     # Check that the counts match the expected values
     for key, _ in expected.items():
         assert result[key] == expected[key]
+
+
+def test_calculate_unresolvable_geometry_percentage():
+    """Test that the calculate_unresolvable_geometry_percentage function can
+    calculate the percentage of geometries that have no environments."""
+    directory = files("tests.data.geoenv")
+    percent = calculate_unresolvable_geometry_percentage(directory)
+
+    # Based on fixture assumptions: 2 of 8 geometries has no environments
+    assert percent == 25.0

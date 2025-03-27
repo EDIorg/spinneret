@@ -1,0 +1,20 @@
+{
+  "data": [
+    {
+      "geometry": {
+        "coordinates": [
+          -122.185009,
+          44.003022,
+          730
+        ],
+        "type": "Point"
+      },
+      "identifier": "knb-lter-and.3145.19",
+      "properties": {
+        "description": "West of the south fork of the McKenzie River, north of Augusta Creek, western Cascades, Oregon.",
+        "environment": []
+      },
+      "type": "Feature"
+    }
+  ]
+}
