@@ -39,6 +39,12 @@ Main Module
 .. automodule:: spinneret.main
    :members:
 
+Plot Module
+-----------
+
+.. automodule:: spinneret.plot
+   :members:
+
 Shadow Module
 -------------
 

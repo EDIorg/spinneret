@@ -91,6 +91,7 @@ def count_unique_environments_by_data_source(directory: MultiplexedPath) -> dict
     """
     Counts all unique environments from JSON files in the given directory by
     dataSource.
+
     :param directory: Path to the folder containing the geoenv JSON files.
     :return: A dictionary with keys for each dataSource and values being the
         total count for each dataSource.
