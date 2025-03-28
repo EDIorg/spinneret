@@ -4,9 +4,11 @@ import hashlib
 import json
 from pathlib import PosixPath
 from typing import List, Set
+import matplotlib.pyplot as plt
 
 import pandas as pd
 from importlib_resources.readers import MultiplexedPath
+from matplotlib.patheffects import withStroke
 
 
 def extract_environments_from_file(file_path: PosixPath) -> List[dict]:
@@ -207,3 +209,195 @@ def summarize_geoenv_directory(directory: MultiplexedPath) -> dict:
     print("-" * 30)
 
     return summary
+
+
+def reformat_environments_to_long(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Reformats the environment DataFrame from wide format to long format.
+    Treats 'identifier' and 'dataSource' as ID variables.
+
+    :param df: DataFrame in wide format from load_all_environments().
+    :return: Long-format DataFrame with columns ['identifier', 'dataSource', 'property', 'value'].
+    """
+    id_vars = ["identifier", "dataSource"]
+
+    # Determine value columns (environment properties)
+    value_vars = [col for col in df.columns if col not in id_vars]
+
+    df_long = pd.melt(
+        df,
+        id_vars=id_vars,
+        value_vars=value_vars,
+        var_name="property",
+        value_name="value",
+    )
+
+    # Optionally drop rows where value is missing
+    df_long = df_long.dropna(subset=["value"])
+
+    # Sort the DataFrame for better readability
+    df_long = df_long.sort_values(by=["identifier", "dataSource", "property"])
+
+    return df_long
+
+
+def prepare_plotting_data(df_long: pd.DataFrame) -> pd.DataFrame:
+    """
+    Prepares data for plotting by:
+    - Removing duplicate rows
+    - Grouping by dataSource, property, value
+    - Counting unique identifiers
+    """
+    df_clean = df_long.drop_duplicates()
+    grouped = (
+        df_clean.groupby(["dataSource", "property", "value"])["identifier"]
+        .nunique()
+        .reset_index()
+        .rename(columns={"identifier": "count"})
+    )
+    return grouped
+
+
+# pylint: disable=too-many-locals
+def plot_grouped_bar_charts(df_grouped: pd.DataFrame, output_dir: str) -> None:
+    """
+    Generates horizontal bar plots grouped by dataSource and property.
+    Each value is labeled inside the bar if space permits; otherwise, it's placed outside.
+
+    :param df_grouped: DataFrame with columns ['dataSource', 'property', 'value', 'count']
+    :param output_dir: Directory where .png files will be saved.
+    """
+    df = df_grouped
+    # Create a series of horizontal bar plots for each ecosystem type,
+    # where each plot is grouped by the ecosystem_attribute column. Individual
+    # plots are necessary, rather than a single plot with subplots, because
+    # the number of plots generated for the marine and coastal ecosystem types
+    # is on the order of 10s, which is too many to display in a single plot.
+    for data_source in df["dataSource"].unique():
+        # Subset the data frame to only include rows that contain the current
+        # ecosystem_type (i.e. Terrestrial, Marine, or Coastal).
+        df_subset = df[df["dataSource"] == data_source]
+        for data_source_property in df_subset["property"].unique():
+            # Subset the data frame to only include rows that contain the
+            # current ecosystem_attribute values.
+            df_subset2 = df_subset[df_subset["property"] == data_source_property]
+            # Sort the rows by the value column in descending order for
+            # readability.
+            df_subset2 = df_subset2.sort_values(by=["count"], ascending=True)
+
+            # Start building the bar chart.
+            counts = df_subset2["count"].values.tolist()
+            names = df_subset2["value"].values.tolist()
+            bar_color = "#076fa2"
+            # Set the positions for the bars. This allows us to determine
+            # the bar locations.
+            y = [i * 0.9 for i in range(len(names))]
+            # Create the basic bar chart
+            fig, ax = plt.subplots(figsize=(12, 7))
+            ax.barh(y, counts, height=0.55, align="edge", color=bar_color)
+            # Customize the layout of the bar chart
+            if max(counts) >= 200:
+                x_tick_interval = 20
+            else:
+                x_tick_interval = 10
+            ax.xaxis.set_ticks(list(range(0, max(counts), x_tick_interval)))
+            ax.xaxis.set_ticklabels(
+                list(range(0, max(counts), x_tick_interval)),
+                size=16,
+                fontweight=100,
+            )
+            ax.xaxis.set_tick_params(labelbottom=False, labeltop=True, length=0)
+            ax.set_xlim((0, max(counts) + 10))
+            ax.set_ylim((0, len(names) * 0.9 - 0.2))
+            # Set whether axis ticks and gridlines are above or below most
+            # axes.
+            ax.set_axisbelow(True)
+            ax.grid(axis="x", color="#A8BAC4", lw=1.2)
+            ax.spines["right"].set_visible(False)
+            ax.spines["top"].set_visible(False)
+            ax.spines["bottom"].set_visible(False)
+            ax.spines["left"].set_lw(1.5)
+            # This capstyle determines the lines don't go beyond the limit we
+            # specified see: https://matplotlib.org/stable/api/_enums_api.html
+            # ?highlight=capstyle#matplotlib._enums.CapStyle
+            ax.spines["left"].set_capstyle("butt")
+            # Hide y labels
+            ax.yaxis.set_visible(False)
+            # Add the labels
+            pad = 0.3
+            for name, count, y_pos in zip(names, counts, y):
+                x = 0
+                color = "lightgrey"
+                path_effects = None
+                # Determine if the bar label should be inside or outside the
+                # bar by comparing the x value of the bar to the x value of
+                # the text label. To do this we first plot both with
+                # "invisible ink", get the max x position of each, and then
+                # compare them.
+                ax.text(
+                    x + pad,
+                    y_pos + 0.5 / 2,
+                    name,
+                    color="none",
+                    fontsize=18,
+                    va="center",
+                    path_effects=path_effects,
+                )
+                x_text_end = ax.texts[-1].get_window_extent().x1
+                ax.plot(count, y_pos, ".", color="none", markersize=18)
+                x_point = ax.lines[-1].get_window_extent().x1
+                position_label_to_right_of_bar = x_text_end > x_point
+                # Add the text label to the appropriate position
+                if position_label_to_right_of_bar:
+                    x = count
+                    color = bar_color
+                    path_effects = [withStroke(linewidth=6, foreground="white")]
+                ax.text(
+                    x + pad,
+                    y_pos + 0.5 / 2,
+                    name,
+                    color=color,
+                    fontsize=18,
+                    va="center",
+                    path_effects=path_effects,
+                )
+            # Add annotations and final tweaks
+            # Make room on top and bottom
+            # Note there's no room on the left and right sides
+            fig.subplots_adjust(left=0.05, right=1, top=0.8, bottom=0.1)
+            # Add x label
+            ax.set_xlabel("Number of Datasets", size=18, fontweight=100)
+            ax.xaxis.set_label_coords(0.5, 1.14)
+            # Add title
+            ttl = f"{data_source} - {data_source_property}"
+            fig.text(
+                # 0, 0.925, ttl,
+                0.05,
+                0.925,
+                ttl,
+                fontsize=22,
+                fontweight="bold",
+            )
+            # Set facecolor, useful when saving as .png
+            fig.set_facecolor("white")
+            fig.savefig(output_dir + ttl + ".png", dpi=300)
+
+
+if __name__ == "__main__":
+
+    results_directory = MultiplexedPath(
+        "/Users/csmith/Data/testing_geoenvo/full_batch/responses"
+    )
+
+    # # Generate summary of geoenv directory
+    # summary = summarize_geoenv_directory(directory)
+
+    # Load and reformat data
+    all_env_df = load_all_environments(results_directory)
+    long_df = reformat_environments_to_long(all_env_df)
+    grouped_df = prepare_plotting_data(long_df)
+
+    # Create and save plots
+    plot_grouped_bar_charts(
+        grouped_df, output_dir="/Users/csmith/Data/testing_geoenvo/full_batch/plots/"
+    )

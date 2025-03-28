@@ -13,6 +13,7 @@ from spinneret.plot import (
     count_unique_environments_by_data_source,
     calculate_unresolvable_geometry_percentage,
     summarize_geoenv_directory,
+    reformat_environments_to_long,
 )
 
 
@@ -238,3 +239,28 @@ def test_summarize_geoenv_directory():
     assert expected_sources.issubset(
         summary["unique_environments_by_data_source"].keys()
     )
+
+
+def test_reformat_environments_to_long():
+    """Test that the reformat_environments_to_long function can reformat a
+    wide DataFrame into a long format."""
+    df_wide = load_all_environments(files("tests.data.geoenv"))
+    df_long = reformat_environments_to_long(df_wide)
+
+    # Check type and structure
+    assert isinstance(df_long, pd.DataFrame)
+    assert set(df_long.columns) == {"identifier", "dataSource", "property", "value"}
+
+    # There should be more rows in long format than in wide format
+    assert len(df_long) > len(df_wide)
+
+    # Spot-check some known values
+    assert "temperature" in df_long["property"].values
+    assert "salinity" in df_long["property"].values
+
+    # Check that no null values remain in the 'value' column
+    assert df_long["value"].isnull().sum() == 0
+
+    # Check that all rows have an identifier and dataSource
+    assert df_long["identifier"].isnull().sum() == 0
+    assert df_long["dataSource"].isnull().sum() == 0
