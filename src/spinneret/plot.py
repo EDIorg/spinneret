@@ -250,6 +250,13 @@ def prepare_plotting_data(df_long: pd.DataFrame) -> pd.DataFrame:
     - Counting unique identifiers
     """
     df_clean = df_long.drop_duplicates()
+
+    # Remove the `ecosystem` property due to its low information density and
+    # performance impact. This property, a concatenation of all environmental
+    # properties, generates numerous unhelpful permutations and significantly
+    # increases processing time during plot generation.
+    df_clean = df_clean[df_clean["property"] != "ecosystem"]
+
     grouped = (
         df_clean.groupby(["dataSource", "property", "value"])["identifier"]
         .nunique()
