@@ -265,6 +265,7 @@ def prepare_plotting_data(df_long: pd.DataFrame) -> pd.DataFrame:
     )
     return grouped
 
+
 # pylint: disable=too-many-locals
 def plot_grouped_bar_charts(df_grouped: pd.DataFrame, output_dir: str) -> None:
     """
