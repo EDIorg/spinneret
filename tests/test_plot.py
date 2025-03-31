@@ -14,6 +14,7 @@ from spinneret.plot import (
     calculate_unresolvable_geometry_percentage,
     summarize_geoenv_directory,
     reformat_environments_to_long,
+    prepare_plotting_data,
 )
 
 
@@ -264,3 +265,41 @@ def test_reformat_environments_to_long():
     # Check that all rows have an identifier and dataSource
     assert df_long["identifier"].isnull().sum() == 0
     assert df_long["dataSource"].isnull().sum() == 0
+
+
+def test_prepare_plotting_data():
+    """Test that the prepare_plotting_data function removes duplicates,
+    drops the 'ecosystem' property, and groups by 'dataSource', 'property',
+    and 'value'."""
+    # Sample data
+    data = {
+        "identifier": ["id1", "id2", "id3", "id1"],
+        "dataSource": ["source1", "source1", "source2", "source1"],
+        "property1": [10, 20, 30, 10],
+        "ecosystem": ["eco1", "eco2", "eco3", "eco1"],
+    }
+    df_long = reformat_environments_to_long(pd.DataFrame(data))
+
+    # Call the function
+    df_grouped = prepare_plotting_data(df_long)
+
+    # Check that there are no duplicates
+    assert df_grouped.duplicated().sum() == 0
+
+    # Check that the 'ecosystem' property has been removed
+    assert "ecosystem" not in df_grouped.columns
+
+    # Check that the returned DataFrame is grouped by 'dataSource', 'property',
+    # and 'value'
+    expected_columns = {"dataSource", "property", "value", "count"}
+    assert set(df_grouped.columns) == expected_columns
+
+    # Check that the counts are correct
+    expected_counts = {
+        ("source1", "property1", 10): 1,
+        ("source1", "property1", 20): 1,
+        ("source2", "property1", 30): 1,
+    }
+    for _, row in df_grouped.iterrows():
+        key = (row["dataSource"], row["property"], row["value"])
+        assert row["count"] == expected_counts[key]
