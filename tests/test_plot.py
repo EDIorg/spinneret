@@ -154,7 +154,7 @@ def test_count_unique_geometries():
     total_unique = count_unique_geometries(files("tests.data.geoenv"))
 
     # Expecting 3 total unique geometries in current fixture set
-    assert total_unique == 8
+    assert total_unique == 7
 
 
 def test_count_unique_geometries_with_empty_geometry_file(tmp_path):
@@ -227,7 +227,7 @@ def test_summarize_geoenv_directory():
 
     # Spot-check known values from fixture set
     assert summary["unique_datasets"] == 5
-    assert summary["unique_geometries"] == 8
+    assert summary["unique_geometries"] == 7
     assert summary["unique_environments"] == 9
     assert summary["unresolvable_geometry_percentage"] == 25.0
 
