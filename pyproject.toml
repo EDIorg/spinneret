@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "spinneret"
-version = "0.5.0"
+version = "0.6.0"
 description = "For integrating EDI into the Semantic Web"
 authors = ["Colin Smith <colin.smith@wisc.edu>"]
 maintainers = ["Colin Smith <colin.smith@wisc.edu>"]

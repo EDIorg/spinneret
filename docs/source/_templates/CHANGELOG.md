@@ -3,6 +3,29 @@
 
 
 
+## v0.6.0 (2025-04-02)
+
+
+### Bug fixes
+
+* fix: remove `ecosystem` property from `geoenv` results ([`18831bb`](https://github.com/EDIorg/spinneret/commit/18831bb786b5ad78cb7e79e52bcbfb7e7c154bd3)) 
+
+### Build system
+
+* build: update environment to install `geoenvo` from main branch ([`2b50014`](https://github.com/EDIorg/spinneret/commit/2b5001448538be0d04027d3702f6513259a74d18)) 
+
+### Features
+
+* feat: implement summarization for geoenvo results ([`64b7081`](https://github.com/EDIorg/spinneret/commit/64b7081b46709c56c5d602ee437c013b9dcbc82a)) 
+
+### Refactoring
+
+* refactor: improve readability of `plot_grouped_bar_charts` ([`0061b26`](https://github.com/EDIorg/spinneret/commit/0061b26012b651c62266508fe58d2b28242a1932)) 
+
+### Testing
+
+* test: enhance unique geometry calculation test coverage ([`8660f85`](https://github.com/EDIorg/spinneret/commit/8660f85a56c3442e114c1dac1d3214ee2b40f8a1)) 
+
 ## v0.5.0 (2025-03-25)
 
 
