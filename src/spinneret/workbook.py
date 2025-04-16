@@ -298,3 +298,43 @@ def is_unannotated_row(row: pd.core.series.Series) -> bool:
         | (row["object_id"] is pd.NA)
     )
     return unannotated_row
+
+
+def bind_workbook_rows(x_path: str, y_path: str, out_path: str) -> None:
+    """
+    :param x_path: The path to the first workbook
+    :param y_path: The path to the second workbook
+    :returns: None
+    :notes: This function binds two workbooks together. It is assumed that
+        both workbooks have the same columns.
+    """
+    x = pd.read_csv(x_path)
+    y = pd.read_csv(y_path)
+    combined = pd.DataFrame(columns=x.columns)
+
+    # A simple set of joins to combine the workbooks is not possible due to the
+    # original splitting technique. So we brute force it here. :(
+    for row in x.iterrows():
+        # Get row in y where package_id and subject_xpath match x but match_type
+        # of y is not empty.
+        y_row = y[
+            (y["package_id"] == row[1]["package_id"])
+            & (y["subject_xpath"] == row[1]["subject_xpath"])
+            & (y["match_type"] != "")
+        ]
+        if len(y_row) != 0:
+            # Add the y_row to combined
+            combined = pd.concat([combined, y_row], ignore_index=True)
+        else:
+            # Add the x_row to combined
+            combined = pd.concat([combined, row[1].to_frame().T], ignore_index=True)
+
+    combined.to_csv(out_path, index=False)
+
+
+if __name__ == "__main__":
+    bind_workbook_rows(
+        "/Users/csmith/Data/gold_standard_dataset/colin.csv",
+        "/Users/csmith/Data/gold_standard_dataset/corinna.csv",
+        "/Users/csmith/Data/gold_standard_dataset/gold_standard_dataset_pre_release.tsv",
+    )
