@@ -610,3 +610,19 @@ def plot_similarity_scores_by_configuration(
     if output_file:
         plt.savefig(output_file, dpi=300)
     plt.show()
+
+
+if __name__ == "__main__":
+    # Example usage of the benchmark functions
+    standard_dir = "path/to/standard/dir"
+    test_dirs = ["path/to/test/dir1", "path/to/test/dir2"]
+    benchmark_results = benchmark_against_standard(standard_dir, test_dirs)
+    print(benchmark_results)
+
+    # Example usage of the plotting functions
+    plot_similarity_scores_by_predicate(
+        benchmark_results, test_dirs[0], "average_score", "output.png"
+    )
+    plot_similarity_scores_by_configuration(
+        benchmark_results, "average_score", "output_config.png"
+    )
