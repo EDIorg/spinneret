@@ -337,9 +337,53 @@ def bind_workbook_rows(x_path: str, y_path: str, out_path: str) -> None:
     combined.to_csv(out_path, index=False)
 
 
+def qc_workbook_rows(x_path: str, y_path: str, out_path: str) -> None:
+    """
+    :param x_path: The path to the first workbook
+    :param y_path: The path to the second workbook, rows of which will replace
+        the rows in the first workbook.
+    :returns: None
+    """
+    x = pd.read_csv(x_path)
+    y = pd.read_csv(y_path)
+    combined = pd.DataFrame(columns=x.columns)
+
+    for row in x.iterrows():
+        x_row = row[1].to_frame().T
+        y_row = y[
+            (y["column_description"] == row[1]["subject_description"])
+            & (y["column_names"] == row[1]["subject_label"])
+            & (y["object_name"] == row[1]["subject_context"])
+        ]
+        if len(y_row) != 0:
+            if len(x_row) > 1:
+                print(
+                    f"Warning: {len(x_row)} rows in x match {y_row['object_name'].values[0]} in y."
+                )
+            x_row["object_label"] = y_row["object_label"].values[0]
+            x_row["object_id"] = y_row["object_id"].values[0]
+            x_row["author"] = y_row["author"].values[0]
+            x_row["date"] = y_row["date"].values[0]
+            x_row["match_type"] = y_row["match_type"].values[0]
+            combined = pd.concat([combined, x_row], ignore_index=True)
+        else:
+            combined = pd.concat([combined, x_row], ignore_index=True)
+
+    combined.to_csv(out_path, index=False)
+
+
+
+
 if __name__ == "__main__":
-    bind_workbook_rows(
-        "/Users/csmith/Data/gold_standard_dataset/gold_standard_dataset_pre_release.csv",
-        "/Users/csmith/Data/gold_standard_dataset/susanne.csv",
-        "/Users/csmith/Data/gold_standard_dataset/gold_standard_dataset_pre_release.tsv",
+    qc_workbook_rows(
+        "/Users/csmith/Data/gold_standard_dataset/gold_standard_dataset.csv",
+        "/Users/csmith/Data/gold_standard_dataset/k_greaterthan_5_fixed.csv",
+        "/Users/csmith/Data/gold_standard_dataset/gold_standard_dataset_pre_release_qcd.tsv",
     )
+
+
+    # bind_workbook_rows(
+    #     "/Users/csmith/Data/gold_standard_dataset/gold_standard_dataset_pre_release.csv",
+    #     "/Users/csmith/Data/gold_standard_dataset/susanne.csv",
+    #     "/Users/csmith/Data/gold_standard_dataset/gold_standard_dataset_pre_release.tsv",
+    # )
