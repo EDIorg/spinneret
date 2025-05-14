@@ -315,26 +315,31 @@ def bind_workbook_rows(x_path: str, y_path: str, out_path: str) -> None:
     # A simple set of joins to combine the workbooks is not possible due to the
     # original splitting technique. So we brute force it here. :(
     for row in x.iterrows():
-        # Get row in y where package_id and subject_xpath match x but match_type
-        # of y is not empty.
-        y_row = y[
-            (y["package_id"] == row[1]["package_id"])
-            & (y["subject_xpath"] == row[1]["subject_xpath"])
-            & (y["match_type"] != "")
-        ]
-        if len(y_row) != 0:
-            # Add the y_row to combined
-            combined = pd.concat([combined, y_row], ignore_index=True)
+        x_row = row[1].to_frame().T
+        # If x_row's match_type is empty, then we need to check if y_row has a
+        # match_type that is not empty. If so, we need to add the y_row to
+        # combined.
+        if x_row["match_type"].isna().any():
+            # Get row in y where package_id and subject_xpath match x but
+            # match_type of y is not empty.
+            y_row = y[
+                (y["package_id"] == row[1]["package_id"])
+                & (y["subject_xpath"] == row[1]["subject_xpath"])
+                & (~y["match_type"].isna())
+            ]
+            if len(y_row) != 0:
+                combined = pd.concat([combined, y_row], ignore_index=True)
+            else:
+                combined = pd.concat([combined, x_row], ignore_index=True)
         else:
-            # Add the x_row to combined
-            combined = pd.concat([combined, row[1].to_frame().T], ignore_index=True)
+            combined = pd.concat([combined, x_row], ignore_index=True)
 
     combined.to_csv(out_path, index=False)
 
 
 if __name__ == "__main__":
     bind_workbook_rows(
-        "/Users/csmith/Data/gold_standard_dataset/colin.csv",
-        "/Users/csmith/Data/gold_standard_dataset/corinna.csv",
+        "/Users/csmith/Data/gold_standard_dataset/gold_standard_dataset_pre_release.csv",
+        "/Users/csmith/Data/gold_standard_dataset/susanne.csv",
         "/Users/csmith/Data/gold_standard_dataset/gold_standard_dataset_pre_release.tsv",
     )
