@@ -727,8 +727,8 @@ def has_annotation(
 
 def get_geoenv_response_data(eml: str, data_sources: list) -> List[dict]:
     """
-    Get `geoenv` response data for each Geographic Coverage in an EML file. The
-    data is the raw JSON response from the `geoenv` resolver, which includes
+    Get `geoenvo` response data for each Geographic Coverage in an EML file. The
+    data is the raw JSON response from the `geoenvo` resolver, which includes
     environmental properties and the data source used to resolve them. This
     raw data can be further processed to extract specific properties of
     interest.
