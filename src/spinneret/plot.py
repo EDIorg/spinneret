@@ -13,7 +13,7 @@ from matplotlib.patheffects import withStroke
 
 def extract_environments_from_file(file_path: PosixPath) -> List[dict]:
     """
-    Extracts the environment data from a geoenv JSON file.
+    Extracts the environment data from a geoenvo JSON file.
     :param file_path: Path to the geoenv JSON file.
     :return: The extracted environment data.
     """
