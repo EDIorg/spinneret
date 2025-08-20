@@ -8,16 +8,16 @@ license = "MIT"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = ">=3.11,<3.14"
 pandas = "^2.2.2"
 rdflib = "^7.0.0"
 lxml = "^5.3.0"
 soso = {git = "https://github.com/clnsmth/soso.git", rev = "main"}
-ontogpt = "^1.0.6"
+ontogpt = "^1.0.14"
 daiquiri = "^3.2.5.1"
 matplotlib = "^3.10.0"
 geopandas = "^1.0.1"
-geoenvo = {git = "https://github.com/clnsmth/geoenvo.git", rev = "development"}
+geoenvo = {git = "https://github.com/clnsmth/geoenvo.git", rev = "main"}
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.2"
