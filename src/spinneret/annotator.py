@@ -4,13 +4,16 @@ import os
 import tempfile
 from importlib import resources
 from json import loads, decoder, load
-from typing import Union, List
+from typing import Union
 from requests import get, exceptions
 import pandas as pd
 from lxml import etree
 from daiquiri import getLogger
-from geoenvo.resolver import Resolver
-from geoenvo.geometry import Geometry
+
+# FIXME: Refactor to use geoenv (https://github.com/clnsmth/geoenv)
+# from geoenvo.resolver import Resolver
+# from geoenvo.geometry import Geometry
+
 from spinneret.workbook import (
     delete_annotations,
     initialize_workbook_row,
@@ -30,6 +33,7 @@ from spinneret.utilities import (
     get_template_for_predicate,
     get_predicate_id_for_predicate,
 )
+# FIXME: Refactor to use geoenv (https://github.com/clnsmth/geoenv)
 from spinneret.eml import get_geographic_coverage
 
 logger = getLogger(__name__)
@@ -725,36 +729,37 @@ def has_annotation(
     return bool(matching_rows.any())
 
 
-def get_geoenv_response_data(eml: str, data_sources: list) -> List[dict]:
-    """
-    Get `geoenvo` response data for each Geographic Coverage in an EML file. The
-    data is the raw JSON response from the `geoenvo` resolver, which includes
-    environmental properties and the data source used to resolve them. This
-    raw data can be further processed to extract specific properties of
-    interest.
-
-    :param eml: Path to the EML metadata document in XML format.
-    :param data_sources: A list of geoenvo data sources to use for resolution.
-    :return: A list of JSON values returned by the geoenvo.Resolver.resolve
-        method.
-    """
-    # Initialize the resolver
-    resolver = Resolver(data_sources)
-
-    # Get the list of GeographicCoverage objects
-    geographic_coverages = get_geographic_coverage(eml)
-    identifier = get_package_id(load_eml(eml))
-
-    # Resolve the environments
-    environments = []
-    if geographic_coverages:
-        for gc in geographic_coverages:
-            geojson = gc.to_geojson_geometry()
-            if geojson is None:  # geographicCoverage has ID references
-                continue
-            geometry = Geometry(loads(geojson))
-            response = resolver.resolve(
-                geometry, identifier=identifier, description=gc.description()
-            )
-            environments.append(response.data)
-    return environments
+# FIXME: Refactor to use geoenv (https://github.com/clnsmth/geoenv)
+# def get_geoenv_response_data(eml: str, data_sources: list) -> List[dict]:
+#     """
+#     Get `geoenvo` response data for each Geographic Coverage in an EML file. The
+#     data is the raw JSON response from the `geoenvo` resolver, which includes
+#     environmental properties and the data source used to resolve them. This
+#     raw data can be further processed to extract specific properties of
+#     interest.
+#
+#     :param eml: Path to the EML metadata document in XML format.
+#     :param data_sources: A list of geoenvo data sources to use for resolution.
+#     :return: A list of JSON values returned by the geoenvo.Resolver.resolve
+#         method.
+#     """
+#     # Initialize the resolver
+#     resolver = Resolver(data_sources)
+#
+#     # Get the list of GeographicCoverage objects
+#     geographic_coverages = get_geographic_coverage(eml)
+#     identifier = get_package_id(load_eml(eml))
+#
+#     # Resolve the environments
+#     environments = []
+#     if geographic_coverages:
+#         for gc in geographic_coverages:
+#             geojson = gc.to_geojson_geometry()
+#             if geojson is None:  # geographicCoverage has ID references
+#                 continue
+#             geometry = Geometry(loads(geojson))
+#             response = resolver.resolve(
+#                 geometry, identifier=identifier, description=gc.description()
+#             )
+#             environments.append(response.data)
+#     return environments

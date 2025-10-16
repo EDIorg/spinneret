@@ -1,12 +1,15 @@
 """Test annotator code"""
 
 import os
-from importlib.resources import files
+# FIXME: Refactor to use geoenv (https://github.com/clnsmth/geoenv)
+# from importlib.resources import files
 from shutil import copyfile
 
 import pandas as pd
 import pytest
-from geoenvo.data_sources import WorldTerrestrialEcosystems
+
+# FIXME: Refactor to use geoenv (https://github.com/clnsmth/geoenv)
+# from geoenvo.data_sources import WorldTerrestrialEcosystems
 from lxml import etree
 
 from spinneret import annotator
@@ -18,7 +21,8 @@ from spinneret.annotator import (
     get_annotation_from_workbook,
     has_annotation,
     add_predicate_annotations_to_workbook,
-    get_geoenv_response_data,
+    # FIXME: Refactor to use geoenv (https://github.com/clnsmth/geoenv)
+    # get_geoenv_response_data,
 )
 from spinneret.utilities import (
     load_configuration,
@@ -501,19 +505,19 @@ def test_has_annotation(annotated_workbook):
     )
 
 
-def test_get_geoenv_response_data():
-    """Test get_geoenv_response_data"""
-
-    # Positive test case: EML has geographic coverage
-    eml_file = str(files("spinneret.data.eml").joinpath("edi.2.2.xml"))
-    data_source = WorldTerrestrialEcosystems()
-    response = get_geoenv_response_data(eml_file, data_sources=[data_source])
-    assert isinstance(response, list)
-    for item in response:
-        assert isinstance(item, dict)
-
-    # Negative test case: EML has no geographic coverage
-    eml_file = str(files("spinneret.data.eml").joinpath("edi.3.9_no_geocoverage.xml"))
-    response = get_geoenv_response_data(eml_file, data_sources=[data_source])
-    assert isinstance(response, list)
-    assert len(response) == 0
+# def test_get_geoenv_response_data():
+#     """Test get_geoenv_response_data"""
+#
+#     # Positive test case: EML has geographic coverage
+#     eml_file = str(files("spinneret.data.eml").joinpath("edi.2.2.xml"))
+#     data_source = WorldTerrestrialEcosystems()
+#     response = get_geoenv_response_data(eml_file, data_sources=[data_source])
+#     assert isinstance(response, list)
+#     for item in response:
+#         assert isinstance(item, dict)
+#
+#     # Negative test case: EML has no geographic coverage
+#     eml_file = str(files("spinneret.data.eml").joinpath("edi.3.9_no_geocoverage.xml"))
+#     response = get_geoenv_response_data(eml_file, data_sources=[data_source])
+#     assert isinstance(response, list)
+#     assert len(response) == 0

@@ -1,7 +1,5 @@
 """The main module"""
 
-import glob
-import json
 import os
 from pathlib import Path
 from typing import Union
@@ -15,7 +13,8 @@ from spinneret import workbook
 from spinneret.annotator import (
     annotate_workbook,
     annotate_eml,
-    get_geoenv_response_data,
+    # FIXME: Refactor to use geoenv (https://github.com/clnsmth/geoenv)
+    # get_geoenv_response_data,
 )
 from spinneret.utilities import load_configuration
 from spinneret.graph import create_graph
@@ -327,43 +326,46 @@ def create_kgraph(soso_dir: str, vocabulary_dir: str) -> Graph:
     return kgraph
 
 
-def create_geoenv_data_files(
-    eml_dir: str, output_dir: str, data_sources: list, overwrite=False
-):
-    """
-    Create GeoEnv data files for each EML file in a directory
-    :param eml_dir: Path to directory containing EML files
-    :param output_dir: Path to directory to save GeoEnv data files
-    :param overwrite: Overwrite existing files, default is False
-    :return: None
-    """
-    files = glob.glob(os.path.join(eml_dir, "*.xml"))
-    # Iterate over EML files
-    for file in files:
-        file_name = os.path.splitext(os.path.basename(file))[0]
-        output_file_path = os.path.join(output_dir, file_name + ".json")
-
-        # Don't overwrite existing json files unless specified
-        if os.path.isfile(output_file_path) and not overwrite:
-            continue
-        logger.info(file)
-
-        # Get the GeoEnv response data
-        response = get_geoenv_response_data(file, data_sources=data_sources)
-        result = {"data": response}
-
-        # Write the data to a file
-        with open(output_file_path, "w", encoding="utf-8") as f:
-            json.dump(result, f)
+# FIXME: Refactor to use geoenv (https://github.com/clnsmth/geoenv)
+# def create_geoenv_data_files(
+#     eml_dir: str, output_dir: str, data_sources: list, overwrite=False
+# ):
+#     """
+#     Create GeoEnv data files for each EML file in a directory
+#     :param eml_dir: Path to directory containing EML files
+#     :param output_dir: Path to directory to save GeoEnv data files
+#     :param overwrite: Overwrite existing files, default is False
+#     :return: None
+#     """
+#     files = glob.glob(os.path.join(eml_dir, "*.xml"))
+#     # Iterate over EML files
+#     for file in files:
+#         file_name = os.path.splitext(os.path.basename(file))[0]
+#         output_file_path = os.path.join(output_dir, file_name + ".json")
+#
+#         # Don't overwrite existing json files unless specified
+#         if os.path.isfile(output_file_path) and not overwrite:
+#             continue
+#         logger.info(file)
+#
+#         # Get the GeoEnv response data
+#         response = get_geoenv_response_data(file, data_sources=data_sources)
+#         result = {"data": response}
+#
+#         # Write the data to a file
+#         with open(output_file_path, "w", encoding="utf-8") as f:
+#             json.dump(result, f)
 
 
 if __name__ == "__main__":
     import logging
-    from geoenvo.data_sources import (
-        WorldTerrestrialEcosystems,
-        EcologicalMarineUnits,
-        EcologicalCoastalUnits,
-    )
+
+    # FIXME: Refactor to use geoenv (https://github.com/clnsmth/geoenv)
+    # from geoenvo.data_sources import (
+    #     WorldTerrestrialEcosystems,
+    #     EcologicalMarineUnits,
+    #     EcologicalCoastalUnits,
+    # )
 
     SCOPE = "remainder"
 
@@ -379,20 +381,21 @@ if __name__ == "__main__":
         ),
     )
 
-    ecu = EcologicalCoastalUnits()
-    ecu.buffer = 1
-    sources = [
-        WorldTerrestrialEcosystems(),
-        ecu,
-        EcologicalMarineUnits(),
-    ]
-
-    create_geoenv_data_files(
-        eml_dir="/Users/csmith/Data/testing_geoenvo/full_batch/eml",
-        output_dir="/Users/csmith/Data/testing_geoenvo/full_batch/responses",
-        data_sources=sources,
-        overwrite=False,
-    )
+    # FIXME: Refactor to use geoenv (https://github.com/clnsmth/geoenv)
+    # ecu = EcologicalCoastalUnits()
+    # ecu.buffer = 1
+    # sources = [
+    #     WorldTerrestrialEcosystems(),
+    #     ecu,
+    #     EcologicalMarineUnits(),
+    # ]
+    #
+    # create_geoenv_data_files(
+    #     eml_dir="/Users/csmith/Data/testing_geoenvo/full_batch/eml",
+    #     output_dir="/Users/csmith/Data/testing_geoenvo/full_batch/responses",
+    #     data_sources=sources,
+    #     overwrite=False,
+    # )
 
     # create_workbooks(
     #     eml_dir="/Users/csmith/Data/kgraph/eml/raw",
