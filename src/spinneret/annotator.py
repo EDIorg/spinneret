@@ -33,6 +33,7 @@ from spinneret.utilities import (
     get_template_for_predicate,
     get_predicate_id_for_predicate,
 )
+
 # FIXME: Refactor to use geoenv (https://github.com/clnsmth/geoenv)
 from spinneret.eml import get_geographic_coverage
 
