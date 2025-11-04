@@ -3,20 +3,20 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - black
-  - daiquiri
   - geopandas
-  - lxml
-  - matplotlib
-  - myst-parser
-  - pandas
-  - pylint
-  - pytest
-  - pytest-cov
   - pytest-mock
-  - python-semantic-release
-  - python=3.11.11
-  - rdflib
-  - sphinx
+  - daiquiri
   - sphinx-autoapi
+  - pylint
+  - matplotlib
+  - lxml
+  - pytest-cov
+  - pandas
+  - myst-parser
+  - python-semantic-release
+  - sphinx
+  - pytest
+  - python=3.11.11
+  - black
+  - rdflib
 prefix: /opt/miniconda3/envs/spinneret

@@ -1,6 +1,7 @@
 """Test annotator code"""
 
 import os
+
 # FIXME: Refactor to use geoenv (https://github.com/clnsmth/geoenv)
 # from importlib.resources import files
 from shutil import copyfile
