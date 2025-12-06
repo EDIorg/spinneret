@@ -112,7 +112,7 @@ typing_extensions==4.15.0
 typing-inspection==0.4.2
 tzdata==2025.2
 unicodedata2==17.0.0
-urllib3==2.5.0
+urllib3==2.6.0
 wheel==0.45.1
 wrapt==1.17.3
 xyzservices==2025.11.0
