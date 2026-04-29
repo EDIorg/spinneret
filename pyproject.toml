@@ -26,7 +26,7 @@ sphinx = "^8.0.2"
 sphinx-autoapi = "^3.2.1"
 myst-parser = "^4.0.0"
 pylint = "^3.2.6"
-black = "^24.8.0"
+black = "^26.3.1"
 python-semantic-release = "^9.8.7"
 
 [tool.semantic_release]
